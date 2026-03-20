@@ -26,6 +26,23 @@ const RegisterPage = () => {
         setError('');
         setSuccess('');
 
+        const universityEmailRegex = /^it\d{8}@my\.sliit\.lk$/;
+
+        // Students must use university email
+        if (formData.role === 'student') {
+            if (!universityEmailRegex.test(formData.email)) {
+                return setError('Please use your university email (format: it12345678@my.sliit.lk)');
+            }
+        }
+
+        // Employers cannot use university email
+        if (formData.role === 'employer') {
+            if (universityEmailRegex.test(formData.email)) {
+                return setError('Employers cannot register with a university email. Please use your company email.');
+            }
+        }
+
+        // Validate passwords match
         if (formData.password !== formData.confirmPassword) {
             return setError('Passwords do not match');
         }
@@ -98,7 +115,7 @@ const RegisterPage = () => {
                                     name="email"
                                     value={formData.email}
                                     onChange={handleChange}
-                                    placeholder="Enter your university email"
+                                    placeholder={formData.role === 'student' ? 'it12345678@my.sliit.lk' : 'Enter your company email'}
                                     style={styles.input}
                                     required
                                 />

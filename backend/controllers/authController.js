@@ -11,6 +11,22 @@ const registerUser = async (req, res) => {
     try {
         const { name, email, password, role } = req.body;
 
+        const universityEmailRegex = /^it\d{8}@my\.sliit\.lk$/;
+
+        // Students must use university email
+        if (role === 'student') {
+            if (!universityEmailRegex.test(email)) {
+                return res.status(400).json({ message: 'Please use your university email (format: it12345678@my.sliit.lk)' });
+            }
+        }
+
+        // Employers cannot use university email
+        if (role === 'employer') {
+            if (universityEmailRegex.test(email)) {
+                return res.status(400).json({ message: 'Employers cannot register with a university email. Please use your company email.' });
+            }
+        }
+
         // Check if user already exists
         const userExists = await User.findOne({ email });
         if (userExists) {
