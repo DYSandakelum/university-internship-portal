@@ -1,4 +1,7 @@
 import React from 'react';
+import RegisterPage from './pages/auth/RegisterPage';
+import LoginPage from './pages/auth/LoginPage';
+import VerifyEmailPage from './pages/auth/VerifyEmailPage';
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
 
 function App() {
@@ -8,9 +11,9 @@ function App() {
                 <Routes>
                     {/* Auth Routes */}
                     <Route path="/" element={<h1>Welcome to University Internship Portal</h1>} />
-                    <Route path="/register" element={<h1>Register Page</h1>} />
-                    <Route path="/login" element={<h1>Login Page</h1>} />
-                    <Route path="/verify-email/:token" element={<h1>Verify Email Page</h1>} />
+                    <Route path="/register" element={<RegisterPage />} />
+                    <Route path="/login" element={<LoginPage />} />
+                    <Route path="/verify-email/:token" element={<VerifyEmailPage />} />
 
                     {/* Student Routes */}
                     <Route path="/student/dashboard" element={<h1>Student Dashboard</h1>} />
