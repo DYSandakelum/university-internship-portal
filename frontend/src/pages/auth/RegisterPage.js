@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { useAuth } from '../../context/AuthContext';
+import Navbar from '../../components/Navbar';
 
 const RegisterPage = () => {
     const [formData, setFormData] = useState({
@@ -70,14 +71,7 @@ const RegisterPage = () => {
     return (
         <div style={styles.container}>
             {/* Navbar */}
-            <nav style={styles.navbar}>
-                <div style={styles.navBrand}>🎓 Internship Portal</div>
-                <div style={styles.navLinks}>
-                    <Link to="/" style={styles.navLink}>Home</Link>
-                    <Link to="/login" style={styles.navLink}>Login</Link>
-                    <Link to="/register" style={styles.navLinkActive}>Register</Link>
-                </div>
-            </nav>
+            <Navbar />
 
             {/* Main Content */}
             <div style={styles.main}>
@@ -187,41 +181,7 @@ const styles = {
         display: 'flex',
         flexDirection: 'column'
     },
-    // Navbar
-    navbar: {
-        background: 'linear-gradient(135deg, #6366f1 0%, #8b5cf6 100%)',
-        padding: '0 32px',
-        display: 'flex',
-        alignItems: 'center',
-        justifyContent: 'space-between',
-        height: '60px',
-        boxShadow: '0 2px 8px rgba(99,102,241,0.15)'
-    },
-    navBrand: {
-        color: '#ffffff',
-        fontSize: '20px',
-        fontWeight: '700',
-        letterSpacing: '0.5px'
-    },
-    navLinks: {
-        display: 'flex',
-        gap: '24px',
-        alignItems: 'center'
-    },
-    navLink: {
-        color: 'rgba(255,255,255,0.85)',
-        textDecoration: 'none',
-        fontSize: '14px',
-        fontWeight: '500'
-    },
-    navLinkActive: {
-        color: '#ffffff',
-        textDecoration: 'none',
-        fontSize: '14px',
-        fontWeight: '700',
-        borderBottom: '2px solid #ffffff',
-        paddingBottom: '2px'
-    },
+    
     // Main
     main: {
         flex: 1,
