@@ -1,4 +1,5 @@
 const User = require('../models/User');
+const bcrypt = require('bcryptjs');
 const generateToken = require('../utils/generateToken');
 const crypto = require('crypto');
 const sendEmail = require('../utils/sendEmail');
@@ -10,51 +11,73 @@ const registerUser = async (req, res) => {
     try {
         const { name, email, password, role } = req.body;
 
+        const universityEmailRegex = /^it\d{8}@my\.sliit\.lk$/;
+
+        // Students must use university email
+        if (role === 'student') {
+            if (!universityEmailRegex.test(email)) {
+                return res.status(400).json({ message: 'Please use your university email (format: it12345678@my.sliit.lk)' });
+            }
+        }
+
+        // Employers cannot use university email
+        if (role === 'employer') {
+            if (universityEmailRegex.test(email)) {
+                return res.status(400).json({ message: 'Employers cannot register with a university email. Please use your company email.' });
+            }
+        }
+
         // Check if user already exists
         const userExists = await User.findOne({ email });
         if (userExists) {
             return res.status(400).json({ message: 'User already exists with this email' });
         }
 
+        // Hash password manually
+        const salt = await bcrypt.genSalt(10);
+        const hashedPassword = await bcrypt.hash(password, salt);
+
         // Create verification token
         const verificationToken = crypto.randomBytes(32).toString('hex');
-        const verificationTokenExpire = Date.now() + 24 * 60 * 60 * 1000; // 24 hours
+        const verificationTokenExpire = Date.now() + 24 * 60 * 60 * 1000;
 
-        // Create user
+        // Create user with hashed password
         const user = await User.create({
             name,
             email,
-            password,
+            password: hashedPassword,
             role,
             verificationToken,
             verificationTokenExpire
         });
 
         if (user) {
-            // Send verification email
-            const verificationURL = `${process.env.CLIENT_URL}/verify-email/${verificationToken}`;
-
-            const html = `
-                <h1>Email Verification</h1>
-                <p>Hi ${user.name},</p>
-                <p>Thank you for registering at University Internship Portal.</p>
-                <p>Please click the link below to verify your email address:</p>
-                <a href="${verificationURL}" style="
-                    background-color: #4CAF50;
-                    color: white;
-                    padding: 14px 20px;
-                    text-decoration: none;
-                    border-radius: 4px;
-                ">Verify Email</a>
-                <p>This link will expire in 24 hours.</p>
-                <p>If you did not create an account, please ignore this email.</p>
-            `;
-
-            await sendEmail({
-                email: user.email,
-                subject: 'Email Verification - University Internship Portal',
-                html
-            });
+            // Try to send verification email separately
+            try {
+                const verificationURL = `${process.env.CLIENT_URL}/verify-email/${verificationToken}`;
+                const html = `
+                    <h1>Email Verification</h1>
+                    <p>Hi ${user.name},</p>
+                    <p>Thank you for registering at University Internship Portal.</p>
+                    <p>Please click the link below to verify your email address:</p>
+                    <a href="${verificationURL}" style="
+                        background-color: #6366f1;
+                        color: white;
+                        padding: 14px 20px;
+                        text-decoration: none;
+                        border-radius: 4px;
+                    ">Verify Email</a>
+                    <p>This link will expire in 24 hours.</p>
+                    <p>If you did not create an account, please ignore this email.</p>
+                `;
+                await sendEmail({
+                    email: user.email,
+                    subject: 'Email Verification - University Internship Portal',
+                    html
+                });
+            } catch (emailError) {
+                console.error('Email sending failed:', emailError.message);
+            }
 
             res.status(201).json({
                 message: 'Registration successful! Please check your email to verify your account.',
@@ -69,7 +92,8 @@ const registerUser = async (req, res) => {
         }
 
     } catch (error) {
-        res.status(500).json({ message: 'Server error', error: error.message });
+        console.error('Register error:', error);
+        res.status(500).json({ message: error.message || 'Server error' });
     }
 };
 
@@ -79,18 +103,19 @@ const registerUser = async (req, res) => {
 const verifyEmail = async (req, res) => {
     try {
         const { token } = req.params;
+        console.log('Verification token received:', token);
 
-        // Find user with this token and check it hasn't expired
         const user = await User.findOne({
             verificationToken: token,
             verificationTokenExpire: { $gt: Date.now() }
         });
 
+        console.log('User found:', user);
+
         if (!user) {
             return res.status(400).json({ message: 'Invalid or expired verification token' });
         }
 
-        // Update user directly in database without triggering pre save hook
         await User.findByIdAndUpdate(user._id, {
             $set: { isVerified: true },
             $unset: { verificationToken: 1, verificationTokenExpire: 1 }
