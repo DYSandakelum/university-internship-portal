@@ -29,24 +29,22 @@ const RegisterPage = () => {
 
         const universityEmailRegex = /^it\d{8}@my\.sliit\.lk$/;
 
-        // Students must use university email
         if (formData.role === 'student') {
             if (!universityEmailRegex.test(formData.email)) {
                 return setError('Please use your university email (format: it12345678@my.sliit.lk)');
             }
         }
 
-        // Employers cannot use university email
         if (formData.role === 'employer') {
             if (universityEmailRegex.test(formData.email)) {
                 return setError('Employers cannot register with a university email. Please use your company email.');
             }
         }
 
-        // Validate passwords match
         if (formData.password !== formData.confirmPassword) {
             return setError('Passwords do not match');
         }
+
         if (formData.password.length < 6) {
             return setError('Password must be at least 6 characters');
         }
@@ -69,227 +67,102 @@ const RegisterPage = () => {
     };
 
     return (
-        <div style={styles.container}>
-            {/* Navbar */}
+        <div className="auth-container">
             <Navbar />
-
-            {/* Main Content */}
-            <div style={styles.main}>
-                <div style={styles.card}>
-                    {/* Card Header */}
-                    <div style={styles.cardHeader}>
-                        <h1 style={styles.cardTitle}>✏️ Create Account</h1>
+            <div className="main-content-sm">
+                <div className="auth-card">
+                    <div className="auth-card-header">
+                        <h1 className="auth-card-title">✏️ Create Account</h1>
+                        <p className="auth-card-subtitle">Join the University Internship Portal</p>
                     </div>
+                    <div className="auth-card-body">
+                        {error && <div className="alert alert-error">⚠️ {error}</div>}
+                        {success && <div className="alert alert-success">✅ {success}</div>}
 
-                    {/* Card Body */}
-                    <div style={styles.cardBody}>
-                        <p style={styles.subtitle}>Join the University Internship Portal</p>
-
-                        {error && <div style={styles.error}>{error}</div>}
-                        {success && <div style={styles.success}>{success}</div>}
-
-                        <form onSubmit={handleSubmit} style={styles.form}>
-                            <div style={styles.inputGroup}>
-                                <label style={styles.label}>Full Name</label>
+                        <form onSubmit={handleSubmit} style={{display: 'flex', flexDirection: 'column', gap: '16px'}}>
+                            <div className="form-group">
+                                <label className="form-label">Full Name</label>
                                 <input
                                     type="text"
                                     name="name"
                                     value={formData.name}
                                     onChange={handleChange}
                                     placeholder="Enter your full name"
-                                    style={styles.input}
+                                    className="form-input"
                                     required
                                 />
                             </div>
 
-                            <div style={styles.inputGroup}>
-                                <label style={styles.label}>Email Address</label>
-                                <input
-                                    type="email"
-                                    name="email"
-                                    value={formData.email}
-                                    onChange={handleChange}
-                                    placeholder={formData.role === 'student' ? 'it12345678@my.sliit.lk' : 'Enter your company email'}
-                                    style={styles.input}
-                                    required
-                                />
-                            </div>
-
-                            <div style={styles.inputGroup}>
-                                <label style={styles.label}>Role</label>
+                            <div className="form-group">
+                                <label className="form-label">Role</label>
                                 <select
                                     name="role"
                                     value={formData.role}
                                     onChange={handleChange}
-                                    style={styles.input}
+                                    className="form-input"
                                 >
                                     <option value="student">Student</option>
                                     <option value="employer">Employer</option>
                                 </select>
                             </div>
 
-                            <div style={styles.inputGroup}>
-                                <label style={styles.label}>Password</label>
+                            <div className="form-group">
+                                <label className="form-label">Email Address</label>
+                                <input
+                                    type="email"
+                                    name="email"
+                                    value={formData.email}
+                                    onChange={handleChange}
+                                    placeholder={formData.role === 'student' ? 'it12345678@my.sliit.lk' : 'Enter your company email'}
+                                    className="form-input"
+                                    required
+                                />
+                            </div>
+
+                            <div className="form-group">
+                                <label className="form-label">Password</label>
                                 <input
                                     type="password"
                                     name="password"
                                     value={formData.password}
                                     onChange={handleChange}
                                     placeholder="Minimum 6 characters"
-                                    style={styles.input}
+                                    className="form-input"
                                     required
                                 />
                             </div>
 
-                            <div style={styles.inputGroup}>
-                                <label style={styles.label}>Confirm Password</label>
+                            <div className="form-group">
+                                <label className="form-label">Confirm Password</label>
                                 <input
                                     type="password"
                                     name="confirmPassword"
                                     value={formData.confirmPassword}
                                     onChange={handleChange}
                                     placeholder="Re-enter your password"
-                                    style={styles.input}
+                                    className="form-input"
                                     required
                                 />
                             </div>
 
                             <button
                                 type="submit"
-                                style={loading ? styles.buttonDisabled : styles.button}
+                                className={`btn btn-full btn-lg ${loading ? 'btn-disabled' : 'btn-primary'}`}
                                 disabled={loading}
                             >
                                 {loading ? 'Creating Account...' : '✏️ Create Account'}
                             </button>
                         </form>
 
-                        <p style={styles.bottomText}>
+                        <p className="auth-footer">
                             Already have an account?{' '}
-                            <Link to="/login" style={styles.link}>Login here</Link>
+                            <Link to="/login" className="auth-link">Login here</Link>
                         </p>
                     </div>
                 </div>
             </div>
         </div>
     );
-};
-
-const styles = {
-    container: {
-        minHeight: '100vh',
-        backgroundColor: '#f5f5f5',
-        display: 'flex',
-        flexDirection: 'column'
-    },
-    
-    // Main
-    main: {
-        flex: 1,
-        display: 'flex',
-        alignItems: 'center',
-        justifyContent: 'center',
-        padding: '40px 20px'
-    },
-    // Card
-    card: {
-        backgroundColor: '#ffffff',
-        borderRadius: '12px',
-        boxShadow: '0 4px 12px rgba(0,0,0,0.1)',
-        width: '100%',
-        maxWidth: '480px',
-        overflow: 'hidden'
-    },
-    cardHeader: {
-        background: 'linear-gradient(135deg, #6366f1 0%, #8b5cf6 100%)',
-        padding: '16px 24px'
-    },
-    cardTitle: {
-        color: '#ffffff',
-        fontSize: '20px',
-        fontWeight: '700',
-        margin: 0
-    },
-    cardBody: {
-        padding: '24px'
-    },
-    subtitle: {
-        fontSize: '14px',
-        color: '#666',
-        marginBottom: '20px',
-        textAlign: 'center'
-    },
-    error: {
-        backgroundColor: '#fee2e2',
-        color: '#dc2626',
-        padding: '12px',
-        borderRadius: '8px',
-        marginBottom: '16px',
-        fontSize: '14px'
-    },
-    success: {
-        backgroundColor: '#dcfce7',
-        color: '#16a34a',
-        padding: '12px',
-        borderRadius: '8px',
-        marginBottom: '16px',
-        fontSize: '14px'
-    },
-    form: {
-        display: 'flex',
-        flexDirection: 'column',
-        gap: '16px'
-    },
-    inputGroup: {
-        display: 'flex',
-        flexDirection: 'column',
-        gap: '6px'
-    },
-    label: {
-        fontSize: '13px',
-        fontWeight: '600',
-        color: '#444'
-    },
-    input: {
-        padding: '10px 12px',
-        borderRadius: '8px',
-        border: '1px solid #ddd',
-        fontSize: '14px',
-        outline: 'none',
-        backgroundColor: '#fafafa'
-    },
-    button: {
-        background: 'linear-gradient(135deg, #6366f1 0%, #8b5cf6 100%)',
-        color: '#ffffff',
-        padding: '12px',
-        borderRadius: '8px',
-        border: 'none',
-        fontSize: '15px',
-        fontWeight: '600',
-        cursor: 'pointer',
-        marginTop: '8px'
-    },
-    buttonDisabled: {
-        backgroundColor: '#a5b4fc',
-        color: '#ffffff',
-        padding: '12px',
-        borderRadius: '8px',
-        border: 'none',
-        fontSize: '15px',
-        fontWeight: '600',
-        cursor: 'not-allowed',
-        marginTop: '8px'
-    },
-    bottomText: {
-        textAlign: 'center',
-        marginTop: '20px',
-        fontSize: '14px',
-        color: '#666'
-    },
-    link: {
-        color: '#6366f1',
-        textDecoration: 'none',
-        fontWeight: '600'
-    }
 };
 
 export default RegisterPage;

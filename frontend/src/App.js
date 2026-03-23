@@ -1,4 +1,5 @@
 import React from 'react';
+import HomePage from './pages/HomePage';
 import RegisterPage from './pages/auth/RegisterPage';
 import LoginPage from './pages/auth/LoginPage';
 import VerifyEmailPage from './pages/auth/VerifyEmailPage';
@@ -9,6 +10,7 @@ import JobDetailsPage from './pages/student/JobDetailsPage';
 import ApplicationFormPage from './pages/student/ApplicationFormPage';
 import MyApplicationsPage from './pages/student/MyApplicationsPage';
 import StudentProfilePage from './pages/student/StudentProfilePage';
+import PublicRoute from './components/PublicRoute';
 
 function App() {
     return (
@@ -16,9 +18,17 @@ function App() {
             <div className="App">
                 <Routes>
                     {/* Auth Routes */}
-                    <Route path="/" element={<h1>Welcome to University Internship Portal</h1>} />
-                    <Route path="/register" element={<RegisterPage />} />
-                    <Route path="/login" element={<LoginPage />} />
+                    <Route path="/" element={<HomePage />} />
+                    <Route path="/login" element={
+                        <PublicRoute>
+                            <LoginPage />
+                        </PublicRoute>
+                    } />
+                    <Route path="/register" element={
+                        <PublicRoute>
+                            <RegisterPage />
+                        </PublicRoute>
+                    } />
                     <Route path="/verify-email/:token" element={<VerifyEmailPage />} />
 
                     {/* Student Routes */}
