@@ -8,7 +8,7 @@ import Home from './Home';
 import EmployerList from './EmployerList';
 import AddEmployer from './AddEmployer';
 import EmployerDetails from './EmployerDetails';
-import AddReview from './AddReview';
+import AddReview from './AddReviews';
 import ReviewDisplay from './ReviewDisplay';
 import AllReviews from './AllReviews';
 import CompanyReviews from './CompanyReviews';
@@ -28,9 +28,13 @@ function App() {
         <Route path="/all-reviews" element={<AllReviews />} />
         <Route path="/company-reviews" element={<CompanyReviews />} />
         <Route path="/analytics" element={<Analytics />} />
-        <Route path="/add-review/select-company" element={<AddReview />} />
-<Route path="/company-reviews" element={<CompanyReviews />} />
-        <Route path="*" element={<div style={{textAlign:'center', padding:'50px'}}><h1>404</h1><a href="/">Go Home</a></div>} />
+        <Route path="*" element={
+          <div style={{textAlign:'center', padding:'50px'}}>
+            <h1 style={{fontSize:'72px', color:'#667eea'}}>404</h1>
+            <h2>Page Not Found</h2>
+            <a href="/" style={{color:'#667eea', textDecoration:'none'}}>Go Home</a>
+          </div>
+        } />
       </Routes>
     </Router>
   );
