@@ -4,7 +4,7 @@ const cors = require('cors');
 const connectDB = require('./config/db');
 
 // Load environment variables
-dotenv.config({ path: '../.env' });
+dotenv.config({ path: require('path').resolve(__dirname, '../.env') });
 
 // Connect to MongoDB
 connectDB();
@@ -19,15 +19,20 @@ app.use(cors({
 }));
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
+app.use('/uploads', express.static('uploads'));
 
 // Test route
 app.get('/', (req, res) => {
     res.json({ message: 'University Internship Portal API is running' });
 });
 
-// Routes will be added here later
+// Routes
 app.use('/api/auth', require('./routes/authRoutes'));
+
 app.use('/api/employer', require('./routes/employerRoutes'));
+
+app.use('/api/student', require('./routes/studentRoutes'));
+
 
 // Start server
 const PORT = process.env.PORT || 5000;
