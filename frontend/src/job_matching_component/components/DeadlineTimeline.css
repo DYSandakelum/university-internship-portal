@@ -1,0 +1,289 @@
+.deadline-timeline-container {
+    background: var(--glass-bg);
+    border: 1px solid var(--glass-border);
+    border-radius: 12px;
+    padding: var(--space-4);
+    backdrop-filter: blur(20px);
+}
+
+.timeline-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: var(--space-3);
+}
+
+.timeline-title {
+    font-size: var(--text-lg);
+    font-weight: 700;
+    color: var(--secondary-800);
+    margin: 0;
+    display: flex;
+    align-items: center;
+    gap: var(--space-2);
+}
+
+.timeline-title svg {
+    color: var(--warning-500);
+}
+
+.status-icon {
+    font-size: 24px;
+}
+
+.status-icon.safe {
+    color: var(--success-500);
+}
+
+.status-icon.warning {
+    color: var(--warning-500);
+    animation: pulse-warning 2s ease-in-out infinite;
+}
+
+.status-icon.critical {
+    color: var(--error-500);
+    animation: pulse-critical 1s ease-in-out infinite;
+}
+
+@keyframes pulse-warning {
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0.6; }
+}
+
+@keyframes pulse-critical {
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0.4; }
+}
+
+/* Deadline Info */
+.deadline-info {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: var(--space-3);
+    margin-bottom: var(--space-3);
+}
+
+.deadline-date,
+.deadline-countdown,
+.deadline-message {
+    background: rgba(255, 255, 255, 0.5);
+    padding: var(--space-4);
+    border-radius: 8px;
+    text-align: center;
+}
+
+.deadline-message {
+    grid-column: 1 / -1;
+}
+
+.deadline-label {
+    font-size: var(--text-xs);
+    color: var(--secondary-600);
+    margin: 0 0 var(--space-2) 0;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.3px;
+}
+
+.deadline-value {
+    font-size: var(--text-lg);
+    font-weight: 800;
+    color: var(--secondary-800);
+    margin: 0;
+}
+
+.countdown-value {
+    font-size: var(--text-lg);
+    font-weight: 800;
+    margin: 0;
+    transition: color 0.3s ease;
+}
+
+.countdown-value.safe {
+    color: var(--success-500);
+}
+
+.countdown-value.warning {
+    color: var(--warning-500);
+}
+
+.countdown-value.critical {
+    color: var(--error-500);
+}
+
+.countdown-value.expired {
+    color: #7c2d12;
+}
+
+.message-text {
+    font-size: var(--text-base);
+    font-weight: 700;
+    margin: 0;
+    color: var(--secondary-800);
+}
+
+/* Timeline Progress */
+.timeline-progress {
+    margin-bottom: var(--space-4);
+}
+
+.progress-label {
+    display: flex;
+    justify-content: space-between;
+    font-size: var(--text-xs);
+    margin-bottom: var(--space-2);
+    color: var(--secondary-700);
+    font-weight: 600;
+}
+
+.progress-percent {
+    font-weight: 700;
+    color: var(--primary-600);
+}
+
+.progress-bar {
+    height: 8px;
+    background: var(--primary-100);
+    border-radius: 4px;
+    overflow: hidden;
+}
+
+.progress-fill {
+    height: 100%;
+    border-radius: 4px;
+    transition: width 0.5s ease;
+}
+
+.progress-fill.normal-usage {
+    background: var(--success-500);
+}
+
+.progress-fill.critical-usage {
+    background: var(--warning-500);
+    animation: pulse-critical 1s ease-in-out infinite;
+}
+
+/* Recommendation Box */
+.recommendation {
+    background: rgba(255, 255, 255, 0.6);
+    border: 1px solid rgba(255, 255, 255, 0.4);
+    border-radius: 8px;
+    padding: var(--space-4);
+    margin-bottom: var(--space-4);
+    border-left: 4px solid;
+}
+
+.recommendation.safe {
+    border-left-color: var(--success-500);
+    background: rgba(16, 185, 129, 0.05);
+}
+
+.recommendation.warning {
+    border-left-color: var(--warning-500);
+    background: rgba(245, 158, 11, 0.05);
+}
+
+.recommendation.critical {
+    border-left-color: var(--error-500);
+    background: rgba(239, 68, 68, 0.1);
+}
+
+.rec-title {
+    font-size: var(--text-sm);
+    font-weight: 700;
+    margin: 0 0 var(--space-2) 0;
+}
+
+.rec-text {
+    font-size: var(--text-sm);
+    color: var(--secondary-700);
+    margin: 0 0 var(--space-3) 0;
+    line-height: 1.5;
+}
+
+.rec-button {
+    width: 100%;
+    padding: var(--space-2) var(--space-4);
+    border: none;
+    border-radius: 6px;
+    font-weight: 600;
+    font-size: var(--text-sm);
+    cursor: pointer;
+    transition: all var(--transition-fast);
+}
+
+.rec-button.safe {
+    background: var(--success-500);
+    color: white;
+}
+
+.rec-button.warning {
+    background: var(--warning-500);
+    color: white;
+}
+
+.rec-button.critical {
+    background: var(--error-500);
+    color: white;
+}
+
+.rec-button:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+}
+
+/* Application Status */
+.application-status {
+    background: rgba(37, 99, 235, 0.05);
+    border: 1px solid rgba(37, 99, 235, 0.2);
+    border-radius: 8px;
+    padding: var(--space-4);
+    margin-bottom: var(--space-4);
+}
+
+.status-title {
+    font-size: var(--text-sm);
+    font-weight: 700;
+    color: var(--secondary-700);
+    margin: 0 0 var(--space-2) 0;
+    text-transform: uppercase;
+    letter-spacing: 0.3px;
+}
+
+.status-badge {
+    display: inline-block;
+    padding: var(--space-2) var(--space-4);
+    border-radius: 6px;
+    font-weight: 700;
+    font-size: var(--text-sm);
+    margin-bottom: var(--space-2);
+}
+
+.applied-date {
+    font-size: var(--text-xs);
+    color: var(--secondary-600);
+    margin: 0;
+}
+
+/* Calendar Hint */
+.calendar-hint {
+    background: rgba(37, 99, 235, 0.05);
+    border: 1px dashed rgba(124, 58, 237, 0.3);
+    border-radius: 6px;
+    padding: var(--space-3);
+    text-align: center;
+}
+
+.calendar-hint p {
+    font-size: var(--text-xs);
+    color: var(--secondary-700);
+    margin: 0;
+    font-weight: 500;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+    .deadline-info {
+        grid-template-columns: 1fr;
+    }
+}

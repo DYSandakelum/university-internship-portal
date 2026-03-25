@@ -1,8 +1,46 @@
 import axios from 'axios';
 
 const api = axios.create({
-    baseURL: 'http://localhost:5000/api',
+    baseURL: process.env.REACT_APP_API_BASE_URL || 'http://localhost:5000/api',
+    timeout: 10000,
 });
+
+const retryConfig = {
+    maxRetries: 3,
+    retryDelay: 1000,
+    retryableStatuses: [408, 429, 500, 502, 503, 504],
+};
+
+// Handle expired or invalid token responses + retry transient failures
+api.interceptors.response.use(
+    (response) => response,
+    async (error) => {
+        const config = error.config;
+
+        if (config) {
+            config.retryCount = config.retryCount || 0;
+
+            const isNetworkError = !error.response;
+            const isRetryableStatus =
+                error.response && retryConfig.retryableStatuses.includes(error.response.status);
+            const shouldRetry =
+                (isNetworkError || isRetryableStatus) && config.retryCount < retryConfig.maxRetries;
+
+            if (shouldRetry) {
+                config.retryCount += 1;
+                const delay = retryConfig.retryDelay * Math.pow(2, config.retryCount - 1);
+                await new Promise((resolve) => setTimeout(resolve, delay));
+                return api(config);
+            }
+        }
+
+        if (error.response && error.response.status === 401) {
+            localStorage.removeItem('token');
+            window.location.href = '/login';
+        }
+        return Promise.reject(error);
+    }
+);
 
 // Automatically attach token to every request if it exists
 api.interceptors.request.use(
@@ -14,18 +52,6 @@ api.interceptors.request.use(
         return config;
     },
     (error) => {
-        return Promise.reject(error);
-    }
-);
-
-// Handle expired or invalid token responses
-api.interceptors.response.use(
-    (response) => response,
-    (error) => {
-        if (error.response && error.response.status === 401) {
-            localStorage.removeItem('token');
-            window.location.href = '/login';
-        }
         return Promise.reject(error);
     }
 );

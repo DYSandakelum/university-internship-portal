@@ -4,7 +4,9 @@
   "main": "server.js",
   "scripts": {
     "dev": "nodemon server.js",
-    "start": "node server.js"
+    "start": "node server.js",
+    "seed:job-matching": "node job_matching_component/seed/seed.js",
+    "seed:comprehensive": "node job_matching_component/seed/comprehensive-seed.js"
   },
   "keywords": [],
   "author": "",
@@ -12,12 +14,14 @@
   "description": "",
   "dependencies": {
     "bcryptjs": "^3.0.3",
+    "careersync-workspace": "file:..",
     "cors": "^2.8.6",
     "dotenv": "^17.3.1",
     "express": "^5.2.1",
     "jsonwebtoken": "^9.0.3",
     "mongoose": "^9.2.1",
     "multer": "^2.0.2",
+    "node-cron": "^4.2.1",
     "nodemailer": "^8.0.1"
   },
   "devDependencies": {

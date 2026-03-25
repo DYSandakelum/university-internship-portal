@@ -1,0 +1,155 @@
+{
+  "info": {
+    "name": "CareerSync – Job Matching Component",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "variable": [
+    { "key": "baseUrl", "value": "http://localhost:5000" },
+    { "key": "token", "value": "" },
+    { "key": "jobId", "value": "" },
+    { "key": "savedJobId", "value": "" }
+  ],
+  "item": [
+    {
+      "name": "Auth",
+      "item": [
+        {
+          "name": "Login (get token)",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "url": { "raw": "{{baseUrl}}/api/auth/login", "host": ["{{baseUrl}}"], "path": ["api", "auth", "login"] },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"email\": \"student.demo@careersync.test\",\n  \"password\": \"Password123!\"\n}"
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "const json = pm.response.json();",
+                  "if (json && json.token) {",
+                  "  pm.collectionVariables.set('token', json.token);",
+                  "}"
+                ]
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "Jobs",
+      "item": [
+        {
+          "name": "Search jobs",
+          "request": {
+            "method": "GET",
+            "url": {
+              "raw": "{{baseUrl}}/api/jobs/search?q=react&jobType=Internship&location=Remote",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "jobs", "search"],
+              "query": [
+                { "key": "q", "value": "react" },
+                { "key": "jobType", "value": "Internship" },
+                { "key": "location", "value": "Remote" }
+              ]
+            }
+          }
+        },
+        {
+          "name": "Recommended jobs (auth)",
+          "request": {
+            "method": "GET",
+            "header": [{ "key": "Authorization", "value": "Bearer {{token}}" }],
+            "url": { "raw": "{{baseUrl}}/api/jobs/recommended", "host": ["{{baseUrl}}"], "path": ["api", "jobs", "recommended"] }
+          }
+        },
+        {
+          "name": "Save job (auth)",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" },
+              { "key": "Authorization", "value": "Bearer {{token}}" }
+            ],
+            "url": { "raw": "{{baseUrl}}/api/jobs/save", "host": ["{{baseUrl}}"], "path": ["api", "jobs", "save"] },
+            "body": { "mode": "raw", "raw": "{\n  \"jobId\": \"{{jobId}}\"\n}" }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "const json = pm.response.json();",
+                  "if (json && json.savedJob && json.savedJob._id) {",
+                  "  pm.collectionVariables.set('savedJobId', json.savedJob._id);",
+                  "}"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Get saved jobs (auth)",
+          "request": {
+            "method": "GET",
+            "header": [{ "key": "Authorization", "value": "Bearer {{token}}" }],
+            "url": { "raw": "{{baseUrl}}/api/jobs/saved", "host": ["{{baseUrl}}"], "path": ["api", "jobs", "saved"] }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "const json = pm.response.json();",
+                  "if (json && json.savedJobs && json.savedJobs.length && json.savedJobs[0].jobId && json.savedJobs[0].jobId._id) {",
+                  "  pm.collectionVariables.set('jobId', json.savedJobs[0].jobId._id);",
+                  "}"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Remove saved job (auth)",
+          "request": {
+            "method": "DELETE",
+            "header": [{ "key": "Authorization", "value": "Bearer {{token}}" }],
+            "url": { "raw": "{{baseUrl}}/api/jobs/save/{{savedJobId}}", "host": ["{{baseUrl}}"], "path": ["api", "jobs", "save", "{{savedJobId}}"] }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Notifications",
+      "item": [
+        {
+          "name": "Get notifications (auth)",
+          "request": {
+            "method": "GET",
+            "header": [{ "key": "Authorization", "value": "Bearer {{token}}" }],
+            "url": { "raw": "{{baseUrl}}/api/notifications", "host": ["{{baseUrl}}"], "path": ["api", "notifications"] }
+          }
+        },
+        {
+          "name": "Update notification settings (auth)",
+          "request": {
+            "method": "PUT",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" },
+              { "key": "Authorization", "value": "Bearer {{token}}" }
+            ],
+            "url": { "raw": "{{baseUrl}}/api/notifications/settings", "host": ["{{baseUrl}}"], "path": ["api", "notifications", "settings"] },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"emailNotifications\": true,\n  \"newJobAlerts\": true,\n  \"deadlineReminders\": true,\n  \"applicationUpdates\": true\n}"
+            }
+          }
+        }
+      ]
+    }
+  ]
+}

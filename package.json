@@ -1,0 +1,14 @@
+{
+  "name": "careersync-workspace",
+  "private": true,
+  "version": "1.0.0",
+  "scripts": {
+    "dev": "node startup-helper.js",
+    "backend": "npm --prefix backend run dev",
+    "frontend": "npm --prefix frontend start",
+    "install:all": "npm --prefix backend install && npm --prefix frontend install"
+  },
+  "devDependencies": {
+    "concurrently": "^9.1.2"
+  }
+}
