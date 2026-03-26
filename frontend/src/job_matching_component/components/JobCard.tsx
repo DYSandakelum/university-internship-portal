@@ -9,16 +9,38 @@ import {
   ExternalLink,
 } from 'lucide-react'
 
+export interface Job {
+  id: string
+  title: string
+  company: string
+  location: string
+  jobType: string
+  salary?: string
+  deadline?: string
+  skills: string[]
+  matchScore?: number
+  description?: string
+}
+
+interface JobCardProps {
+  job: Job
+  isSaved?: boolean
+  onSave?: (id: string) => void | Promise<void>
+  onApply?: (id: string) => void
+  saveMode?: 'save' | 'remove'
+  showMatchDetails?: boolean
+}
+
 export function JobCard({
   job,
   isSaved = false,
   onSave,
   onApply,
   saveMode = 'save',
-}) {
+}: JobCardProps) {
   const [isSaving, setIsSaving] = useState(false)
 
-  const handleSave = async (e) => {
+  const handleSave = async (e: React.MouseEvent) => {
     e.preventDefault()
     e.stopPropagation()
     if (!onSave) return
@@ -31,20 +53,21 @@ export function JobCard({
     }
   }
 
-  const handleApply = (e) => {
+  const handleApply = (e: React.MouseEvent) => {
     e.preventDefault()
     e.stopPropagation()
     if (onApply) onApply(job.id)
   }
 
-  const getScoreColor = (score) => {
+  // Calculate color based on match score
+  const getScoreColor = (score: number) => {
     if (score >= 90) return 'text-success'
     if (score >= 70) return 'text-primary'
     if (score >= 50) return 'text-warning'
     return 'text-slate-400'
   }
 
-  const getScoreStroke = (score) => {
+  const getScoreStroke = (score: number) => {
     if (score >= 90) return '#10b981'
     if (score >= 70) return '#3b82f6'
     if (score >= 50) return '#f59e0b'
@@ -85,7 +108,9 @@ export function JobCard({
               />
             </svg>
             <div
-              className={`absolute inset-0 flex items-center justify-center text-xs font-bold ${getScoreColor(job.matchScore)}`}
+              className={`absolute inset-0 flex items-center justify-center text-xs font-bold ${getScoreColor(
+                job.matchScore,
+              )}`}
             >
               {job.matchScore}
             </div>
@@ -138,7 +163,7 @@ export function JobCard({
       </div>
 
       <div className="flex items-center gap-3 mt-auto pt-4 border-t border-slate-100">
-        <button onClick={handleApply} className="btn-primary flex-1 py-2 text-sm" type="button">
+        <button onClick={handleApply} className="btn-primary flex-1 py-2 text-sm">
           Apply Now
           <ExternalLink className="w-4 h-4 ml-1 opacity-70" />
         </button>
@@ -147,8 +172,11 @@ export function JobCard({
           <button
             onClick={handleSave}
             disabled={isSaving}
-            type="button"
-            className={`btn-icon border border-slate-200 ${isSaved ? 'bg-primary/10 text-primary border-primary/20 hover:bg-primary/20 hover:text-primary-dark' : 'bg-white text-slate-400 hover:text-primary hover:border-primary/30'}`}
+            className={`btn-icon border border-slate-200 ${
+              isSaved
+                ? 'bg-primary/10 text-primary border-primary/20 hover:bg-primary/20 hover:text-primary-dark'
+                : 'bg-white text-slate-400 hover:text-primary hover:border-primary/30'
+            }`}
             title={
               saveMode === 'remove'
                 ? 'Remove saved job'
@@ -162,7 +190,11 @@ export function JobCard({
             ) : isSaved && saveMode !== 'remove' ? (
               <BookmarkCheck className="w-4 h-4" />
             ) : (
-              <Bookmark className={`w-4 h-4 ${isSaved && saveMode === 'remove' ? 'fill-current' : ''}`} />
+              <Bookmark
+                className={`w-4 h-4 ${
+                  isSaved && saveMode === 'remove' ? 'fill-current' : ''
+                }`}
+              />
             )}
           </button>
         )}

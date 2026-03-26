@@ -1,5 +1,11 @@
-import React, { useEffect, useRef, useState } from 'react'
+import React, { useEffect, useState, useRef } from 'react'
 import { Search, X, Loader2 } from 'lucide-react'
+
+interface SearchBarProps {
+  onSearch: (query: string) => void
+  isLoading?: boolean
+  initialQuery?: string
+}
 
 const MOCK_SUGGESTIONS = [
   'Frontend Developer',
@@ -12,12 +18,16 @@ const MOCK_SUGGESTIONS = [
   'DevOps Engineer',
 ]
 
-export function SearchBar({ onSearch, isLoading = false, initialQuery = '' }) {
+export function SearchBar({
+  onSearch,
+  isLoading = false,
+  initialQuery = '',
+}: SearchBarProps) {
   const [inputValue, setInputValue] = useState(initialQuery)
   const [showSuggestions, setShowSuggestions] = useState(false)
   const [activeIndex, setActiveIndex] = useState(-1)
-  const [filteredSuggestions, setFilteredSuggestions] = useState([])
-  const wrapperRef = useRef(null)
+  const [filteredSuggestions, setFilteredSuggestions] = useState<string[]>([])
+  const wrapperRef = useRef<HTMLDivElement>(null)
 
   useEffect(() => {
     setInputValue(initialQuery)
@@ -35,8 +45,11 @@ export function SearchBar({ onSearch, isLoading = false, initialQuery = '' }) {
   }, [inputValue])
 
   useEffect(() => {
-    function handleClickOutside(event) {
-      if (wrapperRef.current && !wrapperRef.current.contains(event.target)) {
+    function handleClickOutside(event: MouseEvent) {
+      if (
+        wrapperRef.current &&
+        !wrapperRef.current.contains(event.target as Node)
+      ) {
         setShowSuggestions(false)
       }
     }
@@ -45,45 +58,38 @@ export function SearchBar({ onSearch, isLoading = false, initialQuery = '' }) {
     return () => document.removeEventListener('mousedown', handleClickOutside)
   }, [])
 
-  const handleSearch = (query) => {
+  const handleSearch = (query: string) => {
     setShowSuggestions(false)
     onSearch(query)
   }
 
-  const handleSubmit = (e) => {
+  const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault()
     handleSearch(inputValue)
   }
 
-  const handleKeyDown = (e) => {
+  const handleKeyDown = (e: React.KeyboardEvent) => {
     if (!showSuggestions || filteredSuggestions.length === 0) return
 
-    switch (e.key) {
-      case 'ArrowDown':
-        e.preventDefault()
-        setActiveIndex((prev) =>
-          prev < filteredSuggestions.length - 1 ? prev + 1 : prev,
-        )
-        break
-      case 'ArrowUp':
-        e.preventDefault()
-        setActiveIndex((prev) => (prev > 0 ? prev - 1 : -1))
-        break
-      case 'Enter':
-        e.preventDefault()
-        if (activeIndex >= 0) {
-          setInputValue(filteredSuggestions[activeIndex])
-          handleSearch(filteredSuggestions[activeIndex])
-        } else {
-          handleSearch(inputValue)
-        }
-        break
-      case 'Escape':
-        setShowSuggestions(false)
-        setActiveIndex(-1)
-        break
-      default:
-        break
+    if (e.key === 'ArrowDown') {
+      e.preventDefault()
+      setActiveIndex((prev) =>
+        prev < filteredSuggestions.length - 1 ? prev + 1 : prev,
+      )
+    } else if (e.key === 'ArrowUp') {
+      e.preventDefault()
+      setActiveIndex((prev) => (prev > 0 ? prev - 1 : -1))
+    } else if (e.key === 'Enter') {
+      e.preventDefault()
+      if (activeIndex >= 0) {
+        setInputValue(filteredSuggestions[activeIndex])
+        handleSearch(filteredSuggestions[activeIndex])
+      } else {
+        handleSearch(inputValue)
+      }
+    } else if (e.key === 'Escape') {
+      setShowSuggestions(false)
+      setActiveIndex(-1)
     }
   }
 
@@ -139,7 +145,11 @@ export function SearchBar({ onSearch, isLoading = false, initialQuery = '' }) {
                   handleSearch(suggestion)
                 }}
                 onMouseEnter={() => setActiveIndex(index)}
-                className={`px-4 py-3 cursor-pointer flex items-center gap-3 transition-colors ${index === activeIndex ? 'bg-primary/5 text-primary' : 'text-slate-700 hover:bg-slate-50'}`}
+                className={`px-4 py-3 cursor-pointer flex items-center gap-3 transition-colors ${
+                  index === activeIndex
+                    ? 'bg-primary/5 text-primary'
+                    : 'text-slate-700 hover:bg-slate-50'
+                }`}
               >
                 <Search className="w-4 h-4 opacity-50" />
                 <span className="font-medium">{suggestion}</span>

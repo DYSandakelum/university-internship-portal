@@ -1,7 +1,7 @@
 import React, { useMemo, useState } from 'react';
 import { FiCpu, FiSend, FiBookOpen } from 'react-icons/fi';
 import { sendCareerChatMessage } from '../../services/aiChatService';
-// Styling is handled via Tailwind + jobMatching.tailwind.css (no per-component CSS)
+// Styling is handled via the module Tailwind entry (job_matching_component/index.css)
 
 export default function AiCareerChat({ studentSkills = [], stats = {}, recentActivities = [] }) {
     const [input, setInput] = useState('');

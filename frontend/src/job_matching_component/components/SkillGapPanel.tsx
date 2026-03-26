@@ -1,4 +1,4 @@
-import React, { useMemo, useState } from 'react'
+import React, { useState } from 'react'
 import {
   BookOpen,
   Target,
@@ -8,14 +8,33 @@ import {
   AlertCircle,
 } from 'lucide-react'
 
-export function SkillGapPanel({ gaps, overallProgress }) {
-  const [expandedId, setExpandedId] = useState(null)
+export interface SkillGap {
+  id: string
+  skill: string
+  importance: 'high' | 'medium' | 'low'
+  currentLevel: number // 0-100
+  requiredLevel: number // 0-100
+  resources: {
+    title: string
+    type: 'course' | 'article' | 'video' | 'project'
+    url: string
+    duration: string
+  }[]
+}
 
-  const toggleExpand = (id) => {
+interface SkillGapPanelProps {
+  gaps: SkillGap[]
+  overallProgress: number // 0-100
+}
+
+export function SkillGapPanel({ gaps, overallProgress }: SkillGapPanelProps) {
+  const [expandedId, setExpandedId] = useState<string | null>(null)
+
+  const toggleExpand = (id: string) => {
     setExpandedId(expandedId === id ? null : id)
   }
 
-  const getImportanceColor = (importance) => {
+  const getImportanceColor = (importance: string) => {
     switch (importance) {
       case 'high':
         return 'bg-error/10 text-error border-error/20'
@@ -28,12 +47,15 @@ export function SkillGapPanel({ gaps, overallProgress }) {
     }
   }
 
-  const sortedGaps = useMemo(() => {
-    return [...gaps].sort((a, b) => {
-      const impMap = { high: 3, medium: 2, low: 1 }
-      return impMap[b.importance] - impMap[a.importance]
-    })
-  }, [gaps])
+  const sortedGaps = [...gaps].sort((a, b) => {
+    const impMap = {
+      high: 3,
+      medium: 2,
+      low: 1,
+    } as const
+
+    return impMap[b.importance] - impMap[a.importance]
+  })
 
   if (gaps.length === 0) {
     return (
@@ -59,6 +81,7 @@ export function SkillGapPanel({ gaps, overallProgress }) {
         </div>
       </div>
 
+      {/* Summary Progress */}
       <div className="mb-6 bg-slate-50 p-4 rounded-lg border border-slate-100">
         <div className="flex justify-between text-sm font-semibold text-slate-700 mb-2">
           <span>Overall Skill Match</span>
@@ -67,11 +90,14 @@ export function SkillGapPanel({ gaps, overallProgress }) {
         <div className="w-full h-2 bg-slate-200 rounded-full overflow-hidden">
           <div
             className="h-full bg-primary rounded-full transition-all duration-1000 ease-out"
-            style={{ width: `${Math.min(100, Math.max(0, overallProgress))}%` }}
+            style={{
+              width: `${Math.min(100, Math.max(0, overallProgress))}%`,
+            }}
           />
         </div>
       </div>
 
+      {/* Gaps List */}
       <div className="space-y-3 flex-1 overflow-y-auto pr-1 custom-scrollbar">
         {sortedGaps.map((gap) => {
           const isExpanded = expandedId === gap.id
@@ -80,7 +106,11 @@ export function SkillGapPanel({ gaps, overallProgress }) {
           return (
             <div
               key={gap.id}
-              className={`border rounded-lg transition-all duration-200 ${isExpanded ? 'border-primary/30 shadow-sm bg-white' : 'border-slate-200 bg-white hover:border-slate-300'}`}
+              className={`border rounded-lg transition-all duration-200 ${
+                isExpanded
+                  ? 'border-primary/30 shadow-sm bg-white'
+                  : 'border-slate-200 bg-white hover:border-slate-300'
+              }`}
             >
               <div
                 className="p-3 flex items-center justify-between cursor-pointer"
@@ -92,12 +122,15 @@ export function SkillGapPanel({ gaps, overallProgress }) {
                       {gap.skill}
                     </h4>
                     <span
-                      className={`text-[10px] uppercase tracking-wider font-bold px-1.5 py-0.5 rounded border ${getImportanceColor(gap.importance)}`}
+                      className={`text-[10px] uppercase tracking-wider font-bold px-1.5 py-0.5 rounded border ${getImportanceColor(
+                        gap.importance,
+                      )}`}
                     >
                       {gap.importance} priority
                     </span>
                   </div>
 
+                  {/* Mini progress bar for this skill */}
                   <div className="flex items-center gap-2 mt-2">
                     <div className="flex-1 h-1.5 bg-slate-100 rounded-full overflow-hidden flex">
                       <div

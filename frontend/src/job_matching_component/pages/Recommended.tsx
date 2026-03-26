@@ -1,10 +1,10 @@
 import React, { useEffect, useMemo, useState } from 'react'
 import { PageWrapper } from '../components/PageWrapper'
-import { JobCard } from '../components/JobCard'
+import { JobCard, Job } from '../components/JobCard'
 import { jobService } from '../services/jobService'
 import { Sparkles, ChevronLeft, ChevronRight, AlertCircle } from 'lucide-react'
 
-const MOCK_RECOMMENDATIONS = [
+const MOCK_RECOMMENDATIONS: Job[] = [
   {
     id: 'rec-1',
     title: 'Senior React Developer',
@@ -76,20 +76,20 @@ const MOCK_RECOMMENDATIONS = [
   },
 ]
 
-export function Recommended() {
-  const [jobs, setJobs] = useState([])
-  const [savedJobIds, setSavedJobIds] = useState(new Set())
-  const [isLoading, setIsLoading] = useState(true)
-  const [error, setError] = useState(null)
-  const [activeCategory, setActiveCategory] = useState('all')
-  const [currentPage, setCurrentPage] = useState(1)
+type Category = 'all' | 'perfect' | 'high' | 'good' | 'potential'
 
+export function Recommended() {
+  const [jobs, setJobs] = useState<Job[]>([])
+  const [savedJobIds, setSavedJobIds] = useState<Set<string>>(new Set())
+  const [isLoading, setIsLoading] = useState(true)
+  const [error, setError] = useState<string | null>(null)
+  const [activeCategory, setActiveCategory] = useState<Category>('all')
+  const [currentPage, setCurrentPage] = useState(1)
   const ITEMS_PER_PAGE = 6
 
   useEffect(() => {
     const fetchData = async () => {
       setIsLoading(true)
-
       try {
         const [recsData, savedData] = await Promise.allSettled([
           jobService.getRecommendedJobs(),
@@ -107,7 +107,7 @@ export function Recommended() {
         }
 
         if (savedData.status === 'fulfilled' && Array.isArray(savedData.value)) {
-          setSavedJobIds(new Set(savedData.value.map((j) => j.id || j.jobId)))
+          setSavedJobIds(new Set(savedData.value.map((j: any) => j.id || j.jobId)))
         } else {
           setSavedJobIds(new Set(['rec-1']))
         }
@@ -122,18 +122,20 @@ export function Recommended() {
     fetchData()
   }, [])
 
-  const handleSaveJob = async (jobId) => {
+  const handleSaveJob = async (jobId: string) => {
     try {
       const isCurrentlySaved = savedJobIds.has(jobId)
       const newSavedIds = new Set(savedJobIds)
-
       if (isCurrentlySaved) newSavedIds.delete(jobId)
       else newSavedIds.add(jobId)
 
       setSavedJobIds(newSavedIds)
 
-      if (isCurrentlySaved) await jobService.removeSavedJob(jobId)
-      else await jobService.saveJob(jobId)
+      if (isCurrentlySaved) {
+        await jobService.removeSavedJob(jobId)
+      } else {
+        await jobService.saveJob(jobId)
+      }
     } catch (err) {
       console.error('Failed to toggle save status', err)
     }
@@ -177,7 +179,12 @@ export function Recommended() {
     setCurrentPage(1)
   }, [activeCategory])
 
-  const categories = [
+  const categories: {
+    id: Category
+    label: string
+    count: number
+    colorClass: string
+  }[] = [
     { id: 'all', label: 'All Matches', count: counts.all, colorClass: 'bg-slate-100 text-slate-700' },
     { id: 'perfect', label: 'Perfect Match (90%+)', count: counts.perfect, colorClass: 'bg-success/10 text-success' },
     { id: 'high', label: 'High Match (70-89%)', count: counts.high, colorClass: 'bg-primary/10 text-primary' },
@@ -188,7 +195,7 @@ export function Recommended() {
   return (
     <PageWrapper>
       <div className="mb-8 text-center">
-        <div className="inline-flex items-center justify-center w-16 h-16 rounded-2xl bg-primary/10 text-primary mb-4">
+        <div className="inline-flex items-center justify-center w-16 h-16 rounded-2xl bg-primary/10 text-primary mb-4 shadow-inner">
           <Sparkles className="w-8 h-8" />
         </div>
         <h1 className="text-3xl font-bold text-slate-900 mb-2">Recommended for You</h1>
@@ -201,9 +208,12 @@ export function Recommended() {
         {categories.map((cat) => (
           <button
             key={cat.id}
-            type="button"
             onClick={() => setActiveCategory(cat.id)}
-            className={`px-4 py-2 rounded-full text-sm font-medium transition-all ${activeCategory === cat.id ? 'ring-2 ring-primary ring-offset-2 shadow-md ' + cat.colorClass : 'bg-white border border-slate-200 text-slate-600 hover:bg-slate-50'}`}
+            className={`px-4 py-2 rounded-full text-sm font-medium transition-all ${
+              activeCategory === cat.id
+                ? 'ring-2 ring-primary ring-offset-2 shadow-md ' + cat.colorClass
+                : 'bg-white border border-slate-200 text-slate-600 hover:bg-slate-50'
+            }`}
           >
             {cat.label}
             <span className="ml-2 px-2 py-0.5 rounded-full bg-white/50 text-xs">{cat.count}</span>
@@ -230,7 +240,7 @@ export function Recommended() {
           <p className="text-slate-600 mb-6">
             We couldn't find any recommendations that fit into the "{categories.find((c) => c.id === activeCategory)?.label}" category.
           </p>
-          <button type="button" onClick={() => setActiveCategory('all')} className="btn-secondary">
+          <button onClick={() => setActiveCategory('all')} className="btn-secondary">
             View All Recommendations
           </button>
         </div>
@@ -244,6 +254,7 @@ export function Recommended() {
                 isSaved={savedJobIds.has(job.id)}
                 onSave={handleSaveJob}
                 onApply={() => alert(`Applying to ${job.title}`)}
+                showMatchDetails={true}
               />
             ))}
           </div>
@@ -251,7 +262,6 @@ export function Recommended() {
           {totalPages > 1 && (
             <div className="flex items-center justify-center gap-2 mt-8">
               <button
-                type="button"
                 onClick={() => setCurrentPage((p) => Math.max(1, p - 1))}
                 disabled={currentPage === 1}
                 className="btn-icon bg-white border border-slate-200 disabled:opacity-50"
@@ -263,9 +273,12 @@ export function Recommended() {
                 {Array.from({ length: totalPages }).map((_, i) => (
                   <button
                     key={i}
-                    type="button"
                     onClick={() => setCurrentPage(i + 1)}
-                    className={`w-10 h-10 rounded-lg text-sm font-medium transition-colors ${currentPage === i + 1 ? 'bg-primary text-white shadow-md' : 'bg-white border border-slate-200 text-slate-600 hover:bg-slate-50'}`}
+                    className={`w-10 h-10 rounded-lg text-sm font-medium transition-colors ${
+                      currentPage === i + 1
+                        ? 'bg-primary text-white shadow-md'
+                        : 'bg-white border border-slate-200 text-slate-600 hover:bg-slate-50'
+                    }`}
                   >
                     {i + 1}
                   </button>
@@ -273,7 +286,6 @@ export function Recommended() {
               </div>
 
               <button
-                type="button"
                 onClick={() => setCurrentPage((p) => Math.min(totalPages, p + 1))}
                 disabled={currentPage === totalPages}
                 className="btn-icon bg-white border border-slate-200 disabled:opacity-50"

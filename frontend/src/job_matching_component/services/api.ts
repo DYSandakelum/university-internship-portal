@@ -9,6 +9,7 @@ export const api = axios.create({
   },
 })
 
+// Request interceptor
 api.interceptors.request.use(
   (config) => {
     const token = localStorage.getItem('auth_token')
@@ -20,19 +21,15 @@ api.interceptors.request.use(
   (error) => Promise.reject(error),
 )
 
+// Response interceptor
 api.interceptors.response.use(
   (response) => response,
   (error) => {
     if (error.response && error.response.status === 401) {
       localStorage.removeItem('auth_token')
-      // Don't hard-redirect on 401.
-      // In dev, the backend may be down/mismatched which would bounce users back to the dashboard
-      // whenever any page triggers a request (Saved/Recommended/etc.).
-      // Pages/services should handle the 401 by showing fallback/mock data or an inline error.
-      if (typeof window !== 'undefined') {
-        // eslint-disable-next-line no-console
-        console.warn('Job matching API request returned 401; token cleared.')
-      }
+      // NOTE: Do not hard-redirect on 401. This previously caused "bounce back" UX.
+      // Let pages handle unauthenticated state gracefully.
+      console.warn('API 401: cleared auth_token; no redirect performed.')
     }
     return Promise.reject(error)
   },

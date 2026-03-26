@@ -2,7 +2,6 @@ import React from 'react'
 import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom'
 import { Layout } from './components/Layout'
 import { useAuth } from './hooks/useAuth'
-
 // Pages
 import { Dashboard } from './pages/Dashboard'
 import { Search } from './pages/Search'
@@ -21,7 +20,12 @@ export function App() {
       <div className="min-h-screen flex items-center justify-center bg-slate-50 p-4">
         <div className="glass-panel p-8 max-w-md w-full text-center">
           <div className="w-12 h-12 bg-red-100 text-red-500 rounded-full flex items-center justify-center mx-auto mb-4">
-            <svg className="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <svg
+              className="w-6 h-6"
+              fill="none"
+              viewBox="0 0 24 24"
+              stroke="currentColor"
+            >
               <path
                 strokeLinecap="round"
                 strokeLinejoin="round"
@@ -30,7 +34,9 @@ export function App() {
               />
             </svg>
           </div>
-          <h2 className="text-xl font-bold text-slate-900 mb-2">Authentication Error</h2>
+          <h2 className="text-xl font-bold text-slate-900 mb-2">
+            Authentication Error
+          </h2>
           <p className="text-slate-600">{error}</p>
         </div>
       </div>
@@ -43,7 +49,9 @@ export function App() {
         <div className="app-bg-layer"></div>
         <div className="flex flex-col items-center animate-fade-in">
           <div className="w-12 h-12 border-4 border-primary/30 border-t-primary rounded-full animate-spin mb-4"></div>
-          <p className="text-slate-600 font-medium">Initializing workspace...</p>
+          <p className="text-slate-600 font-medium">
+            Initializing workspace...
+          </p>
         </div>
       </div>
     )
@@ -52,18 +60,33 @@ export function App() {
   return (
     <BrowserRouter>
       <Routes>
-        <Route path="/" element={<Navigate to="/job-matching/dashboard" replace />} />
-        <Route path="/job-matching" element={<Navigate to="/job-matching/dashboard" replace />} />
+        {/* Redirect root and base path to dashboard */}
+        <Route
+          path="/"
+          element={<Navigate to="/job-matching/dashboard" replace />}
+        />
+        <Route
+          path="/job-matching"
+          element={<Navigate to="/job-matching/dashboard" replace />}
+        />
 
+        {/* Main App Routes */}
         <Route element={<Layout />}>
           <Route path="/job-matching/dashboard" element={<Dashboard />} />
           <Route path="/job-matching/search" element={<Search />} />
           <Route path="/job-matching/recommended" element={<Recommended />} />
           <Route path="/job-matching/saved" element={<Saved />} />
           <Route path="/job-matching/notifications" element={<Notifications />} />
-          <Route path="/job-matching/notifications/settings" element={<NotificationSettings />} />
-          <Route path="/job-matching/opportunity" element={<OpportunityCentre />} />
+          <Route
+            path="/job-matching/notifications/settings"
+            element={<NotificationSettings />}
+          />
+          <Route
+            path="/job-matching/opportunity"
+            element={<OpportunityCentre />}
+          />
 
+          {/* 404 Catch-all */}
           <Route path="*" element={<NotFound />} />
         </Route>
       </Routes>

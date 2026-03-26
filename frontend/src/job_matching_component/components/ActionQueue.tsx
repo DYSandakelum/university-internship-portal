@@ -1,4 +1,4 @@
-import React, { useMemo, useState } from 'react'
+import React, { useState } from 'react'
 import {
   CheckCircle2,
   ChevronDown,
@@ -8,14 +8,34 @@ import {
   PlayCircle,
 } from 'lucide-react'
 
-export function ActionQueue({ actions, onComplete, onSimulate }) {
-  const [expandedId, setExpandedId] = useState(null)
+export interface ActionItem {
+  id: string
+  title: string
+  description: string
+  impact: number // 1-100 (potential score boost)
+  type: 'skill' | 'resume' | 'network' | 'apply'
+  isCompleted?: boolean
+  details?: string
+}
 
-  const toggleExpand = (id) => {
+interface ActionQueueProps {
+  actions: ActionItem[]
+  onComplete?: (id: string) => void
+  onSimulate?: (action: ActionItem) => void
+}
+
+export function ActionQueue({
+  actions,
+  onComplete,
+  onSimulate,
+}: ActionQueueProps) {
+  const [expandedId, setExpandedId] = useState<string | null>(null)
+
+  const toggleExpand = (id: string) => {
     setExpandedId(expandedId === id ? null : id)
   }
 
-  const getTypeColor = (type) => {
+  const getTypeColor = (type: string) => {
     switch (type) {
       case 'skill':
         return 'bg-blue-100 text-blue-700 border-blue-200'
@@ -30,19 +50,15 @@ export function ActionQueue({ actions, onComplete, onSimulate }) {
     }
   }
 
-  const sortedActions = useMemo(() => {
-    return [...actions].sort((a, b) => {
-      if (a.isCompleted && !b.isCompleted) return 1
-      if (!a.isCompleted && b.isCompleted) return -1
-      return b.impact - a.impact
-    })
-  }, [actions])
+  const sortedActions = [...actions].sort((a, b) => {
+    if (a.isCompleted && !b.isCompleted) return 1
+    if (!a.isCompleted && b.isCompleted) return -1
+    return b.impact - a.impact
+  })
 
-  const totalPotentialBoost = useMemo(() => {
-    return actions
-      .filter((a) => !a.isCompleted)
-      .reduce((sum, a) => sum + a.impact, 0)
-  }, [actions])
+  const totalPotentialBoost = actions
+    .filter((a) => !a.isCompleted)
+    .reduce((sum, a) => sum + a.impact, 0)
 
   if (actions.length === 0) {
     return (
@@ -74,11 +90,16 @@ export function ActionQueue({ actions, onComplete, onSimulate }) {
       <div className="space-y-3 flex-1 overflow-y-auto pr-1 custom-scrollbar">
         {sortedActions.map((action) => {
           const isExpanded = expandedId === action.id
-
           return (
             <div
               key={action.id}
-              className={`modern-card border transition-all duration-200 ${action.isCompleted ? 'bg-slate-50 border-slate-200 opacity-70' : isExpanded ? 'border-primary/30 shadow-md' : 'border-slate-200 hover:border-slate-300'}`}
+              className={`modern-card border transition-all duration-200 ${
+                action.isCompleted
+                  ? 'bg-slate-50 border-slate-200 opacity-70'
+                  : isExpanded
+                    ? 'border-primary/30 shadow-md'
+                    : 'border-slate-200 hover:border-slate-300'
+              }`}
             >
               <div
                 className="p-4 flex items-start gap-3 cursor-pointer"
@@ -95,7 +116,11 @@ export function ActionQueue({ actions, onComplete, onSimulate }) {
                 <div className="flex-1 min-w-0">
                   <div className="flex items-start justify-between gap-2 mb-1">
                     <h4
-                      className={`text-sm font-semibold truncate ${action.isCompleted ? 'text-slate-500 line-through' : 'text-slate-900'}`}
+                      className={`text-sm font-semibold truncate ${
+                        action.isCompleted
+                          ? 'text-slate-500 line-through'
+                          : 'text-slate-900'
+                      }`}
                     >
                       {action.title}
                     </h4>
@@ -108,7 +133,9 @@ export function ActionQueue({ actions, onComplete, onSimulate }) {
 
                   <div className="flex items-center gap-2 mb-2">
                     <span
-                      className={`text-[10px] uppercase tracking-wider font-bold px-2 py-0.5 rounded border ${getTypeColor(action.type)}`}
+                      className={`text-[10px] uppercase tracking-wider font-bold px-2 py-0.5 rounded border ${getTypeColor(
+                        action.type,
+                      )}`}
                     >
                       {action.type}
                     </span>
@@ -137,7 +164,6 @@ export function ActionQueue({ actions, onComplete, onSimulate }) {
                     <div className="flex items-center gap-2 justify-end">
                       {!action.isCompleted && onSimulate && (
                         <button
-                          type="button"
                           onClick={(e) => {
                             e.stopPropagation()
                             onSimulate(action)
@@ -151,7 +177,6 @@ export function ActionQueue({ actions, onComplete, onSimulate }) {
 
                       {!action.isCompleted && onComplete && (
                         <button
-                          type="button"
                           onClick={(e) => {
                             e.stopPropagation()
                             onComplete(action.id)

@@ -1,28 +1,42 @@
-import React, { useMemo } from 'react'
+import React from 'react'
 import { Clock, AlertTriangle, CheckCircle2, Calendar } from 'lucide-react'
+
+export type DeadlineStatus = 'safe' | 'warning' | 'critical' | 'passed'
+export type ApplicationStatus = 'not_started' | 'in_progress' | 'submitted'
+
+export type DeadlineItem = {
+  id: string
+  title: string
+  date: string
+  type: 'application' | 'event' | 'profile'
+  status: 'urgent' | 'upcoming' | 'planned'
+}
+
+interface DeadlineTimelineProps {
+  deadline: string // ISO date string
+  status: DeadlineStatus
+  applicationStatus?: ApplicationStatus
+  timeUsedPercent: number // 0-100
+}
 
 export function DeadlineTimeline({
   deadline,
   status,
   applicationStatus = 'not_started',
   timeUsedPercent,
-}) {
-  const date = useMemo(() => new Date(deadline), [deadline])
+}: DeadlineTimelineProps) {
+  const date = new Date(deadline)
+  const formattedDate = date.toLocaleDateString(undefined, {
+    weekday: 'short',
+    month: 'short',
+    day: 'numeric',
+    year: 'numeric',
+  })
 
-  const formattedDate = useMemo(() => {
-    return date.toLocaleDateString(undefined, {
-      weekday: 'short',
-      month: 'short',
-      day: 'numeric',
-      year: 'numeric',
-    })
-  }, [date])
-
-  const diffDays = useMemo(() => {
-    const today = new Date()
-    const diffTime = date.getTime() - today.getTime()
-    return Math.ceil(diffTime / (1000 * 60 * 60 * 24))
-  }, [date])
+  // Calculate days left
+  const today = new Date()
+  const diffTime = date.getTime() - today.getTime()
+  const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24))
 
   const getStatusColor = () => {
     switch (status) {
@@ -94,7 +108,9 @@ export function DeadlineTimeline({
         {getAppStatusBadge()}
       </div>
 
-      <div className={`flex items-center gap-4 p-4 rounded-lg border mb-5 ${getStatusColor()}`}>
+      <div
+        className={`flex items-center gap-4 p-4 rounded-lg border mb-5 ${getStatusColor()}`}
+      >
         <div className="flex-shrink-0">{getStatusIcon()}</div>
         <div className="flex-1 min-w-0">
           <p className="text-sm font-semibold truncate">
@@ -116,7 +132,9 @@ export function DeadlineTimeline({
         <div className="w-full h-2.5 bg-slate-100 rounded-full overflow-hidden">
           <div
             className={`h-full rounded-full transition-all duration-1000 ease-out ${getProgressBarColor()}`}
-            style={{ width: `${Math.min(100, Math.max(0, timeUsedPercent))}%` }}
+            style={{
+              width: `${Math.min(100, Math.max(0, timeUsedPercent))}%`,
+            }}
           />
         </div>
       </div>
