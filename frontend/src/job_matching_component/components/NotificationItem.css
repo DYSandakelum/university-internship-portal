@@ -1,0 +1,99 @@
+.notification-item {
+    display: flex;
+    gap: 14px;
+    align-items: flex-start;
+    padding: 14px 14px;
+    border-radius: 14px;
+    border: 1px solid var(--slate-200);
+    background: #fff;
+    transition: box-shadow var(--transition-normal), transform var(--transition-normal), border-color var(--transition-normal);
+}
+
+.notification-item.clickable { cursor: pointer; }
+.notification-item.clickable:hover { box-shadow: 0 10px 24px rgba(15, 23, 42, 0.12); transform: translateY(-1px); }
+
+.notification-item.unread {
+    background: rgba(59, 130, 246, 0.05);
+    border-left-width: 4px;
+}
+
+.notification-item.read {
+    border-left-width: 4px;
+}
+
+.notification-icon {
+    width: 40px;
+    height: 40px;
+    border-radius: 999px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+}
+
+.notification-body {
+    flex: 1;
+    min-width: 0;
+}
+
+.notification-top {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: 10px;
+}
+
+.notification-title {
+    font-size: 14px;
+    font-weight: 800;
+    color: var(--slate-900);
+}
+
+.notification-timestamp {
+    font-size: 12px;
+    color: var(--slate-400);
+    white-space: nowrap;
+    flex-shrink: 0;
+}
+
+.notification-message {
+    margin-top: 6px;
+    font-size: 14px;
+    line-height: 1.4;
+    color: var(--slate-500);
+}
+
+.notification-message.unread {
+    color: var(--slate-700);
+    font-weight: 600;
+}
+
+.notification-right {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-end;
+    justify-content: space-between;
+    gap: 10px;
+}
+
+.notification-dot {
+    width: 10px;
+    height: 10px;
+    border-radius: 999px;
+    background: var(--primary);
+}
+
+.notification-markread {
+    border: 0;
+    background: transparent;
+    padding: 6px;
+    border-radius: 999px;
+    color: var(--slate-400);
+    cursor: pointer;
+    transition: background var(--transition-fast), color var(--transition-fast);
+}
+
+.notification-markread:hover {
+    background: rgba(59, 130, 246, 0.10);
+    color: var(--primary);
+}
