@@ -285,7 +285,20 @@ export default function RecommendedJobs() {
                     getSavedJobs().catch(() => [])
                 ]);
 
-                setJobs(Array.isArray(recommended) ? recommended : []);
+                let nextJobs = Array.isArray(recommended) ? recommended : [];
+
+                // Fallback: If recommendations are empty, still show jobs from DB.
+                // This keeps the page useful immediately after seeding.
+                if (nextJobs.length === 0) {
+                    try {
+                        const { searchJobs } = await import('../../services/jobService');
+                        nextJobs = await searchJobs({});
+                    } catch {
+                        // ignore fallback errors
+                    }
+                }
+
+                setJobs(Array.isArray(nextJobs) ? nextJobs : []);
                 const ids = new Set((saved || []).map((s) => String(s.jobId?._id || s.jobId)));
                 setSavedJobIds(ids);
             } catch (e) {
@@ -330,7 +343,17 @@ export default function RecommendedJobs() {
                 getSavedJobs().catch(() => [])
             ]);
 
-            setJobs(Array.isArray(recommended) ? recommended : []);
+            let nextJobs = Array.isArray(recommended) ? recommended : [];
+            if (nextJobs.length === 0) {
+                try {
+                    const { searchJobs } = await import('../../services/jobService');
+                    nextJobs = await searchJobs({});
+                } catch {
+                    // ignore fallback errors
+                }
+            }
+
+            setJobs(Array.isArray(nextJobs) ? nextJobs : []);
             const ids = new Set((saved || []).map((s) => String(s.jobId?._id || s.jobId)));
             setSavedJobIds(ids);
         } catch (e) {

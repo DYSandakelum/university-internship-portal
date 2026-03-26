@@ -3,6 +3,7 @@ const { spawn } = require('child_process');
 const path = require('path');
 
 const BACKEND_PORT = 5000;
+const FRONTEND_DEFAULT_PORT = 3010;
 const MAX_RETRIES = 30;
 const RETRY_INTERVAL = 1000; // 1 second
 let retryCount = 0;
@@ -71,11 +72,19 @@ async function waitForBackend() {
 async function startFrontend() {
     const isReady = await waitForBackend();
     if (isReady) {
-        console.log('🌐 Starting frontend on port 3010...\n');
+        const preferredPort = Number.parseInt(process.env.PORT, 10);
+        const basePort = Number.isFinite(preferredPort) ? preferredPort : FRONTEND_DEFAULT_PORT;
+        const frontendPort = await findAvailablePort(basePort, basePort + 50);
+
+        console.log(`🌐 Starting frontend on port ${frontendPort}...\n`);
         const frontendProcess = spawn('npm', ['--prefix', 'frontend', 'start'], {
             stdio: 'inherit',
             shell: true,
-            cwd: __dirname
+            cwd: __dirname,
+            env: {
+                ...process.env,
+                PORT: String(frontendPort)
+            }
         });
 
         frontendProcess.on('error', (error) => {
@@ -89,6 +98,32 @@ async function startFrontend() {
             process.exit(code);
         });
     }
+}
+
+function isPortAvailable(port) {
+    return new Promise((resolve) => {
+        const server = http
+            .createServer(() => {})
+            .listen(port, '0.0.0.0');
+
+        server.on('listening', () => {
+            server.close(() => resolve(true));
+        });
+
+        server.on('error', () => {
+            resolve(false);
+        });
+    });
+}
+
+async function findAvailablePort(startPort, endPort) {
+    for (let port = startPort; port <= endPort; port++) {
+        // eslint-disable-next-line no-await-in-loop
+        const available = await isPortAvailable(port);
+        if (available) return port;
+    }
+    console.error(`❌ No available ports found in range ${startPort}-${endPort}`);
+    process.exit(1);
 }
 
 // Handle process termination

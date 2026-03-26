@@ -1,23 +1,23 @@
-/* Saved Jobs page styles (full-width, compact, solid colors) */
+/* Saved Jobs page styles - using design system tokens */
 
 .saved-page {
-    width: 100%;
+  width: 100%;
 }
 
 .saved-grid {
-    display: grid;
-    grid-template-columns: repeat(3, minmax(0, 1fr));
-    gap: 12px;
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: var(--space-3);
 }
 
 @media (max-width: 1100px) {
-    .saved-grid {
-        grid-template-columns: repeat(2, minmax(0, 1fr));
-    }
+  .saved-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
 }
 
 @media (max-width: 720px) {
-    .saved-grid {
-        grid-template-columns: 1fr;
-    }
+  .saved-grid {
+    grid-template-columns: 1fr;
+  }
 }
