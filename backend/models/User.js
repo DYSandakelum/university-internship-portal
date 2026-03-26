@@ -28,6 +28,18 @@ const userSchema = new mongoose.Schema({
         type: Boolean,
         default: false
     },
+    companyName: {
+        type: String,
+        default: ''
+    },
+    companyAddress: {
+        type: String,
+        default: ''
+    },
+    companyDescription: {
+        type: String,
+        default: ''
+    },
     verificationToken: {
         type: String
     },
@@ -44,7 +56,6 @@ const userSchema = new mongoose.Schema({
     timestamps: true
 });
 
-// Method to compare entered password with hashed password
 userSchema.methods.matchPassword = async function(enteredPassword) {
     return await bcrypt.compare(enteredPassword, this.password);
 };

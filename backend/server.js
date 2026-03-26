@@ -14,7 +14,9 @@ const app = express();
 
 // Middleware
 app.use(cors({
-    origin: process.env.CLIENT_URL,
+    origin: function(origin, callback) {
+        callback(null, true);
+    },
     credentials: true
 }));
 app.use(express.json());
@@ -33,6 +35,9 @@ app.use('/api/employer', require('./routes/employerRoutes'));
 
 app.use('/api/student', require('./routes/studentRoutes'));
 
+app.use('/api/jobs', require('./routes/jobRoutes'));
+
+app.use('/api/applications', require('./routes/applicationRoutes'));
 
 // Start server
 const PORT = process.env.PORT || 5000;

@@ -44,10 +44,72 @@ const loginEmployer = async (req, res) => {
       return res.status(400).json({ message: 'Invalid credentials' });
     }
     const token = generateToken(employer._id, 'employer');
-    res.status(200).json({ token });
+    res.status(200).json({
+      message: 'Login successful',
+      token,
+      user: {
+        id: employer._id,
+        name: employer.name,
+        email: employer.email,
+        companyName: employer.companyName,
+        role: 'employer'
+      }
+    });
   } catch (error) {
     res.status(500).json({ message: 'Server error' });
   }
 };
 
-module.exports = { registerEmployer, loginEmployer };
+const getEmployerProfile = async (req, res) => {
+  try {
+    const User = require('../models/User');
+    const user = await User.findById(req.user.id).select('-password');
+    if (!user) return res.status(404).json({ message: 'Employer not found' });
+    res.json({
+      employer: {
+        _id: user._id,
+        name: user.name,
+        email: user.email,
+        companyName: user.companyName || '',
+        companyAddress: user.companyAddress || '',
+        companyDescription: user.companyDescription || '',
+        isVerified: user.isVerified || false
+      }
+    });
+  } catch (error) {
+    res.status(500).json({ message: error.message });
+  }
+};
+
+const updateEmployerProfile = async (req, res) => {
+  try {
+    const User = require('../models/User');
+    const { companyName, companyAddress, companyDescription } = req.body;
+    const user = await User.findByIdAndUpdate(
+      req.user.id,
+      { companyName, companyAddress, companyDescription },
+      { new: true }
+    ).select('-password');
+    if (!user) return res.status(404).json({ message: 'Employer not found' });
+    res.json({
+      employer: {
+        _id: user._id,
+        name: user.name,
+        email: user.email,
+        companyName: user.companyName || '',
+        companyAddress: user.companyAddress || '',
+        companyDescription: user.companyDescription || '',
+        isVerified: user.isVerified || false
+      }
+    });
+  } catch (error) {
+    res.status(500).json({ message: error.message });
+  }
+};
+
+module.exports = { 
+  registerEmployer, 
+  loginEmployer, 
+  getEmployerProfile, 
+  updateEmployerProfile 
+};
