@@ -1,207 +1,259 @@
-/* JobCard component styles (compact, professional, solid colors only) */
+/* JobCard - Tailwind-exact, self-contained design
+   No dependencies on global classes. All styling in JobCard.css */
 
-.modern-card {
-    background: #ffffff;
-    border: 1px solid var(--secondary-200);
-    border-radius: 12px;
-    padding: 12px;
-    box-shadow: 0 6px 18px rgba(15, 23, 42, 0.06);
-    transition: border-color 120ms ease, box-shadow 120ms ease;
+/* Base card container */
+.job-card {
+  background: #ffffff;
+  border: 1px solid #e2e8f0;
+  border-radius: 12px;
+  padding: 20px;
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  position: relative;
+  box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.1);
+  transition: all 200ms ease;
 }
 
-.modern-card:hover {
-    border-color: var(--secondary-300);
-    box-shadow: 0 10px 24px rgba(15, 23, 42, 0.08);
+.job-card:hover {
+  border-color: #cbd5e1;
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
 }
 
-.card-header {
-    display: flex;
-    align-items: flex-start;
-    justify-content: space-between;
-    gap: 12px;
+/* Top section: title, company, score */
+.job-card-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 16px;
+  margin-bottom: 16px;
 }
 
-.card-title {
-    margin: 0;
-    font-size: 15px;
-    font-weight: 800;
-    color: var(--secondary-900);
-    letter-spacing: -0.01em;
-    line-height: 1.25;
+.job-card-title {
+  margin: 0;
+  font-size: 18px;
+  font-weight: 700;
+  color: #1e293b;
+  line-height: 1.2;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  display: -webkit-box;
+  -webkit-line-clamp: 1;
+  line-clamp: 1;
+  -webkit-box-orient: vertical;
+  transition: color 160ms ease;
 }
 
-.card-company {
-    margin: 4px 0 0 0;
-    font-size: 12px;
-    color: var(--secondary-600);
-    font-weight: 600;
+.job-card:hover .job-card-title {
+  color: #3b82f6;
 }
 
-.card-meta {
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: 8px 10px;
-    margin-top: 12px;
+.job-card-company {
+  margin: 4px 0 0 0;
+  font-size: 14px;
+  font-weight: 600;
+  color: #475569;
 }
 
-.card-meta-item {
-    display: inline-flex;
-    align-items: center;
-    gap: 8px;
-    min-width: 0;
-    color: var(--secondary-700);
-    font-size: 12px;
-    line-height: 1.2;
+/* Match score ring */
+.job-score {
+  position: relative;
+  width: 48px;
+  height: 48px;
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-left: 16px;
 }
 
-.card-meta-item span {
-    overflow: hidden;
-    text-overflow: ellipsis;
-    white-space: nowrap;
+.job-score svg {
+  width: 100%;
+  height: 100%;
+  transform: rotate(-90deg);
 }
 
-.card-meta-icon {
-    width: 26px;
-    height: 26px;
-    border-radius: 9px;
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    background: var(--secondary-100);
-    border: 1px solid var(--secondary-200);
-    color: var(--secondary-700);
-    flex-shrink: 0;
+.job-score-base {
+  color: #f1f5f9;
 }
 
-.card-meta-icon svg {
-    width: 14px;
-    height: 14px;
+.job-score-value {
+  position: absolute;
+  width: 100%;
+  height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 12px;
+  font-weight: 800;
 }
 
-/* Deadline states (solid color only) */
-.deadline-text {
-    font-weight: 700;
-    color: var(--secondary-700);
+.job-score-value.score-success {
+  color: #10b981;
 }
 
-.deadline-expired .card-meta-icon {
-    background: var(--secondary-100);
-    border-color: var(--error-500);
-    color: var(--error-500);
+.job-score-value.score-primary {
+  color: #3b82f6;
 }
 
-.deadline-expired .deadline-text {
-    color: var(--error-500);
+.job-score-value.score-warning {
+  color: #f59e0b;
 }
 
-.deadline-urgent .card-meta-icon {
-    background: var(--secondary-100);
-    border-color: var(--warning-500);
-    color: var(--warning-500);
+.job-score-value.score-muted {
+  color: #94a3b8;
 }
 
-.deadline-urgent .deadline-text {
-    color: var(--warning-500);
+/* Meta grid (location, job type, salary, deadline) */
+.job-meta {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 8px 16px;
+  margin-bottom: 16px;
+  font-size: 14px;
+  color: #475569;
 }
 
-.deadline-soon .card-meta-icon {
-    background: var(--secondary-100);
-    border-color: var(--warning-500);
-    color: var(--warning-500);
+.job-meta-item {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  min-width: 0;
 }
 
-.deadline-soon .deadline-text {
-    color: var(--secondary-800);
+.job-meta-icon {
+  width: 16px;
+  height: 16px;
+  color: #94a3b8;
+  flex-shrink: 0;
 }
 
-.card-skills {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 6px;
-    margin-top: 10px;
+.job-meta-text {
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
 
-.skill-tag {
-    font-size: 11px;
-    font-weight: 700;
-    background: var(--secondary-100);
-    color: var(--secondary-700);
-    border: 1px solid var(--secondary-200);
-    border-radius: 999px;
-    padding: 3px 9px;
+/* Skills pills */
+.job-skills {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-bottom: 24px;
+  flex: 1;
+  align-content: flex-start;
 }
 
-.skill-tag-more {
-    background: #ffffff;
-    color: var(--secondary-700);
+.job-skill {
+  padding: 4px 10px;
+  background: #f1f5f9;
+  color: #475569;
+  border-radius: 6px;
+  font-size: 12px;
+  font-weight: 600;
 }
 
-.card-actions {
-    display: flex;
-    align-items: center;
-    gap: 10px;
-    margin-top: 12px;
-    flex-wrap: wrap;
+.job-skill-more {
+  background: #f8fafc;
+  color: #64748b;
 }
 
-.card-actions .btn-primary,
-.card-actions .btn-secondary {
-    padding: 8px 12px;
-    border-radius: 10px;
-    font-weight: 700;
+/* Footer: Apply + Save buttons */
+.job-footer {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-top: auto;
+  padding-top: 16px;
+  border-top: 1px solid #f1f5f9;
 }
 
-.card-actions .btn-primary {
-    box-shadow: 0 8px 18px rgba(37, 99, 235, 0.18);
+.job-btn-apply {
+  flex: 1;
+  background: #3b82f6;
+  color: #ffffff;
+  border: none;
+  border-radius: 8px;
+  padding: 8px 16px;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  transition: all 160ms ease;
 }
 
-.jobcard-saved {
-    background: var(--success-500);
-    color: #ffffff;
-    border: 1px solid var(--success-500);
+.job-btn-apply:hover {
+  background: #2563eb;
 }
 
-.jobcard-remove {
-    width: 40px;
-    height: 40px;
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    border-radius: 10px;
-    border: 1px solid var(--error-500);
-    background: #ffffff;
-    color: var(--error-500);
-    cursor: pointer;
+.job-btn-apply:disabled {
+  opacity: 0.7;
 }
 
-.jobcard-remove:hover {
-    background: var(--secondary-100);
+.job-btn-apply svg {
+  width: 16px;
+  height: 16px;
 }
 
-.match-indicator {
-    width: 52px;
-    height: 52px;
-    position: relative;
-    display: grid;
-    place-items: center;
+.job-btn-save {
+  width: 40px;
+  height: 40px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 8px;
+  border: 1px solid #e2e8f0;
+  background: #ffffff;
+  color: #cbd5e1;
+  cursor: pointer;
+  transition: all 160ms ease;
 }
 
-.match-circle {
-    width: 52px;
-    height: 52px;
-    border-radius: 50%;
-    background: conic-gradient(var(--primary-500) var(--match-percent), var(--secondary-200) 0);
+.job-btn-save:hover {
+  color: #3b82f6;
+  border-color: rgba(59, 130, 246, 0.3);
 }
 
-.match-text {
-    position: absolute;
-    font-size: 11px;
-    font-weight: 800;
-    color: var(--secondary-800);
+.job-btn-save.is-saved {
+  background: rgba(59, 130, 246, 0.1);
+  color: #3b82f6;
+  border-color: rgba(59, 130, 246, 0.2);
+}
+
+.job-btn-save.is-saved:hover {
+  background: rgba(59, 130, 246, 0.2);
+  color: #1e40af;
+}
+
+.job-btn-remove {
+  background: #ef4444;
+  color: #ffffff;
+  border: none;
+}
+
+.job-btn-remove:hover {
+  background: #dc2626;
+}
+
+.job-spinner {
+  width: 16px;
+  height: 16px;
+  border: 2px solid currentColor;
+  border-top-color: transparent;
+  border-radius: 50%;
+  animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+  to { transform: rotate(360deg); }
 }
 
 @media (max-width: 560px) {
-    .card-meta {
-        grid-template-columns: 1fr;
-    }
+  .job-meta {
+    grid-template-columns: 1fr;
+  }
 }
