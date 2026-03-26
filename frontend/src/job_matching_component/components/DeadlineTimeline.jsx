@@ -1,152 +1,139 @@
-import React from 'react';
-import { FiClock, FiAlertTriangle, FiCheckCircle, FiInfo } from 'react-icons/fi';
-import './DeadlineTimeline.css';
+import React, { useMemo } from 'react'
+import { Clock, AlertTriangle, CheckCircle2, Calendar } from 'lucide-react'
 
-function DeadlineTimeline({ opportunity }) {
-    if (!opportunity) return null;
+export function DeadlineTimeline({
+  deadline,
+  status,
+  applicationStatus = 'not_started',
+  timeUsedPercent,
+}) {
+  const date = useMemo(() => new Date(deadline), [deadline])
 
-    const deadline = new Date(opportunity.deadlineDate);
-    const now = new Date();
-    const daysRemaining = Math.ceil((deadline - now) / (1000 * 60 * 60 * 24));
+  const formattedDate = useMemo(() => {
+    return date.toLocaleDateString(undefined, {
+      weekday: 'short',
+      month: 'short',
+      day: 'numeric',
+      year: 'numeric',
+    })
+  }, [date])
 
-    // Calculate percentage of time used
-    const createdDate = new Date(opportunity.createdAt);
-    const totalDays = Math.ceil((deadline - createdDate) / (1000 * 60 * 60 * 24));
-    const percentUsed = Math.max(0, Math.min(100, ((totalDays - daysRemaining) / totalDays) * 100));
+  const diffDays = useMemo(() => {
+    const today = new Date()
+    const diffTime = date.getTime() - today.getTime()
+    return Math.ceil(diffTime / (1000 * 60 * 60 * 24))
+  }, [date])
 
-    const getStatusIcon = (status) => {
-        switch (status) {
-            case 'critical':
-                return <FiAlertTriangle className="status-icon critical" />;
-            case 'warning':
-                return <FiClock className="status-icon warning" />;
-            default:
-                return <FiCheckCircle className="status-icon safe" />;
-        }
-    };
+  const getStatusColor = () => {
+    switch (status) {
+      case 'safe':
+        return 'text-success bg-success/10 border-success/20'
+      case 'warning':
+        return 'text-warning bg-warning/10 border-warning/20'
+      case 'critical':
+        return 'text-error bg-error/10 border-error/20'
+      case 'passed':
+        return 'text-slate-500 bg-slate-100 border-slate-200'
+      default:
+        return 'text-primary bg-primary/10 border-primary/20'
+    }
+  }
 
-    const getDateString = (date) => {
-        const options = { month: 'short', day: 'numeric', year: 'numeric' };
-        return date.toLocaleDateString('en-US', options);
-    };
+  const getStatusIcon = () => {
+    switch (status) {
+      case 'safe':
+        return <CheckCircle2 className="w-5 h-5 text-success" />
+      case 'warning':
+        return <AlertTriangle className="w-5 h-5 text-warning" />
+      case 'critical':
+        return <AlertTriangle className="w-5 h-5 text-error animate-pulse" />
+      case 'passed':
+        return <Clock className="w-5 h-5 text-slate-500" />
+      default:
+        return <Clock className="w-5 h-5 text-primary" />
+    }
+  }
 
-    const getTimelineMessage = () => {
-        if (daysRemaining < 0) return 'Deadline Passed';
-        if (daysRemaining === 0) return 'Apply TODAY!';
-        if (daysRemaining <= 3) return 'Critical Window';
-        if (daysRemaining <= 7) return 'Warning Zone';
-        if (daysRemaining <= 14) return 'Good Timing';
-        return 'Plenty of Time';
-    };
+  const getProgressBarColor = () => {
+    if (timeUsedPercent > 90) return 'bg-error'
+    if (timeUsedPercent > 75) return 'bg-warning'
+    return 'bg-primary'
+  }
 
-    return (
-        <div className="deadline-timeline-container">
-            <div className="timeline-header">
-                <h3 className="timeline-title">
-                    <FiClock /> Application Deadline
-                </h3>
-                {getStatusIcon(opportunity.deadlineStatus)}
-            </div>
+  const getAppStatusBadge = () => {
+    switch (applicationStatus) {
+      case 'submitted':
+        return (
+          <span className="px-2 py-1 bg-success/10 text-success text-xs font-bold rounded border border-success/20">
+            Submitted
+          </span>
+        )
+      case 'in_progress':
+        return (
+          <span className="px-2 py-1 bg-primary/10 text-primary text-xs font-bold rounded border border-primary/20">
+            In Progress
+          </span>
+        )
+      case 'not_started':
+      default:
+        return (
+          <span className="px-2 py-1 bg-slate-100 text-slate-600 text-xs font-bold rounded border border-slate-200">
+            Not Started
+          </span>
+        )
+    }
+  }
 
-            {/* Main Deadline Info */}
-            <div className="deadline-info">
-                <div className="deadline-date">
-                    <p className="deadline-label">Deadline Date</p>
-                    <p className="deadline-value">{getDateString(deadline)}</p>
-                </div>
+  return (
+    <div className="modern-card p-5">
+      <div className="flex items-center justify-between mb-4">
+        <h3 className="text-lg font-bold text-slate-900 flex items-center gap-2">
+          <Calendar className="w-5 h-5 text-primary" />
+          Deadline Tracker
+        </h3>
+        {getAppStatusBadge()}
+      </div>
 
-                <div className="deadline-countdown">
-                    <p className="deadline-label">Time Remaining</p>
-                    <p className={`countdown-value ${
-                        daysRemaining <= 0 ? 'expired' :
-                        daysRemaining <= 3 ? 'critical' :
-                        daysRemaining <= 7 ? 'warning' : 'safe'
-                    }`}>
-                        {daysRemaining > 0 ? `${daysRemaining} days` : 'Expired'}
-                    </p>
-                </div>
-
-                <div className="deadline-message">
-                    <p className="message-text">{getTimelineMessage()}</p>
-                </div>
-            </div>
-
-            {/* Timeline Progress */}
-            <div className="timeline-progress">
-                <div className="progress-label">
-                    <span>Time Used</span>
-                    <span className="progress-percent">{Math.round(percentUsed)}%</span>
-                </div>
-                <div className="progress-bar">
-                    <div
-                        className={`progress-fill ${
-                            percentUsed >= 80 ? 'critical-usage' : 'normal-usage'
-                        }`}
-                        style={{ width: `${percentUsed}%` }}
-                    ></div>
-                </div>
-            </div>
-
-            {/* Recommendation Box */}
-            <div className={`recommendation ${opportunity.deadlineStatus}`}>
-                {opportunity.deadlineStatus === 'critical' && (
-                    <>
-                        <p className="rec-title" style={{ display: 'flex', alignItems: 'center', gap: '6px' }}><FiAlertTriangle /> Critical Alert</p>
-                        <p className="rec-text">
-                            Deadline is {daysRemaining <= 0 ? 'PAST' : `in ${daysRemaining} days`}. 
-                            Apply immediately if you haven't already!
-                        </p>
-                        <button className="rec-button critical">Apply Now</button>
-                    </>
-                )}
-                {opportunity.deadlineStatus === 'warning' && (
-                    <>
-                        <p className="rec-title" style={{ display: 'flex', alignItems: 'center', gap: '6px' }}><FiClock /> Act Soon</p>
-                        <p className="rec-text">
-                            You have {daysRemaining} days. Complete your profile and apply this week.
-                        </p>
-                        <button className="rec-button warning">Prepare Application</button>
-                    </>
-                )}
-                {opportunity.deadlineStatus === 'safe' && (
-                    <>
-                        <p className="rec-title" style={{ display: 'flex', alignItems: 'center', gap: '6px' }}><FiCheckCircle /> Good Timing</p>
-                        <p className="rec-text">
-                            {daysRemaining} days remaining. Take time to tailor your application.
-                        </p>
-                        <button className="rec-button safe">Plan Application</button>
-                    </>
-                )}
-            </div>
-
-            {/* Application Status */}
-            {opportunity.applicationStatus !== 'not_applied' && (
-                <div className="application-status">
-                    <h4 className="status-title">Application Status</h4>
-                    <div className="status-badge" style={{
-                        background: opportunity.applicationStatus === 'applied' ? 'rgba(37, 99, 235, 0.1)' :
-                                   opportunity.applicationStatus === 'interview' ? 'rgba(16, 185, 129, 0.1)' :
-                                   opportunity.applicationStatus === 'offer' ? 'rgba(16, 185, 129, 0.2)' : 'rgba(239, 68, 68, 0.1)',
-                        color: opportunity.applicationStatus === 'applied' ? '#2563eb' :
-                               opportunity.applicationStatus === 'interview' ? '#10b981' :
-                               opportunity.applicationStatus === 'offer' ? '#059669' : '#dc2626'
-                    }}>
-                        {opportunity.applicationStatus.replace('_', ' ').toUpperCase()}
-                    </div>
-                    {opportunity.applicationDate && (
-                        <p className="applied-date">
-                            Applied on {getDateString(new Date(opportunity.applicationDate))}
-                        </p>
-                    )}
-                </div>
-            )}
-
-            {/* Calendar Integration Hint */}
-            <div className="calendar-hint">
-                <p style={{ display: 'flex', alignItems: 'center', gap: '6px' }}><FiInfo /> Tip: Add this deadline to your calendar so you don't miss it!</p>
-            </div>
+      <div className={`flex items-center gap-4 p-4 rounded-lg border mb-5 ${getStatusColor()}`}>
+        <div className="flex-shrink-0">{getStatusIcon()}</div>
+        <div className="flex-1 min-w-0">
+          <p className="text-sm font-semibold truncate">
+            {diffDays > 0
+              ? `${diffDays} days remaining`
+              : diffDays === 0
+                ? 'Due today!'
+                : 'Deadline passed'}
+          </p>
+          <p className="text-xs opacity-80 truncate">{formattedDate}</p>
         </div>
-    );
-}
+      </div>
 
-export default DeadlineTimeline;
+      <div className="space-y-2">
+        <div className="flex justify-between text-xs font-medium text-slate-500">
+          <span>Time Used</span>
+          <span>{timeUsedPercent}%</span>
+        </div>
+        <div className="w-full h-2.5 bg-slate-100 rounded-full overflow-hidden">
+          <div
+            className={`h-full rounded-full transition-all duration-1000 ease-out ${getProgressBarColor()}`}
+            style={{ width: `${Math.min(100, Math.max(0, timeUsedPercent))}%` }}
+          />
+        </div>
+      </div>
+
+      {status === 'critical' && applicationStatus !== 'submitted' && (
+        <div className="mt-4 p-3 bg-error/5 border border-error/10 rounded text-sm text-error font-medium flex items-start gap-2 animate-fade-in">
+          <AlertTriangle className="w-4 h-4 mt-0.5 flex-shrink-0" />
+          <p>Action required immediately to meet this deadline.</p>
+        </div>
+      )}
+
+      {status === 'warning' && applicationStatus === 'not_started' && (
+        <div className="mt-4 p-3 bg-warning/5 border border-warning/10 rounded text-sm text-warning-700 font-medium flex items-start gap-2 animate-fade-in">
+          <Clock className="w-4 h-4 mt-0.5 flex-shrink-0" />
+          <p>Consider starting your application soon.</p>
+        </div>
+      )}
+    </div>
+  )
+}

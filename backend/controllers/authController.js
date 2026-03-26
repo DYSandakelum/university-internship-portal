@@ -52,9 +52,12 @@ const registerUser = async (req, res) => {
         });
 
         if (user) {
+            let emailSent = false;
+            let emailErrorMessage = '';
+            const verificationURL = `${process.env.CLIENT_URL}/verify-email/${verificationToken}`;
+
             // Try to send verification email separately
             try {
-                const verificationURL = `${process.env.CLIENT_URL}/verify-email/${verificationToken}`;
                 const html = `
                     <h1>Email Verification</h1>
                     <p>Hi ${user.name},</p>
@@ -75,20 +78,30 @@ const registerUser = async (req, res) => {
                     subject: 'Email Verification - University Internship Portal',
                     html
                 });
+                emailSent = true;
             } catch (emailError) {
                 console.error('Email sending failed:', emailError.message);
+                emailErrorMessage = emailError.message;
             }
 
-            res.status(201).json({
-                message: 'Registration successful! Please check your email to verify your account.',
+            const response = {
+                message: emailSent
+                    ? 'Registration successful! Please check your email to verify your account.'
+                    : 'Registration successful, but verification email could not be sent. Use the verification link below to verify your account.',
                 user: {
                     id: user._id,
                     name: user.name,
                     email: user.email,
                     role: user.role,
                     isVerified: user.isVerified
-                }
-            });
+                },
+                emailSent,
+                // Always provide verification URL in development mode
+                devVerificationUrl: process.env.NODE_ENV === 'development' ? verificationURL : undefined,
+                emailError: process.env.NODE_ENV === 'development' ? emailErrorMessage : undefined
+            };
+
+            res.status(201).json(response);
         }
 
     } catch (error) {

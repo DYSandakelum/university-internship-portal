@@ -1,162 +1,91 @@
-import React from 'react';
-import { FiMail, FiAward } from 'react-icons/fi';
-import './ScoreGauge.css';
+import React, { useEffect, useState } from 'react'
 
-function ScoreGauge({ opportunity }) {
-    if (!opportunity) return null;
+export function ScoreGauge({
+  score,
+  label = 'Match Score',
+  size = 'md',
+  animate = true,
+}) {
+  const [displayScore, setDisplayScore] = useState(animate ? 0 : score)
 
-    const score = opportunity.overallSuccessScore || 0;
-    const strokeOffset = 440 - (score / 100) * 440; // Circumference is 440px
+  useEffect(() => {
+    if (!animate) {
+      setDisplayScore(score)
+      return
+    }
 
-    // Determine color based on score
-    const getScoreColor = (s) => {
-        if (s >= 75) return '#10b981'; // success green
-        if (s >= 50) return '#f59e0b'; // warning orange
-        return '#ef4444'; // error red
-    };
+    let startTime = null
+    const duration = 1000
 
-    const getScoreLabel = (s) => {
-        if (s >= 75) return 'Excellent Opportunity';
-        if (s >= 50) return 'Good Opportunity';
-        if (s >= 25) return 'Fair Opportunity';
-        return 'Low Probability';
-    };
+    const animateScore = (currentTime) => {
+      if (!startTime) startTime = currentTime
+      const progress = Math.min((currentTime - startTime) / duration, 1)
+      const easeProgress = 1 - Math.pow(1 - progress, 4)
+      setDisplayScore(Math.floor(easeProgress * score))
+      if (progress < 1) requestAnimationFrame(animateScore)
+    }
 
-    const color = getScoreColor(score);
-    const label = getScoreLabel(score);
+    requestAnimationFrame(animateScore)
+  }, [score, animate])
 
-    return (
-        <div className="score-gauge-container">
-            <div className="gauge-inner">
-                <svg viewBox="0 0 200 200" className="gauge-svg">
-                    {/* Background circle */}
-                    <circle
-                        cx="100"
-                        cy="100"
-                        r="70"
-                        fill="none"
-                        stroke="var(--primary-100)"
-                        strokeWidth="12"
-                    />
-                    {/* Progress circle */}
-                    <circle
-                        cx="100"
-                        cy="100"
-                        r="70"
-                        fill="none"
-                        stroke={color}
-                        strokeWidth="12"
-                        strokeDasharray="440"
-                        strokeDashoffset={strokeOffset}
-                        strokeLinecap="round"
-                        className="gauge-progress"
-                    />
-                </svg>
+  const getScoreColor = (val) => {
+    if (val >= 90) return 'text-success'
+    if (val >= 70) return 'text-primary'
+    if (val >= 50) return 'text-warning'
+    return 'text-slate-400'
+  }
 
-                {/* Centered content */}
-                <div className="gauge-content">
-                    <div className="score-number" style={{ color }}>
-                        {score}
-                    </div>
-                    <div className="score-percent">%</div>
-                </div>
-            </div>
+  const getScoreStroke = (val) => {
+    if (val >= 90) return '#10b981'
+    if (val >= 70) return '#3b82f6'
+    if (val >= 50) return '#f59e0b'
+    return '#94a3b8'
+  }
 
-            {/* Score Details */}
-            <div className="score-details">
-                <h3 className="score-title">{opportunity.jobId?.title}</h3>
-                <p className="score-label">{label}</p>
+  const getScoreBg = (val) => {
+    if (val >= 90) return 'bg-success/10'
+    if (val >= 70) return 'bg-primary/10'
+    if (val >= 50) return 'bg-warning/10'
+    return 'bg-slate-100'
+  }
 
-                <div className="success-prediction">
-                    <div className="prediction-item">
-                        <span className="prediction-icon"><FiMail /></span>
-                        <div>
-                            <p className="prediction-label">Interview Chance</p>
-                            <p className="prediction-value">
-                                {opportunity.successPrediction?.interviewChance || 0}%
-                            </p>
-                        </div>
-                    </div>
-                    <div className="prediction-item">
-                        <span className="prediction-icon"><FiAward /></span>
-                        <div>
-                            <p className="prediction-label">Offer Chance</p>
-                            <p className="prediction-value">
-                                {opportunity.successPrediction?.offerChance || 0}%
-                            </p>
-                        </div>
-                    </div>
-                </div>
+  const dimensions = {
+    sm: { wrapper: 'w-16 h-16', svg: '36', stroke: '3', text: 'text-lg' },
+    md: { wrapper: 'w-24 h-24', svg: '36', stroke: '2.5', text: 'text-2xl' },
+    lg: { wrapper: 'w-32 h-32', svg: '36', stroke: '2', text: 'text-4xl' },
+  }
 
-                {/* Score Components */}
-                <div className="score-components">
-                    <div className="component-bar">
-                        <div className="component-label">
-                            <span>Skill Match</span>
-                            <span className="component-percent">{opportunity.skillMatchScore}%</span>
-                        </div>
-                        <div className="component-progress">
-                            <div 
-                                className="component-fill"
-                                style={{ 
-                                    width: `${opportunity.skillMatchScore}%`,
-                                    background: 'var(--primary-500)'
-                                }}
-                            ></div>
-                        </div>
-                    </div>
+  const d = dimensions[size]
+  const radius = 15.9155
 
-                    <div className="component-bar">
-                        <div className="component-label">
-                            <span>Profile Complete</span>
-                            <span className="component-percent">{opportunity.profileCompletenessScore}%</span>
-                        </div>
-                        <div className="component-progress">
-                            <div 
-                                className="component-fill"
-                                style={{ 
-                                    width: `${opportunity.profileCompletenessScore}%`,
-                                    background: 'var(--accent-500)'
-                                }}
-                            ></div>
-                        </div>
-                    </div>
-
-                    <div className="component-bar">
-                        <div className="component-label">
-                            <span>Deadline Proximity</span>
-                            <span className="component-percent">{opportunity.deadlineProximityScore}%</span>
-                        </div>
-                        <div className="component-progress">
-                            <div 
-                                className="component-fill"
-                                style={{ 
-                                    width: `${opportunity.deadlineProximityScore}%`,
-                                    background: 'var(--success-500)'
-                                }}
-                            ></div>
-                        </div>
-                    </div>
-
-                    <div className="component-bar">
-                        <div className="component-label">
-                            <span>Application Behavior</span>
-                            <span className="component-percent">{opportunity.applicationBehaviorScore}%</span>
-                        </div>
-                        <div className="component-progress">
-                            <div 
-                                className="component-fill"
-                                style={{ 
-                                    width: `${opportunity.applicationBehaviorScore}%`,
-                                    background: 'var(--warning-500)'
-                                }}
-                            ></div>
-                        </div>
-                    </div>
-                </div>
-            </div>
+  return (
+    <div className="flex flex-col items-center justify-center">
+      <div
+        className={`relative ${d.wrapper} flex items-center justify-center rounded-full ${getScoreBg(score)} p-2`}
+      >
+        <svg className="w-full h-full transform -rotate-90 drop-shadow-sm" viewBox={`0 0 ${d.svg} ${d.svg}`}>
+          <path
+            className="text-white/50"
+            strokeWidth={d.stroke}
+            stroke="currentColor"
+            fill="none"
+            d={`M18 2.0845 a ${radius} ${radius} 0 0 1 0 31.831 a ${radius} ${radius} 0 0 1 0 -31.831`}
+          />
+          <path
+            strokeWidth={d.stroke}
+            strokeDasharray={`${displayScore}, 100`}
+            stroke={getScoreStroke(score)}
+            strokeLinecap="round"
+            fill="none"
+            className="transition-all duration-1000 ease-out"
+            d={`M18 2.0845 a ${radius} ${radius} 0 0 1 0 31.831 a ${radius} ${radius} 0 0 1 0 -31.831`}
+          />
+        </svg>
+        <div className="absolute inset-0 flex flex-col items-center justify-center">
+          <span className={`font-bold ${getScoreColor(score)} ${d.text}`}>{displayScore}</span>
         </div>
-    );
+      </div>
+      {label && <span className="mt-3 text-sm font-medium text-slate-600">{label}</span>}
+    </div>
+  )
 }
-
-export default ScoreGauge;

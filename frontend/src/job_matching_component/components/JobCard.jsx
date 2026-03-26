@@ -1,219 +1,172 @@
-import React, { useState } from 'react';
-import { FiDollarSign, FiClock, FiMapPin, FiBriefcase, FiEdit3, FiBookmark, FiCheck, FiStar, FiSend, FiTrash2 } from 'react-icons/fi';
+import React, { useState } from 'react'
+import {
+  MapPin,
+  Briefcase,
+  DollarSign,
+  Clock,
+  Bookmark,
+  BookmarkCheck,
+  ExternalLink,
+} from 'lucide-react'
 
-// Match Percentage Circle Component
-function MatchIndicator({ percentage }) {
-    if (typeof percentage !== 'number') return null;
-    
-    return (
-        <div className="match-indicator" style={{ '--match-percent': `${percentage}%` }}>
-            <div className="match-circle"></div>
-            <div className="match-text">{percentage}%</div>
-        </div>
-    );
-}
-
-// Skill Tags Component
-function SkillTags({ skills }) {
-    if (!Array.isArray(skills) || skills.length === 0) return null;
-    
-    return (
-        <div className="card-skills">
-            {skills.slice(0, 4).map((skill, index) => (
-                <span key={index} className="skill-tag">
-                    {skill}
-                </span>
-            ))}
-            {skills.length > 4 && (
-                <span className="skill-tag" style={{ background: 'var(--secondary-400)' }}>
-                    +{skills.length - 4}
-                </span>
-            )}
-        </div>
-    );
-}
-
-// Salary Display Component
-function SalaryDisplay({ salary }) {
-    if (!salary) {
-        return (
-            <div className="card-meta-item">
-                <div className="card-meta-icon"><FiDollarSign /></div>
-                <span>Not disclosed</span>
-            </div>
-        );
-    }
-    
-    const formatSalary = (amount) => {
-        if (amount >= 1000) {
-            return `$${(amount / 1000).toFixed(1)}k`;
-        }
-        return `$${amount}`;
-    };
-    
-    return (
-        <div className="card-meta-item">
-            <div className="card-meta-icon"><FiDollarSign /></div>
-            <span>{formatSalary(salary)}</span>
-        </div>
-    );
-}
-
-// Deadline Display Component
-function DeadlineDisplay({ deadline }) {
-    if (!deadline) return null;
-    
-    const deadlineDate = new Date(deadline);
-    const now = new Date();
-    const diffTime = deadlineDate - now;
-    const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
-    
-    let deadlineText = '';
-    let urgencyColor = 'var(--secondary-500)';
-    
-    if (diffDays < 0) {
-        deadlineText = 'Expired';
-        urgencyColor = 'var(--error-500)';
-    } else if (diffDays === 0) {
-        deadlineText = 'Today';
-        urgencyColor = 'var(--warning-500)';
-    } else if (diffDays === 1) {
-        deadlineText = 'Tomorrow';
-        urgencyColor = 'var(--warning-500)';
-    } else if (diffDays <= 7) {
-        deadlineText = `${diffDays} days`;
-        urgencyColor = 'var(--warning-500)';
-    } else {
-        deadlineText = `${diffDays} days`;
-    }
-    
-    return (
-        <div className="card-meta-item">
-            <div className="card-meta-icon" style={{ background: urgencyColor, display: 'flex', alignItems: 'center', justifyContent: 'center' }}><FiClock /></div>
-            <span style={{ color: urgencyColor, fontWeight: '600' }}>{deadlineText}</span>
-        </div>
-    );
-}
-
-export default function JobCard({
-    job,
-    matchPercentage,
-    onApply,
-    onSave,
-    onRemove,
-    isSaved,
-    showRemove
+export function JobCard({
+  job,
+  isSaved = false,
+  onSave,
+  onApply,
+  saveMode = 'save',
 }) {
-    const [isApplying, setIsApplying] = useState(false);
-    const [isSaving, setIsSaving] = useState(false);
-    
-    const handleApply = async () => {
-        setIsApplying(true);
-        try {
-            await onApply?.(job);
-        } finally {
-            setTimeout(() => setIsApplying(false), 1000);
-        }
-    };
-    
-    const handleSave = async () => {
-        setIsSaving(true);
-        try {
-            await onSave?.(job);
-        } finally {
-            setTimeout(() => setIsSaving(false), 500);
-        }
-    };
-    
-    return (
-        <div 
-            className="modern-card"
-            style={{
-                transition: 'all 0.2s ease'
-            }}
-        >
-            <div className="card-header">
-                <div style={{ flex: 1, minWidth: 0 }}>
-                    <h3 className="card-title">{job?.title || 'Job Title'}</h3>
-                    <p className="card-company">{job?.company || 'Company'}</p>
-                </div>
-                
-                {matchPercentage && (
-                    <MatchIndicator percentage={matchPercentage} />
-                )}
-            </div>
-            
-            <div className="card-meta">
-                <div className="card-meta-item">
-                    <div className="card-meta-icon"><FiMapPin /></div>
-                    <span>{job?.location || 'Location not specified'}</span>
-                </div>
-                
-                <div className="card-meta-item">
-                    <div className="card-meta-icon"><FiBriefcase /></div>
-                    <span>{job?.jobType || 'Type not specified'}</span>
-                </div>
-                
-                <SalaryDisplay salary={job?.salary} />
-                
-                <DeadlineDisplay deadline={job?.deadline} />
-            </div>
-            
-            <SkillTags skills={job?.requiredSkills} />
-            
-            <div className="card-actions">
-                <button
-                    className="btn-primary"
-                    onClick={handleApply}
-                    disabled={isApplying}
-                    style={{
-                        opacity: isApplying ? 0.7 : 1,
-                        transform: isApplying ? 'scale(0.95)' : 'scale(1)'
-                    }}
-                >
-                    {isApplying ? (
-                        <><FiSend style={{ marginRight: '4px' }} /> Applying...</>
-                    ) : (
-                        <><FiEdit3 style={{ marginRight: '4px' }} /> Apply</>
-                    )}
-                </button>
-                
-                {showRemove ? (
-                    <button
-                        className="btn-icon"
-                        onClick={() => onRemove?.(job)}
-                        title="Remove from saved jobs"
-                        style={{
-                            background: 'var(--error-500)',
-                            color: 'white',
-                            border: 'none'
-                        }}
-                    >
-                        <FiTrash2 />
-                    </button>
-                ) : (
-                    <button
-                        className={isSaved ? 'btn-secondary' : 'btn-secondary'}
-                        onClick={handleSave}
-                        disabled={isSaved || isSaving}
-                        style={{
-                            background: isSaved ? 'var(--success-500)' : undefined,
-                            color: isSaved ? 'white' : undefined,
-                            border: isSaved ? 'none' : undefined,
-                            opacity: isSaving ? 0.7 : 1,
-                            transform: isSaving ? 'scale(0.95)' : 'scale(1)'
-                        }}
-                    >
-                        {isSaving ? (
-                            <FiStar style={{ marginRight: '4px', animation: 'spin 1s linear infinite' }} />
-                        ) : isSaved ? (
-                            <><FiCheck style={{ marginRight: '4px' }} /> Saved</>
-                        ) : (
-                            <><FiBookmark style={{ marginRight: '4px' }} /> Save</>
-                        )}
-                    </button>
-                )}
-            </div>
+  const [isSaving, setIsSaving] = useState(false)
+
+  const handleSave = async (e) => {
+    e.preventDefault()
+    e.stopPropagation()
+    if (!onSave) return
+
+    setIsSaving(true)
+    try {
+      await onSave(job.id)
+    } finally {
+      setTimeout(() => setIsSaving(false), 300)
+    }
+  }
+
+  const handleApply = (e) => {
+    e.preventDefault()
+    e.stopPropagation()
+    if (onApply) onApply(job.id)
+  }
+
+  const getScoreColor = (score) => {
+    if (score >= 90) return 'text-success'
+    if (score >= 70) return 'text-primary'
+    if (score >= 50) return 'text-warning'
+    return 'text-slate-400'
+  }
+
+  const getScoreStroke = (score) => {
+    if (score >= 90) return '#10b981'
+    if (score >= 70) return '#3b82f6'
+    if (score >= 50) return '#f59e0b'
+    return '#94a3b8'
+  }
+
+  return (
+    <div className="modern-card p-5 flex flex-col h-full relative group animate-slide-up">
+      <div className="flex justify-between items-start mb-4">
+        <div>
+          <h3 className="text-lg font-bold text-slate-900 group-hover:text-primary transition-colors line-clamp-1">
+            {job.title}
+          </h3>
+          <p className="text-slate-600 font-medium">{job.company}</p>
         </div>
-    );
+
+        {job.matchScore !== undefined && (
+          <div
+            className="relative w-12 h-12 flex-shrink-0 flex items-center justify-center ml-4"
+            title={`Match Score: ${job.matchScore}%`}
+          >
+            <svg className="w-full h-full transform -rotate-90" viewBox="0 0 36 36">
+              <path
+                className="text-slate-100"
+                strokeWidth="3"
+                stroke="currentColor"
+                fill="none"
+                d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831"
+              />
+              <path
+                strokeWidth="3"
+                strokeDasharray={`${job.matchScore}, 100`}
+                stroke={getScoreStroke(job.matchScore)}
+                strokeLinecap="round"
+                fill="none"
+                className="transition-all duration-1000 ease-out"
+                d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831"
+              />
+            </svg>
+            <div
+              className={`absolute inset-0 flex items-center justify-center text-xs font-bold ${getScoreColor(job.matchScore)}`}
+            >
+              {job.matchScore}
+            </div>
+          </div>
+        )}
+      </div>
+
+      <div className="grid grid-cols-2 gap-y-2 gap-x-4 mb-4 text-sm text-slate-600">
+        <div className="flex items-center gap-1.5">
+          <MapPin className="w-4 h-4 text-slate-400" />
+          <span className="truncate">{job.location}</span>
+        </div>
+        <div className="flex items-center gap-1.5">
+          <Briefcase className="w-4 h-4 text-slate-400" />
+          <span className="truncate">{job.jobType}</span>
+        </div>
+        {job.salary && (
+          <div className="flex items-center gap-1.5">
+            <DollarSign className="w-4 h-4 text-slate-400" />
+            <span className="truncate">{job.salary}</span>
+          </div>
+        )}
+        {job.deadline && (
+          <div className="flex items-center gap-1.5">
+            <Clock className="w-4 h-4 text-slate-400" />
+            <span className="truncate">
+              {new Date(job.deadline).toLocaleDateString(undefined, {
+                month: 'short',
+                day: 'numeric',
+              })}
+            </span>
+          </div>
+        )}
+      </div>
+
+      <div className="flex flex-wrap gap-2 mb-6 flex-1 content-start">
+        {job.skills.slice(0, 4).map((skill, idx) => (
+          <span
+            key={idx}
+            className="px-2.5 py-1 bg-slate-100 text-slate-600 rounded-md text-xs font-medium"
+          >
+            {skill}
+          </span>
+        ))}
+        {job.skills.length > 4 && (
+          <span className="px-2.5 py-1 bg-slate-50 text-slate-500 rounded-md text-xs font-medium">
+            +{job.skills.length - 4}
+          </span>
+        )}
+      </div>
+
+      <div className="flex items-center gap-3 mt-auto pt-4 border-t border-slate-100">
+        <button onClick={handleApply} className="btn-primary flex-1 py-2 text-sm" type="button">
+          Apply Now
+          <ExternalLink className="w-4 h-4 ml-1 opacity-70" />
+        </button>
+
+        {onSave && (
+          <button
+            onClick={handleSave}
+            disabled={isSaving}
+            type="button"
+            className={`btn-icon border border-slate-200 ${isSaved ? 'bg-primary/10 text-primary border-primary/20 hover:bg-primary/20 hover:text-primary-dark' : 'bg-white text-slate-400 hover:text-primary hover:border-primary/30'}`}
+            title={
+              saveMode === 'remove'
+                ? 'Remove saved job'
+                : isSaved
+                  ? 'Saved'
+                  : 'Save job'
+            }
+          >
+            {isSaving ? (
+              <div className="w-4 h-4 border-2 border-current border-t-transparent rounded-full animate-spin" />
+            ) : isSaved && saveMode !== 'remove' ? (
+              <BookmarkCheck className="w-4 h-4" />
+            ) : (
+              <Bookmark className={`w-4 h-4 ${isSaved && saveMode === 'remove' ? 'fill-current' : ''}`} />
+            )}
+          </button>
+        )}
+      </div>
+    </div>
+  )
 }

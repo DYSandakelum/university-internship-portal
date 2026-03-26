@@ -1,0 +1,9 @@
+/* Tailwind utilities scoped to Job Matching only.
+   IMPORTANT: This file is meant to be built by Tailwind (via postcss).
+*/
+
+.job-matching-scope {
+  @tailwind base;
+  @tailwind components;
+  @tailwind utilities;
+}

@@ -5,9 +5,9 @@ import { useAuth } from '../context/AuthContext';
 const ProtectedRoute = ({ children, allowedRoles }) => {
     const { user } = useAuth();
 
-    // If not logged in redirect to login
+    // If not logged in, keep app on the Dashboard entry point
     if (!user) {
-        return <Navigate to="/login" />;
+        return <Navigate to="/" replace />;
     }
 
     // If role not allowed redirect to their dashboard

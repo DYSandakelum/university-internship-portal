@@ -1,444 +1,199 @@
-import React, { useState } from 'react';
-import { FiTarget, FiBriefcase, FiMapPin, FiDollarSign, FiTrash2, FiSettings, FiGrid, FiSend, FiX } from 'react-icons/fi';
+import React, { useEffect, useState } from 'react'
+import { SlidersHorizontal, X, ChevronDown, ChevronUp } from 'lucide-react'
 
-// Salary range presets
+const JOB_TYPES = ['Full-time', 'Part-time', 'Contract', 'Freelance', 'Internship']
+
+const LOCATIONS = [
+  'Remote',
+  'New York, NY',
+  'San Francisco, CA',
+  'London, UK',
+  'Berlin, DE',
+  'Toronto, CA',
+]
+
 const SALARY_PRESETS = [
-    { label: 'Any Salary', min: '', max: '' },
-    { label: '$500 - $1000', min: 500, max: 1000 },
-    { label: '$1000 - $1500', min: 1000, max: 1500 },
-    { label: '$1500 - $2000', min: 1500, max: 2000 },
-    { label: '$2000+', min: 2000, max: '' }
-];
+  { label: '$50k+', value: 50000 },
+  { label: '$100k+', value: 100000 },
+  { label: '$150k+', value: 150000 },
+]
 
-// Location suggestions
-const LOCATION_SUGGESTIONS = [
-    'Remote', 'New York', 'San Francisco', 'London', 'Campus', 
-    'Los Angeles', 'Chicago', 'Boston', 'Seattle', 'Austin'
-];
+export function FilterPanel({ filters, onFilterChange, onClearFilters }) {
+  const [localFilters, setLocalFilters] = useState(filters)
+  const [isAdvancedOpen, setIsAdvancedOpen] = useState(false)
 
-// Multi-range slider component
-function SalaryRangeSlider({ minValue, maxValue, onChange }) {
-    const [localMin, setLocalMin] = useState(minValue || 0);
-    const [localMax, setLocalMax] = useState(maxValue || 3000);
-    
-    const handleMinChange = (e) => {
-        const value = parseInt(e.target.value);
-        setLocalMin(value);
-        onChange?.({ min: value, max: localMax });
-    };
-    
-    const handleMaxChange = (e) => {
-        const value = parseInt(e.target.value);
-        setLocalMax(value);
-        onChange?.({ min: localMin, max: value });
-    };
-    
-    return (
-        <div className="salary-range-slider" style={{ position: 'relative', padding: '10px 0' }}>
-            <div style={{ 
-                display: 'flex', 
-                justifyContent: 'space-between', 
-                marginBottom: '10px',
-                alignItems: 'center'
-            }}>
-                <span style={{ 
-                    background: 'var(--primary-100)',
-                    padding: '3px 10px',
-                    borderRadius: '20px',
-                    fontSize: '12px',
-                    fontWeight: '600',
-                    color: 'var(--primary-700)'
-                }}>
-                    ${localMin}
-                </span>
-                <span style={{ color: 'var(--secondary-500)', fontSize: '14px' }}>to</span>
-                <span style={{ 
-                    background: 'var(--primary-100)',
-                    padding: '3px 10px',
-                    borderRadius: '20px',
-                    fontSize: '12px',
-                    fontWeight: '600',
-                    color: 'var(--primary-700)'
-                }}>
-                    ${localMax}
-                </span>
-            </div>
-            
-            <div style={{ position: 'relative', height: '6px', marginBottom: '8px' }}>
-                <div style={{
-                    position: 'absolute',
-                    width: '100%',
-                    height: '6px',
-                    background: 'var(--secondary-200)',
-                    borderRadius: '3px'
-                }}></div>
-                
-                <div style={{
-                    position: 'absolute',
-                    height: '6px',
-                    background: 'var(--primary-500)',
-                    borderRadius: '3px',
-                    left: `${(localMin / 3000) * 100}%`,
-                    width: `${((localMax - localMin) / 3000) * 100}%`
-                }}></div>
-                
-                <input
-                    type="range"
-                    min="0"
-                    max="3000"
-                    value={localMin}
-                    onChange={handleMinChange}
-                    style={{
-                        position: 'absolute',
-                        width: '100%',
-                        height: '6px',
-                        background: 'transparent',
-                        outline: 'none',
-                        appearance: 'none',
-                        pointerEvents: 'none'
-                    }}
-                />
-                
-                <input
-                    type="range"
-                    min="0"
-                    max="3000"
-                    value={localMax}
-                    onChange={handleMaxChange}
-                    style={{
-                        position: 'absolute',
-                        width: '100%',
-                        height: '6px',
-                        background: 'transparent',
-                        outline: 'none',
-                        appearance: 'none',
-                        pointerEvents: 'none'
-                    }}
-                />
-            </div>
-        </div>
-    );
-}
+  useEffect(() => {
+    setLocalFilters(filters)
+  }, [filters])
 
-// Filter chip component
-function FilterChip({ label, isActive, onClick, onRemove }) {
-    return (
-        <div
-            className="filter-chip"
-            style={{
-                display: 'inline-flex',
-                alignItems: 'center',
-                gap: '8px',
-                padding: '6px 12px',
-                borderRadius: '20px',
-                fontSize: '14px',
-                fontWeight: '600',
-                cursor: 'pointer',
-                transition: 'all var(--transition-fast)',
-                background: isActive ? 'var(--primary-500)' : 'var(--secondary-100)',
-                color: isActive ? 'white' : 'var(--secondary-600)',
-                border: '1px solid ' + (isActive ? 'var(--primary-500)' : 'var(--secondary-300)')
-            }}
-            onClick={onClick}
-        >
-            {label}
-            {isActive && onRemove && (
+  const handleChange = (key, value) => {
+    const newFilters = { ...localFilters, [key]: value }
+    setLocalFilters(newFilters)
+    onFilterChange(newFilters)
+  }
+
+  const handleClear = () => {
+    setLocalFilters({})
+    onClearFilters()
+  }
+
+  const activeFilterCount = Object.values(filters).filter(
+    (v) => v !== undefined && v !== '',
+  ).length
+
+  return (
+    <div className="glass-panel p-5 sticky top-24">
+      <div className="flex items-center justify-between mb-6">
+        <h2 className="text-lg font-bold text-slate-900 flex items-center gap-2">
+          <SlidersHorizontal className="w-5 h-5 text-primary" />
+          Filters
+        </h2>
+        {activeFilterCount > 0 && (
+          <button
+            onClick={handleClear}
+            className="text-sm text-slate-500 hover:text-primary transition-colors"
+            type="button"
+          >
+            Clear all
+          </button>
+        )}
+      </div>
+
+      {activeFilterCount > 0 && (
+        <div className="flex flex-wrap gap-2 mb-6">
+          {Object.entries(filters).map(([key, value]) => {
+            if (value === undefined || value === '') return null
+
+            let displayValue = String(value)
+            if (key === 'minSalary') displayValue = `Min: $${value / 1000}k`
+            if (key === 'maxSalary') displayValue = `Max: $${value / 1000}k`
+
+            return (
+              <span
+                key={key}
+                className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full bg-primary/10 text-primary text-xs font-medium"
+              >
+                {displayValue}
                 <button
-                    style={{
-                        background: 'none',
-                        border: 'none',
-                        color: 'white',
-                        cursor: 'pointer',
-                        fontSize: '12px',
-                        padding: '0',
-                        marginLeft: '4px'
-                    }}
-                    onClick={(e) => {
-                        e.stopPropagation();
-                        onRemove();
-                    }}
+                  type="button"
+                  onClick={() => handleChange(key, undefined)}
+                  className="hover:bg-primary/20 rounded-full p-0.5 transition-colors"
                 >
-                    <FiX />
+                  <X className="w-3 h-3" />
                 </button>
-            )}
+              </span>
+            )
+          })}
         </div>
-    );
-}
+      )}
 
-export default function FilterPanel({ filters, onChange, onApply, embedded = false }) {
-    const [showAdvanced, setShowAdvanced] = useState(false);
-    const [localFilters, setLocalFilters] = useState(filters);
-    
-    const set = (patch) => {
-        const newFilters = { ...localFilters, ...patch };
-        setLocalFilters(newFilters);
-        onChange?.(newFilters);
-    };
-    
-    const handleSalaryPreset = (preset) => {
-        set({ 
-            minSalary: preset.min.toString(),
-            maxSalary: preset.max.toString()
-        });
-    };
-    
-    const handleSalaryRangeChange = ({ min, max }) => {
-        set({
-            minSalary: min.toString(),
-            maxSalary: max.toString()
-        });
-    };
-    
-    const clearAllFilters = () => {
-        const clearedFilters = {
-            jobType: '',
-            location: '',
-            minSalary: '',
-            maxSalary: ''
-        };
-        setLocalFilters(clearedFilters);
-        onChange?.(clearedFilters);
-    };
-    
-    const hasActiveFilters = Object.values(localFilters).some(value => value && value.toString().trim());
-    
-    return (
-        <div
-            className={embedded ? '' : 'glass-panel'}
-            style={{
-                position: 'relative',
-                padding: embedded ? 0 : '16px'
-            }}
-        >
-            <div style={{ 
-                display: 'flex', 
-                justifyContent: 'space-between', 
-                alignItems: 'center',
-                marginBottom: '12px'
-            }}>
-                <h3 style={{ 
-                    margin: 0,
-                    fontSize: '16px',
-                    fontWeight: '700',
-                    color: 'var(--secondary-800)',
-                    display: 'flex',
-                    alignItems: 'center',
-                    gap: '8px'
-                }}>
-                    <FiTarget /> Filter Jobs
-                </h3>
-                
-                <div style={{ display: 'flex', gap: '12px', alignItems: 'center' }}>
-                    {hasActiveFilters && (
-                        <button
-                            className="btn-secondary"
-                            onClick={clearAllFilters}
-                            style={{ fontSize: '12px', padding: '5px 10px', display: 'flex', alignItems: 'center', gap: '4px' }}
-                        >
-                            <FiTrash2 size={14} /> Clear All
-                        </button>
-                    )}
-                    
-                    <button
-                        className="btn-secondary"
-                        onClick={() => setShowAdvanced(!showAdvanced)}
-                        style={{ fontSize: '12px', padding: '5px 10px', display: 'flex', alignItems: 'center', gap: '4px' }}
-                    >
-                        {showAdvanced ? <><FiGrid size={14} /> Basic</> : <><FiSettings size={14} /> Advanced</>}
-                    </button>
-                </div>
-            </div>
-            
-            {/* Active Filters Display */}
-            {hasActiveFilters && (
-                <div style={{ marginBottom: '12px' }}>
-                    <div style={{ 
-                        fontSize: '12px',
-                        color: 'var(--secondary-500)',
-                        marginBottom: '8px',
-                        fontWeight: '600',
-                        textTransform: 'uppercase',
-                        letterSpacing: '0.5px'
-                    }}>
-                        Active Filters
-                    </div>
-                    <div style={{ display: 'flex', gap: '6px', flexWrap: 'wrap' }}>
-                        {localFilters.jobType && (
-                            <FilterChip
-                                label={`Type: ${localFilters.jobType}`}
-                                isActive={true}
-                                onRemove={() => set({ jobType: '' })}
-                            />
-                        )}
-                        {localFilters.location && (
-                            <FilterChip
-                                label={`Location: ${localFilters.location}`}
-                                isActive={true}
-                                onRemove={() => set({ location: '' })}
-                            />
-                        )}
-                        {(localFilters.minSalary || localFilters.maxSalary) && (
-                            <FilterChip
-                                label={`Salary: $${localFilters.minSalary || '0'} - $${localFilters.maxSalary || 'No limit'}`}
-                                isActive={true}
-                                onRemove={() => set({ minSalary: '', maxSalary: '' })}
-                            />
-                        )}
-                    </div>
-                </div>
-            )}
-            
-            {/* Basic Filters */}
-            <div style={{ 
-                display: 'grid',
-                gridTemplateColumns: showAdvanced ? 'repeat(auto-fit, minmax(200px, 1fr))' : 'repeat(auto-fit, minmax(250px, 1fr))',
-                gap: '12px',
-                marginBottom: '12px'
-            }}>
-                <div className="form-group" style={{ marginBottom: 0 }}>
-                    <label className="form-label" style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
-                        <FiBriefcase size={16} /> Job Type
-                    </label>
-                    <select
-                        className="form-input"
-                        value={localFilters.jobType}
-                        onChange={(e) => set({ jobType: e.target.value })}
-                        style={{ cursor: 'pointer' }}
-                    >
-                        <option value="">All Job Types</option>
-                        <option value="Internship">Internship</option>
-                        <option value="Part-time">Part-time</option>
-                    </select>
-                </div>
-
-                <div className="form-group" style={{ marginBottom: 0 }}>
-                    <label className="form-label" style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
-                        <FiMapPin size={16} /> Location
-                    </label>
-                    <input
-                        list="location-suggestions"
-                        className="form-input"
-                        value={localFilters.location}
-                        onChange={(e) => set({ location: e.target.value })}
-                        placeholder="Enter location or select from list"
-                    />
-                    <datalist id="location-suggestions">
-                        {LOCATION_SUGGESTIONS.map(location => (
-                            <option key={location} value={location} />
-                        ))}
-                    </datalist>
-                </div>
-            </div>
-            
-            {/* Salary Filter */}
-            <div className="form-group" style={{ marginBottom: 0 }}>
-                <label className="form-label" style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
-                    <FiDollarSign size={16} /> Salary Range
-                </label>
-                
-                {!showAdvanced ? (
-                    <div style={{ display: 'flex', gap: '6px', flexWrap: 'wrap', marginBottom: '10px' }}>
-                        {SALARY_PRESETS.map((preset, index) => (
-                            <FilterChip
-                                key={index}
-                                label={preset.label}
-                                isActive={
-                                    localFilters.minSalary === preset.min.toString() &&
-                                    localFilters.maxSalary === preset.max.toString()
-                                }
-                                onClick={() => handleSalaryPreset(preset)}
-                            />
-                        ))}
-                    </div>
-                ) : (
-                    <SalaryRangeSlider
-                        minValue={parseInt(localFilters.minSalary) || 0}
-                        maxValue={parseInt(localFilters.maxSalary) || 3000}
-                        onChange={handleSalaryRangeChange}
-                    />
-                )}
-                
-                {showAdvanced && (
-                    <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '10px' }}>
-                        <div>
-                            <label className="form-label">Min Salary</label>
-                            <input
-                                className="form-input"
-                                type="number"
-                                value={localFilters.minSalary}
-                                onChange={(e) => set({ minSalary: e.target.value })}
-                                placeholder="0"
-                                min="0"
-                                max="10000"
-                            />
-                        </div>
-                        <div>
-                            <label className="form-label">Max Salary</label>
-                            <input
-                                className="form-input"
-                                type="number"
-                                value={localFilters.maxSalary}
-                                onChange={(e) => set({ maxSalary: e.target.value })}
-                                placeholder="No limit"
-                                min="0"
-                                max="10000"
-                            />
-                        </div>
-                    </div>
-                )}
-            </div>
-            
-            {/* Apply Button */}
-            <div style={{ 
-                display: 'flex', 
-                justifyContent: 'flex-end', 
-                gap: '12px',
-                marginTop: '12px',
-                paddingTop: '12px',
-                borderTop: '1px solid var(--glass-border)'
-            }}>
-                <button 
-                    className="btn-primary"
-                    onClick={() => onApply?.()}
-                    style={{
-                        display: 'flex',
-                        alignItems: 'center',
-                        gap: '8px',
-                        padding: '10px 16px'
-                    }}
-                >
-                    <FiSend /> Apply Filters
-                </button>
-            </div>
-            
-            <style jsx>{`
-                input[type="range"] {
-                    -webkit-appearance: none;
-                    pointer-events: all;
-                }
-                
-                input[type="range"]::-webkit-slider-thumb {
-                    -webkit-appearance: none;
-                    appearance: none;
-                    width: 20px;
-                    height: 20px;
-                    border-radius: 50%;
-                    background: var(--primary-500);
-                    cursor: pointer;
-                    border: 2px solid white;
-                    box-shadow: 0 2px 8px rgba(59, 130, 246, 0.3);
-                }
-                
-                input[type="range"]::-moz-range-thumb {
-                    width: 20px;
-                    height: 20px;
-                    border-radius: 50%;
-                    background: var(--primary-500);
-                    cursor: pointer;
-                    border: 2px solid white;
-                    box-shadow: 0 2px 8px rgba(59, 130, 246, 0.3);
-                }
-            `}</style>
+      <div className="space-y-6">
+        <div>
+          <label className="form-label">Job Type</label>
+          <select
+            value={localFilters.jobType || ''}
+            onChange={(e) => handleChange('jobType', e.target.value || undefined)}
+            className="form-input bg-white/50"
+          >
+            <option value="">All Types</option>
+            {JOB_TYPES.map((type) => (
+              <option key={type} value={type}>
+                {type}
+              </option>
+            ))}
+          </select>
         </div>
-    );
+
+        <div>
+          <label className="form-label">Location</label>
+          <input
+            type="text"
+            list="locations"
+            value={localFilters.location || ''}
+            onChange={(e) => handleChange('location', e.target.value || undefined)}
+            placeholder="e.g. Remote, New York"
+            className="form-input bg-white/50"
+          />
+          <datalist id="locations">
+            {LOCATIONS.map((loc) => (
+              <option key={loc} value={loc} />
+            ))}
+          </datalist>
+        </div>
+
+        <div>
+          <label className="form-label mb-2">Minimum Salary</label>
+          <div className="flex flex-wrap gap-2">
+            {SALARY_PRESETS.map((preset) => (
+              <button
+                key={preset.value}
+                type="button"
+                onClick={() =>
+                  handleChange(
+                    'minSalary',
+                    localFilters.minSalary === preset.value ? undefined : preset.value,
+                  )
+                }
+                className={`px-3 py-1.5 rounded-lg text-sm font-medium transition-colors border ${localFilters.minSalary === preset.value ? 'bg-primary text-white border-primary' : 'bg-white/50 text-slate-600 border-slate-200 hover:border-primary/50 hover:bg-primary/5'}`}
+              >
+                {preset.label}
+              </button>
+            ))}
+          </div>
+        </div>
+
+        <div className="pt-4 border-t border-slate-200/50">
+          <button
+            type="button"
+            onClick={() => setIsAdvancedOpen(!isAdvancedOpen)}
+            className="flex items-center justify-between w-full text-sm font-medium text-slate-700 hover:text-primary transition-colors"
+          >
+            Advanced Options
+            {isAdvancedOpen ? (
+              <ChevronUp className="w-4 h-4" />
+            ) : (
+              <ChevronDown className="w-4 h-4" />
+            )}
+          </button>
+        </div>
+
+        {isAdvancedOpen && (
+          <div className="space-y-4 pt-2 animate-slide-up">
+            <div>
+              <label className="form-label">Exact Salary Range</label>
+              <div className="flex items-center gap-2">
+                <div className="relative flex-1">
+                  <span className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400">$
+                  </span>
+                  <input
+                    type="number"
+                    placeholder="Min"
+                    value={localFilters.minSalary || ''}
+                    onChange={(e) =>
+                      handleChange('minSalary', e.target.value ? Number(e.target.value) : undefined)
+                    }
+                    className="form-input pl-7 bg-white/50"
+                  />
+                </div>
+                <span className="text-slate-400">-</span>
+                <div className="relative flex-1">
+                  <span className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400">$
+                  </span>
+                  <input
+                    type="number"
+                    placeholder="Max"
+                    value={localFilters.maxSalary || ''}
+                    onChange={(e) =>
+                      handleChange('maxSalary', e.target.value ? Number(e.target.value) : undefined)
+                    }
+                    className="form-input pl-7 bg-white/50"
+                  />
+                </div>
+              </div>
+            </div>
+          </div>
+        )}
+      </div>
+    </div>
+  )
 }
