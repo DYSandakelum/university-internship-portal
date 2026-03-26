@@ -1,0 +1,42 @@
+/* Shared layout primitives for the Job Matching module */
+
+.page {
+    padding: var(--space-6) var(--space-4);
+}
+
+.container {
+    width: 100%;
+    max-width: none;
+    margin: 0;
+}
+
+.glass-panel {
+    background: var(--glass-bg);
+    border: 1px solid var(--glass-border);
+    border-radius: 12px;
+    box-shadow: var(--glass-shadow);
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+}
+
+.modern-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+    gap: var(--space-4);
+}
+
+@media (min-width: 1024px) {
+    .page {
+        padding-left: var(--space-8);
+        padding-right: var(--space-8);
+    }
+}
+
+@keyframes fadeIn {
+    from { opacity: 0; transform: translateY(6px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
+.animate-fade-in {
+    animation: fadeIn 220ms ease both;
+}

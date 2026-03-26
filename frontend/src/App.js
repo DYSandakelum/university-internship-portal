@@ -7,15 +7,13 @@ import JobDetailsPage from './pages/student/JobDetailsPage';
 import ApplicationFormPage from './pages/student/ApplicationFormPage';
 import MyApplicationsPage from './pages/student/MyApplicationsPage';
 import StudentProfilePage from './pages/student/StudentProfilePage';
-import { Layout as JMLayout } from './job_matching_component/components/Layout';
-import { Dashboard } from './job_matching_component/pages/Dashboard';
-import { Search as JobSearch } from './job_matching_component/pages/Search';
-import { Recommended as RecommendedJobs } from './job_matching_component/pages/Recommended';
-import { Saved as SavedJobs } from './job_matching_component/pages/Saved';
-import { Notifications } from './job_matching_component/pages/Notifications';
-import { NotificationSettings } from './job_matching_component/pages/NotificationSettings';
-import { OpportunityCentre } from './job_matching_component/pages/OpportunityCentre';
-import { NotFound as JMNotFound } from './job_matching_component/pages/NotFound';
+import Dashboard from './job_matching_component/pages/Dashboard';
+import JobSearch from './job_matching_component/pages/JobSearch';
+import RecommendedJobs from './job_matching_component/pages/RecommendedJobs';
+import SavedJobs from './job_matching_component/pages/SavedJobs';
+import Notifications from './job_matching_component/pages/Notifications';
+import NotificationSettings from './job_matching_component/pages/NotificationSettings';
+import OpportunityCentre from './job_matching_component/pages/OpportunityCentre';
 
 function App() {
     return (
@@ -25,23 +23,16 @@ function App() {
                     {/* Redirect root to job-matching dashboard */}
                     <Route path="/" element={<Navigate to="/job-matching/dashboard" replace />} />
 
-                    {/* Job Matching Module Routes (scoped Tailwind UI) */}
-                    <Route path="/job-matching" element={<JMLayout />}>
-                        <Route index element={<Navigate to="dashboard" replace />} />
-                        <Route path="dashboard" element={<Dashboard />} />
-                        <Route path="search" element={<JobSearch />} />
-                        <Route path="recommended" element={<RecommendedJobs />} />
-                        <Route path="saved" element={<SavedJobs />} />
-                        <Route path="notifications" element={<Notifications />} />
-                        <Route path="notifications/settings" element={<NotificationSettings />} />
-                        <Route path="opportunity" element={<OpportunityCentre />} />
-                        <Route path="*" element={<JMNotFound />} />
-                    </Route>
+                    {/* Job Matching Module Routes */}
+                    <Route path="/job-matching/dashboard" element={<Dashboard />} />
+                    <Route path="/job-matching/search" element={<JobSearch />} />
+                    <Route path="/job-matching/recommended" element={<RecommendedJobs />} />
+                    <Route path="/job-matching/saved" element={<SavedJobs />} />
+                    <Route path="/job-matching/notifications" element={<Notifications />} />
+                    <Route path="/job-matching/notifications/settings" element={<NotificationSettings />} />
+                    <Route path="/job-matching/opportunity" element={<OpportunityCentre />} />
                     
                     {/* Auth Routes */}
-                    <Route path="/home" element={<Navigate to="/" replace />} />
-                    <Route path="/login" element={<Navigate to="/" replace />} />
-                    <Route path="/register" element={<Navigate to="/" replace />} />
                     <Route path="/verify-email/:token" element={<VerifyEmailPage />} />
 
                     {/* Student Routes */}

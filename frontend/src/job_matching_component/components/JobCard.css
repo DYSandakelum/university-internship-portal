@@ -1,0 +1,207 @@
+/* JobCard component styles (compact, professional, solid colors only) */
+
+.modern-card {
+    background: #ffffff;
+    border: 1px solid var(--secondary-200);
+    border-radius: 12px;
+    padding: 12px;
+    box-shadow: 0 6px 18px rgba(15, 23, 42, 0.06);
+    transition: border-color 120ms ease, box-shadow 120ms ease;
+}
+
+.modern-card:hover {
+    border-color: var(--secondary-300);
+    box-shadow: 0 10px 24px rgba(15, 23, 42, 0.08);
+}
+
+.card-header {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: 12px;
+}
+
+.card-title {
+    margin: 0;
+    font-size: 15px;
+    font-weight: 800;
+    color: var(--secondary-900);
+    letter-spacing: -0.01em;
+    line-height: 1.25;
+}
+
+.card-company {
+    margin: 4px 0 0 0;
+    font-size: 12px;
+    color: var(--secondary-600);
+    font-weight: 600;
+}
+
+.card-meta {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 8px 10px;
+    margin-top: 12px;
+}
+
+.card-meta-item {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    min-width: 0;
+    color: var(--secondary-700);
+    font-size: 12px;
+    line-height: 1.2;
+}
+
+.card-meta-item span {
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.card-meta-icon {
+    width: 26px;
+    height: 26px;
+    border-radius: 9px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    background: var(--secondary-100);
+    border: 1px solid var(--secondary-200);
+    color: var(--secondary-700);
+    flex-shrink: 0;
+}
+
+.card-meta-icon svg {
+    width: 14px;
+    height: 14px;
+}
+
+/* Deadline states (solid color only) */
+.deadline-text {
+    font-weight: 700;
+    color: var(--secondary-700);
+}
+
+.deadline-expired .card-meta-icon {
+    background: var(--secondary-100);
+    border-color: var(--error-500);
+    color: var(--error-500);
+}
+
+.deadline-expired .deadline-text {
+    color: var(--error-500);
+}
+
+.deadline-urgent .card-meta-icon {
+    background: var(--secondary-100);
+    border-color: var(--warning-500);
+    color: var(--warning-500);
+}
+
+.deadline-urgent .deadline-text {
+    color: var(--warning-500);
+}
+
+.deadline-soon .card-meta-icon {
+    background: var(--secondary-100);
+    border-color: var(--warning-500);
+    color: var(--warning-500);
+}
+
+.deadline-soon .deadline-text {
+    color: var(--secondary-800);
+}
+
+.card-skills {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+    margin-top: 10px;
+}
+
+.skill-tag {
+    font-size: 11px;
+    font-weight: 700;
+    background: var(--secondary-100);
+    color: var(--secondary-700);
+    border: 1px solid var(--secondary-200);
+    border-radius: 999px;
+    padding: 3px 9px;
+}
+
+.skill-tag-more {
+    background: #ffffff;
+    color: var(--secondary-700);
+}
+
+.card-actions {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-top: 12px;
+    flex-wrap: wrap;
+}
+
+.card-actions .btn-primary,
+.card-actions .btn-secondary {
+    padding: 8px 12px;
+    border-radius: 10px;
+    font-weight: 700;
+}
+
+.card-actions .btn-primary {
+    box-shadow: 0 8px 18px rgba(37, 99, 235, 0.18);
+}
+
+.jobcard-saved {
+    background: var(--success-500);
+    color: #ffffff;
+    border: 1px solid var(--success-500);
+}
+
+.jobcard-remove {
+    width: 40px;
+    height: 40px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 10px;
+    border: 1px solid var(--error-500);
+    background: #ffffff;
+    color: var(--error-500);
+    cursor: pointer;
+}
+
+.jobcard-remove:hover {
+    background: var(--secondary-100);
+}
+
+.match-indicator {
+    width: 52px;
+    height: 52px;
+    position: relative;
+    display: grid;
+    place-items: center;
+}
+
+.match-circle {
+    width: 52px;
+    height: 52px;
+    border-radius: 50%;
+    background: conic-gradient(var(--primary-500) var(--match-percent), var(--secondary-200) 0);
+}
+
+.match-text {
+    position: absolute;
+    font-size: 11px;
+    font-weight: 800;
+    color: var(--secondary-800);
+}
+
+@media (max-width: 560px) {
+    .card-meta {
+        grid-template-columns: 1fr;
+    }
+}

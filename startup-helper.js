@@ -13,7 +13,7 @@ console.log('🚀 Starting CareerSync Backend...');
 const backendProcess = spawn('npm', ['--prefix', 'backend', 'run', 'dev'], {
     stdio: 'inherit',
     shell: true,
-    cwd: path.resolve(__dirname)
+    cwd: __dirname
 });
 
 // Function to check if backend is ready
@@ -75,7 +75,7 @@ async function startFrontend() {
         const frontendProcess = spawn('npm', ['--prefix', 'frontend', 'start'], {
             stdio: 'inherit',
             shell: true,
-            cwd: path.resolve(__dirname)
+            cwd: __dirname
         });
 
         frontendProcess.on('error', (error) => {

@@ -4,6 +4,13 @@ const generateToken = require('../utils/generateToken');
 const crypto = require('crypto');
 const sendEmail = require('../utils/sendEmail');
 
+const DEMO_USER = {
+    email: 'student.demo@careersync.test',
+    password: 'Password123!',
+    name: 'Demo Student',
+    role: 'student'
+};
+
 // @desc    Register new user
 // @route   POST /api/auth/register
 // @access  Public
@@ -195,4 +202,70 @@ const getMe = async (req, res) => {
     }
 };
 
-module.exports = { registerUser, verifyEmail, loginUser, getMe };
+// @desc    Demo login (dev / demo environments)
+// @route   POST /api/auth/demo-login
+// @access  Public
+const demoLogin = async (req, res) => {
+    try {
+        const demoEnabled =
+            String(process.env.ENABLE_DEMO_LOGIN || '').toLowerCase() === 'true' ||
+            process.env.NODE_ENV !== 'production';
+
+        if (!demoEnabled) {
+            return res.status(404).json({ message: 'Demo login disabled' });
+        }
+
+        const salt = await bcrypt.genSalt(10);
+        const hashedPassword = await bcrypt.hash(DEMO_USER.password, salt);
+
+        let user = await User.findOne({ email: DEMO_USER.email });
+        if (!user) {
+            user = await User.create({
+                name: DEMO_USER.name,
+                email: DEMO_USER.email,
+                password: hashedPassword,
+                role: DEMO_USER.role,
+                isVerified: true,
+                skills: ['React', 'JavaScript', 'Node.js', 'MongoDB'],
+                preferredLocation: 'Remote',
+                preferredJobType: 'Internship',
+                notificationSettings: {
+                    emailNotifications: true,
+                    newJobAlerts: true,
+                    deadlineReminders: true,
+                    applicationUpdates: true
+                }
+            });
+        } else {
+            user.name = DEMO_USER.name;
+            user.role = DEMO_USER.role;
+            user.isVerified = true;
+            user.skills = user.skills?.length ? user.skills : ['React', 'JavaScript', 'Node.js', 'MongoDB'];
+            user.preferredLocation = user.preferredLocation || 'Remote';
+            user.preferredJobType = user.preferredJobType || 'Internship';
+
+            // Ensure password exists (don't constantly rehash)
+            if (!user.password) {
+                user.password = hashedPassword;
+            }
+
+            await user.save();
+        }
+
+        return res.status(200).json({
+            message: 'Demo login successful',
+            token: generateToken(user._id, user.role),
+            user: {
+                id: user._id,
+                name: user.name,
+                email: user.email,
+                role: user.role,
+                isVerified: user.isVerified
+            }
+        });
+    } catch (error) {
+        return res.status(500).json({ message: 'Server error', error: error.message });
+    }
+};
+
+module.exports = { registerUser, verifyEmail, loginUser, getMe, demoLogin };
