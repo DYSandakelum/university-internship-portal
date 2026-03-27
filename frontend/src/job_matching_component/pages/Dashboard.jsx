@@ -1,119 +1,37 @@
 import React, { useCallback, useEffect, useState } from 'react';
-import { FiBriefcase, FiBell, FiTrendingUp, FiSearch, FiBookmark, FiTarget, FiStar, FiEdit3, FiAlertTriangle, FiZap, FiRotateCw } from 'react-icons/fi';
+import {
+    FiBriefcase,
+    FiBell,
+    FiTrendingUp,
+    FiSearch,
+    FiBookmark,
+    FiTarget,
+    FiStar,
+    FiEdit3,
+    FiAlertTriangle,
+    FiZap,
+    FiRotateCw
+} from 'react-icons/fi';
 import { useNavigate } from 'react-router-dom';
 import { getRecommendedJobs, getSavedJobs } from '../../services/jobService';
 import { getNotifications } from '../../services/notificationService';
 import useEnsureDemoAuth from '../hooks/useEnsureDemoAuth';
 import AiCareerChat from '../components/AiCareerChat';
 import { useAuth } from '../../context/AuthContext';
+import './dashboard.css';
 
-// Modern Stat Card Component
-function StatCard({ icon, label, value, trend, color = 'var(--primary-500)', delay = 0 }) {
-    const [isVisible, setIsVisible] = useState(false);
-    const [animatedValue, setAnimatedValue] = useState(0);
-    
-    useEffect(() => {
-        const timer = setTimeout(() => setIsVisible(true), delay);
-        return () => clearTimeout(timer);
-    }, [delay]);
-    
-    useEffect(() => {
-        if (isVisible && typeof value === 'number') {
-            const duration = 1000;
-            const steps = 30;
-            const increment = value / steps;
-            let current = 0;
-            
-            const timer = setInterval(() => {
-                current += increment;
-                if (current >= value) {
-                    setAnimatedValue(value);
-                    clearInterval(timer);
-                } else {
-                    setAnimatedValue(Math.floor(current));
-                }
-            }, duration / steps);
-            
-            return () => clearInterval(timer);
-        } else {
-            setAnimatedValue(value);
-        }
-    }, [isVisible, value]);
-    
+function StatCard({ icon, label, value, colorClass, delay = 0, loading = false }) {
     return (
-        <div 
-            className={`modern-card ${isVisible ? 'animate-fade-in' : ''}`}
-            style={{ 
-                textAlign: 'center',
-                background: `${color}12`,
-                border: `1px solid ${color}30`,
-                position: 'relative',
-                overflow: 'hidden',
-                padding: '16px'
-            }}
-        >
-            <div style={{
-                position: 'absolute',
-                top: '-40px',
-                right: '-40px',
-                width: '80px',
-                height: '80px',
-                background: `${color}10`,
-                borderRadius: '50%',
-                zIndex: 0
-            }} />
-            
-            <div style={{ position: 'relative', zIndex: 1 }}>
-                <div style={{
-                    fontSize: '1.5rem',
-                    marginBottom: '8px'
-                }}>
-                    {icon}
-                </div>
-                
-                <div style={{
-                    fontSize: '1.4rem',
-                    fontWeight: '800',
-                    color: color,
-                    marginBottom: '4px',
-                    fontFamily: 'monospace'
-                }}>
-                    {typeof animatedValue === 'number' ? animatedValue : value}
-                </div>
-                
-                <div style={{
-                    fontSize: '12px',
-                    fontWeight: '600',
-                    color: 'var(--secondary-600)',
-                    textTransform: 'uppercase',
-                    letterSpacing: '0.5px'
-                }}>
-                    {label}
-                </div>
-
-                {typeof trend === 'number' && (
-                    <div style={{
-                        marginTop: '8px',
-                        padding: '4px 8px',
-                        borderRadius: '12px',
-                        fontSize: '11px',
-                        fontWeight: '600',
-                        background: trend > 0 ? 'var(--success-500)20' : 'var(--error-500)20',
-                        color: trend > 0 ? 'var(--success-500)' : 'var(--error-500)',
-                        display: 'flex',
-                        alignItems: 'center',
-                        justifyContent: 'center',
-                        gap: '4px'
-                    }}>
-                        <FiTrendingUp style={{ transform: trend < 0 ? 'scaleY(-1)' : 'none' }} /> {Math.abs(trend)}% this week
-                    </div>
-                )}
+        <article className="dashboard-stat-card dashboard-slide-up" style={{ animationDelay: `${delay}ms` }}>
+            <div className={`dashboard-stat-icon-box ${colorClass}`}>{icon}</div>
+            <div className="dashboard-stat-content">
+                <p className="dashboard-stat-label">{label}</p>
+                {loading ? <div className="dashboard-stat-loading-placeholder" /> : <p className="dashboard-stat-value">{value}</p>}
             </div>
-        </div>
+        </article>
     );
 }
 
-// Activity Timeline Component
 function ActivityTimeline({ activities, onActivityClick, formatRelativeTime }) {
     const [displayTimes, setDisplayTimes] = useState({});
 
@@ -133,265 +51,101 @@ function ActivityTimeline({ activities, onActivityClick, formatRelativeTime }) {
     }, [activities, formatRelativeTime]);
 
     return (
-        <div className="glass-panel" style={{ padding: '14px' }}>
-            <h3 style={{ 
-                margin: '0 0 10px 0',
-                fontSize: '15px',
-                fontWeight: '700',
-                color: 'var(--secondary-800)',
-                display: 'flex',
-                alignItems: 'center',
-                gap: '6px'
-            }}>
+        <section className="dashboard-timeline-panel dashboard-slide-up" style={{ animationDelay: '180ms' }}>
+            <h3 className="dashboard-panel-title">
                 <FiTrendingUp /> Recent Activity
             </h3>
-            
-            <div>
+
+            <div className="dashboard-timeline-track">
                 {activities.map((activity, index) => (
-                    <div 
+                    <article
                         key={index}
-                        className="animate-fade-in"
+                        className="dashboard-timeline-item dashboard-slide-up"
                         onClick={() => onActivityClick?.(activity.path)}
                         style={{
-                            display: 'flex',
-                            alignItems: 'flex-start',
-                            gap: '10px',
-                            marginBottom: index < activities.length - 1 ? '10px' : '0',
-                            animationDelay: `${index * 100}ms`,
-                            cursor: activity.path ? 'pointer' : 'default',
-                            borderRadius: '10px',
-                            padding: '6px 7px',
-                            transition: 'background 0.2s ease'
+                            animationDelay: `${240 + index * 60}ms`,
+                            cursor: activity.path ? 'pointer' : 'default'
                         }}
                     >
-                        {/* Timeline dot */}
-                        <div style={{
-                            width: '28px',
-                            height: '28px',
-                            borderRadius: '50%',
-                            background: activity.color || 'var(--primary-500)',
-                            display: 'flex',
-                            alignItems: 'center',
-                            justifyContent: 'center',
-                            fontSize: '13px',
-                            flexShrink: 0,
-                            boxShadow: `0 4px 12px ${activity.color || 'var(--primary-500)'}30`
-                        }}>
+                        <div className="dashboard-timeline-dot" style={{ background: activity.color || '#3B82F6' }}>
                             {activity.icon}
                         </div>
-                        
-                        {/* Activity content */}
-                        <div style={{ flex: 1, minWidth: 0 }}>
-                            <div style={{
-                                fontWeight: '600',
-                                color: 'var(--secondary-800)',
-                                marginBottom: '2px',
-                                fontSize: '13px'
-                            }}>
-                                {activity.title}
-                            </div>
-                            <div style={{
-                                fontSize: '12px',
-                                color: 'var(--secondary-600)',
-                                marginBottom: '2px',
-                                lineHeight: '1.35'
-                            }}>
-                                {activity.description}
-                            </div>
-                            <div style={{
-                                fontSize: '11px',
-                                color: 'var(--secondary-400)'
-                            }}>
-                                {displayTimes[index] || activity.time}
-                            </div>
+                        <div className="dashboard-timeline-content">
+                            <h4 className="dashboard-timeline-title">{activity.title}</h4>
+                            <p className="dashboard-timeline-description">{activity.description}</p>
+                            <p className="dashboard-timeline-time">{displayTimes[index] || activity.time}</p>
                         </div>
-                    </div>
+                    </article>
                 ))}
             </div>
-        </div>
+        </section>
     );
 }
 
-// Line Chart Component for Activity Snapshot
-function LineChart({ data }) {
-    const points = [
-        { key: 'Applications', value: data.totalApplicationsSent, color: 'var(--primary-500)' },
-        { key: 'Saved', value: data.savedJobsCount, color: 'var(--success-500)' },
-        { key: 'Recommended', value: data.recommendedJobsCount, color: 'var(--accent-500)' },
-        { key: 'Alerts', value: data.notificationsCount, color: 'var(--warning-500)' }
-    ];
-
-    const maxValue = Math.max(...points.map(p => p.value), 1);
-    const width = 240;
-    const height = 86;
-    const padding = 20;
-    const graphWidth = width - padding * 2;
-    const graphHeight = height - padding * 2;
-
-    // Calculate normalized Y positions
-    const xStep = graphWidth / (points.length - 1 || 1);
-    const points_normalized = points.map((point, index) => ({
-        ...point,
-        x: padding + index * xStep,
-        y: padding + graphHeight - (point.value / maxValue) * graphHeight
-    }));
-
-    // Create SVG path for line
-    const pathData = points_normalized
-        .map((p, i) => `${i === 0 ? 'M' : 'L'} ${p.x} ${p.y}`)
-        .join(' ');
-
-    // Create gradient path for fill under line
-    const fillPath = `${pathData} L ${points_normalized[points_normalized.length - 1].x} ${padding + graphHeight} L ${padding} ${padding + graphHeight} Z`;
-
-    return (
-        <div style={{ position: 'relative' }}>
-            <svg width={width} height={height} style={{ display: 'block' }}>
-                {/* Gradient definition */}
-                <defs>
-                    <linearGradient id="lineChartGradient" x1="0%" y1="0%" x2="0%" y2="100%">
-                        <stop offset="0%" style={{ stopColor: 'var(--primary-500)', stopOpacity: 0.3 }} />
-                        <stop offset="100%" style={{ stopColor: 'var(--primary-500)', stopOpacity: 0.05 }} />
-                    </linearGradient>
-                </defs>
-
-                {/* Fill under line */}
-                <path d={fillPath} fill="url(#lineChartGradient)" stroke="none" />
-
-                {/* Line */}
-                <path
-                    d={pathData}
-                    stroke="var(--primary-500)"
-                    strokeWidth="2"
-                    fill="none"
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                />
-
-                {/* Data points (circles) */}
-                {points_normalized.map((p, i) => (
-                    <circle
-                        key={i}
-                        cx={p.x}
-                        cy={p.y}
-                        r="4"
-                        fill="white"
-                        stroke={p.color}
-                        strokeWidth="2"
-                    />
-                ))}
-            </svg>
-
-            {/* Labels below chart */}
-            <div style={{ display: 'flex', justifyContent: 'space-between', marginTop: '8px', fontSize: '11px', color: 'var(--secondary-500)' }}>
-                {points.map((p) => (
-                    <div key={p.key} style={{ textAlign: 'center', flex: 1 }}>
-                        {p.key}: <strong style={{ color: p.color }}>{p.value}</strong>
-                    </div>
-                ))}
-            </div>
-        </div>
-    );
-}
-
-// Quick Actions Component
-function QuickActions({ onActionClick, stats }) {
+function QuickActions({ onActionClick, profileCompletion }) {
     const actions = [
-        { 
-            id: 'search', 
-            label: 'Search Jobs', 
-            icon: <FiSearch />, 
-            color: 'var(--primary-500)',
+        {
+            id: 'search',
+            title: 'Search Jobs',
+            subtitle: 'Find roles by skills and title',
+            icon: <FiSearch />,
             path: '/job-matching/search'
         },
-        { 
-            id: 'recommended', 
-            label: 'View Recommendations', 
-            icon: <FiStar />, 
-            color: 'var(--accent-500)',
+        {
+            id: 'recommended',
+            title: 'AI Recommendations',
+            subtitle: 'See your best-fit opportunities',
+            icon: <FiStar />,
             path: '/job-matching/recommended'
         },
-        { 
-            id: 'saved', 
-            label: 'Saved Jobs', 
-            icon: <FiBookmark />, 
-            color: 'var(--success-500)',
+        {
+            id: 'saved',
+            title: 'Saved Jobs',
+            subtitle: 'Review bookmarked positions',
+            icon: <FiBookmark />,
             path: '/job-matching/saved'
+        },
+        {
+            id: 'notifications',
+            title: 'Notifications',
+            subtitle: 'Check alerts and reminders',
+            icon: <FiBell />,
+            path: '/job-matching/notifications'
         }
     ];
-    
+
     return (
-        <div className="glass-panel" style={{ padding: '14px' }}>
-            <h3 style={{ 
-                margin: '0 0 10px 0',
-                fontSize: '15px',
-                fontWeight: '700',
-                color: 'var(--secondary-800)',
-                display: 'flex',
-                alignItems: 'center',
-                gap: '6px'
-            }}>
+        <section className="dashboard-actions-panel dashboard-slide-up" style={{ animationDelay: '140ms' }}>
+            <h3 className="dashboard-panel-title">
                 <FiTarget /> Quick Actions
             </h3>
-            
-            <div style={{ 
-                display: 'grid',
-                gridTemplateColumns: 'repeat(auto-fit, minmax(170px, 1fr))',
-                gap: '9px'
-            }}>
+
+            <div className="dashboard-actions-list">
                 {actions.map((action, index) => (
                     <button
                         key={action.id}
-                        className="btn-secondary animate-fade-in"
+                        className="dashboard-action-item dashboard-slide-up"
                         onClick={() => onActionClick(action.path)}
-                        style={{
-                            padding: '8px 10px',
-                            display: 'flex',
-                            alignItems: 'center',
-                            gap: '8px',
-                            justifyContent: 'flex-start',
-                            textAlign: 'left',
-                            border: `1px solid ${action.color}30`,
-                            background: `${action.color}10`,
-                            animationDelay: `${index * 100}ms`
-                        }}
+                        style={{ animationDelay: `${220 + index * 50}ms` }}
                     >
-                        <div style={{
-                            fontSize: '18px',
-                            width: '24px',
-                            height: '24px',
-                            display: 'flex',
-                            alignItems: 'center',
-                            justifyContent: 'center',
-                            borderRadius: '50%',
-                            background: action.color,
-                            color: 'white'
-                        }}>
-                            {action.icon}
-                        </div>
-                        <span style={{ fontWeight: '600', fontSize: '13px' }}>{action.label}</span>
+                        <span className="dashboard-action-icon-box">{action.icon}</span>
+                        <span className="dashboard-action-text-group">
+                            <span className="dashboard-action-title">{action.title}</span>
+                            <span className="dashboard-action-subtitle">{action.subtitle}</span>
+                        </span>
+                        <span className="dashboard-action-arrow">&#8594;</span>
                     </button>
                 ))}
             </div>
 
-            <div style={{
-                marginTop: '10px',
-                borderTop: '1px solid var(--glass-border)',
-                paddingTop: '10px'
-            }}>
-                <div style={{
-                    fontSize: '12px',
-                    fontWeight: '700',
-                    color: 'var(--secondary-700)',
-                    marginBottom: '8px',
-                    textTransform: 'uppercase',
-                    letterSpacing: '0.4px'
-                }}>
-                    Activity Snapshot
+            <div className="dashboard-profile-info-card">
+                <FiBriefcase className="dashboard-profile-info-icon" />
+                <div>
+                    <h4>Profile completion: {profileCompletion}%</h4>
+                    <p>Complete your skills and preferences to improve recommendation quality.</p>
                 </div>
-                <LineChart data={stats} />
             </div>
-        </div>
+        </section>
     );
 }
 
@@ -411,6 +165,8 @@ export default function Dashboard() {
     const [error, setError] = useState('');
     const [recentActivities, setRecentActivities] = useState([]);
 
+    const profileCompletion = Math.min(100, Math.max(40, (Array.isArray(user?.skills) ? user.skills.length * 10 : 0) + 40));
+
     const formatRelativeTime = (dateInput) => {
         if (!dateInput) return 'Just now';
 
@@ -425,7 +181,7 @@ export default function Dashboard() {
         const days = Math.floor(hours / 24);
         return `${days} day${days > 1 ? 's' : ''} ago`;
     };
-    
+
     const loadDashboardData = useCallback(async ({ silent = false } = {}) => {
         if (!ready) return;
 
@@ -441,76 +197,73 @@ export default function Dashboard() {
                 getRecommendedJobs(),
                 getNotifications().catch(() => [])
             ]);
-            try {
-                setStats({
-                    totalApplicationsSent: Math.floor(Math.random() * 12) + 1,
-                    savedJobsCount: Array.isArray(saved) ? saved.length : 0,
-                    recommendedJobsCount: Array.isArray(recommended) ? recommended.length : 0,
-                    notificationsCount: Array.isArray(notifications) ? notifications.filter(n => !n.isRead).length : 0
-                });
 
-                const activityItems = [];
+            setStats({
+                totalApplicationsSent: Math.floor(Math.random() * 12) + 1,
+                savedJobsCount: Array.isArray(saved) ? saved.length : 0,
+                recommendedJobsCount: Array.isArray(recommended) ? recommended.length : 0,
+                notificationsCount: Array.isArray(notifications) ? notifications.filter((n) => !n.isRead).length : 0
+            });
 
-                if (Array.isArray(saved)) {
-                    saved.forEach((savedJob) => {
-                        const title = savedJob?.jobId?.title || 'Saved job';
-                        const company = savedJob?.jobId?.company || 'Company';
-                        const timestamp = savedJob?.dateSaved || savedJob?.createdAt || new Date();
-                        activityItems.push({
-                            icon: <FiBookmark />,
-                            title: 'Job Saved',
-                            description: `${title} at ${company}`,
-                            time: formatRelativeTime(timestamp),
-                            timestamp: timestamp,
-                            sortAt: new Date(timestamp).getTime(),
-                            color: 'var(--success-500)',
-                            path: '/job-matching/saved'
-                        });
-                    });
-                }
+            const activityItems = [];
 
-                if (Array.isArray(notifications)) {
-                    notifications.forEach((notification) => {
-                        const createdAt = notification?.createdAt || new Date();
-                        activityItems.push({
-                            icon: <FiBell />,
-                            title: 'Notification Received',
-                            description: notification?.message || 'New update received',
-                            time: formatRelativeTime(createdAt),
-                            timestamp: createdAt,
-                            sortAt: new Date(createdAt).getTime(),
-                            color: 'var(--warning-500)',
-                            path: '/job-matching/notifications'
-                        });
-                    });
-                }
-
-                if (Array.isArray(recommended) && recommended.length > 0) {
-                    const latestRecommendedAt = recommended
-                        .map((job) => new Date(job?.updatedAt || job?.createdAt || Date.now()).getTime())
-                        .sort((a, b) => b - a)[0];
-
+            if (Array.isArray(saved)) {
+                saved.forEach((savedJob) => {
+                    const title = savedJob?.jobId?.title || 'Saved job';
+                    const company = savedJob?.jobId?.company || 'Company';
+                    const timestamp = savedJob?.dateSaved || savedJob?.createdAt || new Date();
                     activityItems.push({
-                        icon: <FiStar />,
-                        title: 'Recommendations Updated',
-                        description: `${recommended.length} personalized job matches available`,
-                        time: formatRelativeTime(latestRecommendedAt),
-                        timestamp: latestRecommendedAt,
-                        sortAt: latestRecommendedAt,
-                        color: 'var(--accent-500)',
-                        path: '/job-matching/recommended'
+                        icon: <FiBookmark />,
+                        title: 'Job Saved',
+                        description: `${title} at ${company}`,
+                        time: formatRelativeTime(timestamp),
+                        timestamp,
+                        sortAt: new Date(timestamp).getTime(),
+                        color: '#10B981',
+                        path: '/job-matching/saved'
                     });
-                }
-
-                const dynamicActivities = activityItems
-                    .sort((a, b) => b.sortAt - a.sortAt)
-                    .slice(0, 4)
-                    .map(({ sortAt, ...rest }) => rest);
-
-                setRecentActivities(dynamicActivities);
-            } catch (e) {
-                setError(e?.response?.data?.message || 'Unable to load dashboard');
+                });
             }
+
+            if (Array.isArray(notifications)) {
+                notifications.forEach((notification) => {
+                    const createdAt = notification?.createdAt || new Date();
+                    activityItems.push({
+                        icon: <FiBell />,
+                        title: 'Notification Received',
+                        description: notification?.message || 'New update received',
+                        time: formatRelativeTime(createdAt),
+                        timestamp: createdAt,
+                        sortAt: new Date(createdAt).getTime(),
+                        color: '#F59E0B',
+                        path: '/job-matching/notifications'
+                    });
+                });
+            }
+
+            if (Array.isArray(recommended) && recommended.length > 0) {
+                const latestRecommendedAt = recommended
+                    .map((job) => new Date(job?.updatedAt || job?.createdAt || Date.now()).getTime())
+                    .sort((a, b) => b - a)[0];
+
+                activityItems.push({
+                    icon: <FiStar />,
+                    title: 'Recommendations Updated',
+                    description: `${recommended.length} personalized job matches available`,
+                    time: formatRelativeTime(latestRecommendedAt),
+                    timestamp: latestRecommendedAt,
+                    sortAt: latestRecommendedAt,
+                    color: '#8B5CF6',
+                    path: '/job-matching/recommended'
+                });
+            }
+
+            const dynamicActivities = activityItems
+                .sort((a, b) => b.sortAt - a.sortAt)
+                .slice(0, 4)
+                .map(({ sortAt, ...rest }) => rest);
+
+            setRecentActivities(dynamicActivities);
         } catch (e) {
             setError(e?.response?.data?.message || 'Unable to load dashboard');
         } finally {
@@ -544,7 +297,7 @@ export default function Dashboard() {
             document.removeEventListener('visibilitychange', refreshOnFocus);
         };
     }, [ready, loadDashboardData]);
-    
+
     const handleActionClick = (path) => {
         navigate(path);
     };
@@ -565,250 +318,144 @@ export default function Dashboard() {
             handleDashboardSearch();
         }
     };
-    
+
     return (
-        <div className="page">
-            <div className="container">
+        <div className="page dashboard-page">
+            <div className="container dashboard-container">
                 {authError && (
-                    <div className="glass-panel" style={{ 
-                        background: 'var(--error-500)20',
-                        border: '1px solid var(--error-500)30',
-                        color: 'var(--error-500)',
-                        textAlign: 'center',
-                        display: 'flex',
-                        alignItems: 'center',
-                        justifyContent: 'center',
-                        gap: '8px'
-                    }}>
+                    <div className="dashboard-alert dashboard-alert-error">
                         <FiAlertTriangle /> {authError}
                     </div>
                 )}
-                
+
                 {error && (
-                    <div className="glass-panel" style={{ 
-                        background: 'var(--error-500)20',
-                        border: '1px solid var(--error-500)30',
-                        color: 'var(--error-500)',
-                        textAlign: 'center',
-                        display: 'flex',
-                        alignItems: 'center',
-                        justifyContent: 'center',
-                        gap: '8px'
-                    }}>
+                    <div className="dashboard-alert dashboard-alert-error">
                         <FiAlertTriangle /> {error}
                     </div>
                 )}
-                
+
                 {!ready && (
-                    <div className="glass-panel" style={{ textAlign: 'center' }}>
-                        <div style={{ fontSize: '24px', marginBottom: '16px', display: 'flex', justifyContent: 'center' }}><FiZap /></div>
-                        <div>Starting demo session…</div>
+                    <div className="dashboard-alert dashboard-alert-info">
+                        <FiZap />
+                        <span>Starting demo session...</span>
                     </div>
                 )}
-                
+
                 {loading && (
-                    <div className="glass-panel" style={{ textAlign: 'center' }}>
-                        <div style={{ 
-                            fontSize: '24px', 
-                            marginBottom: '16px',
-                            animation: 'spin 1s linear infinite',
-                            display: 'flex', 
-                            justifyContent: 'center' 
-                        }}><FiRotateCw /></div>
-                        <div>Loading dashboard…</div>
+                    <div className="dashboard-alert dashboard-alert-info">
+                        <FiRotateCw className="dashboard-spin" />
+                        <span>Loading dashboard...</span>
                     </div>
                 )}
-                
+
                 {ready && !loading && (
                     <>
-                        {/* Quick Search Bar */}
-                        <div style={{
-                            display: 'flex',
-                            gap: '8px',
-                            marginBottom: '20px',
-                            alignItems: 'center',
-                            flexWrap: isSearchFocused ? 'wrap' : 'nowrap'
-                        }}>
-                            <input
-                                type="text"
-                                value={dashboardSearch}
-                                onChange={(event) => setDashboardSearch(event.target.value)}
-                                onKeyDown={handleDashboardSearchKeyDown}
-                                onFocus={() => setIsSearchFocused(true)}
-                                onBlur={() => setIsSearchFocused(false)}
-                                placeholder="Search internships by title, skill, or company"
-                                style={{
-                                    flex: 1,
-                                    padding: '8px 10px',
-                                    borderRadius: '8px',
-                                    border: '1px solid var(--secondary-300)',
-                                    background: 'white',
-                                    color: 'var(--secondary-800)',
-                                    fontSize: '13px',
-                                    minWidth: '250px'
-                                }}
-                            />
+                        <header className="dashboard-header dashboard-slide-up">
+                            <h1 className="dashboard-title">Career Dashboard</h1>
+                            <p className="dashboard-subtitle">Track progress, discover opportunities, and take the next best action.</p>
+                        </header>
 
-                            <button
-                                className="btn-primary"
-                                onClick={handleDashboardSearch}
-                                style={{
-                                    padding: '8px 12px',
-                                    fontSize: '12px',
-                                    display: 'inline-flex',
-                                    alignItems: 'center',
-                                    gap: '5px',
-                                    whiteSpace: 'nowrap'
-                                }}
-                            >
-                                <FiSearch /> Search
-                            </button>
+                        <section className="dashboard-hero-panel dashboard-slide-up" style={{ animationDelay: '80ms' }}>
+                            <div className="dashboard-hero-content">
+                                <div className="dashboard-hero-icon-circle">
+                                    <FiTarget />
+                                </div>
+                                <div>
+                                    <h2 className="dashboard-hero-title">Ready to find your dream job?</h2>
+                                    <p className="dashboard-hero-description">
+                                        Our AI-powered job matching system has analyzed your profile and found
+                                        {stats.recommendedJobsCount > 0 ? ` ${stats.recommendedJobsCount} personalized` : ' amazing'} job
+                                        recommendations for you.
+                                    </p>
+                                </div>
+                            </div>
 
-                            <button
-                                className="btn-secondary"
-                                onClick={() => navigate('/job-matching/notifications')}
-                                style={{
-                                    width: '34px',
-                                    height: '34px',
-                                    padding: 0,
-                                    fontSize: '14px',
-                                    display: 'inline-flex',
-                                    alignItems: 'center',
-                                    justifyContent: 'center',
-                                    position: 'relative'
-                                }}
-                                title="Notifications"
-                                aria-label="Open notifications"
-                            >
-                                <FiBell />
-                                {stats.notificationsCount > 0 && (
-                                    <span
-                                        style={{
-                                            position: 'absolute',
-                                            top: '6px',
-                                            right: '6px',
-                                            width: '7px',
-                                            height: '7px',
-                                            borderRadius: '50%',
-                                            background: 'var(--error-500)'
-                                        }}
+                            <div className="dashboard-hero-actions">
+                                <div className="dashboard-search-box">
+                                    <FiSearch className="dashboard-search-icon" />
+                                    <input
+                                        type="text"
+                                        value={dashboardSearch}
+                                        onChange={(event) => setDashboardSearch(event.target.value)}
+                                        onKeyDown={handleDashboardSearchKeyDown}
+                                        onFocus={() => setIsSearchFocused(true)}
+                                        onBlur={() => setIsSearchFocused(false)}
+                                        placeholder="Search internships by title, skill, or company"
+                                        className="dashboard-search-input"
                                     />
-                                )}
-                            </button>
+                                </div>
 
-                            {isSearchFocused && (
-                                <button
-                                    className="btn-secondary"
-                                    onMouseDown={(e) => {
-                                        e.preventDefault();
-                                        navigate('/job-matching/search');
-                                    }}
-                                    style={{
-                                        padding: '6px 10px',
-                                        fontSize: '12px',
-                                        animation: 'fadeIn 0.2s ease',
-                                        whiteSpace: 'nowrap'
-                                    }}
-                                >
-                                    Advanced
-                                </button>
-                            )}
-                        </div>
+                                <div className="dashboard-hero-actions-row">
+                                    <button className="dashboard-hero-cta-btn" onClick={() => handleActionClick('/job-matching/recommended')}>
+                                        <FiZap /> View Recommendations
+                                    </button>
 
-                        {/* Welcome Message */}
-                        <div className="glass-panel animate-fade-in" style={{
-                            textAlign: 'center',
-                            background: 'var(--primary-100)',
-                            border: '1px solid var(--primary-300)30',
-                            padding: '16px',
-                            marginBottom: '20px'
-                        }}>
-                            <div style={{ fontSize: '28px', marginBottom: '8px', display: 'flex', justifyContent: 'center' }}><FiTarget /></div>
-                            <h2 style={{ 
-                                fontSize: '20px',
-                                fontWeight: '700',
-                                color: 'var(--secondary-800)',
-                                marginBottom: '8px'
-                            }}>
-                                Ready to find your dream job?
-                            </h2>
-                            <p style={{
-                                fontSize: '14px',
-                                color: 'var(--secondary-600)',
-                                maxWidth: '500px',
-                                margin: '0 auto',
-                                lineHeight: '1.4'
-                            }}>
-                                Our AI-powered job matching system has analyzed your profile and found
-                                {stats.recommendedJobsCount > 0 ? ` ${stats.recommendedJobsCount} personalized` : ' amazing'} job
-                                recommendations just for you!
-                            </p>
-                            <button
-                                className="btn-primary"
-                                onClick={() => handleActionClick('/job-matching/recommended')}
-                                style={{
-                                    fontSize: '14px',
-                                    padding: '10px 20px',
-                                    display: 'inline-flex',
-                                    alignItems: 'center',
-                                    gap: '8px',
-                                    marginTop: '12px'
-                                }}
-                            >
-                                <FiZap /> View Recommendations
-                            </button>
-                        </div>
+                                    <button
+                                        className="dashboard-hero-notification-btn"
+                                        onClick={() => navigate('/job-matching/notifications')}
+                                        title="Notifications"
+                                        aria-label="Open notifications"
+                                    >
+                                        <FiBell />
+                                        {stats.notificationsCount > 0 && <span className="dashboard-hero-notification-dot" />}
+                                    </button>
 
-                        {/* Stats Grid */}
-                        <div className="modern-grid" style={{
-                            marginBottom: '20px',
-                            gridTemplateColumns: 'repeat(auto-fit, minmax(180px, 1fr))',
-                            gap: '12px'
-                        }}>
+                                    {isSearchFocused && (
+                                        <button
+                                            className="dashboard-hero-advanced-btn"
+                                            onMouseDown={(event) => {
+                                                event.preventDefault();
+                                                navigate('/job-matching/search');
+                                            }}
+                                        >
+                                            Advanced
+                                        </button>
+                                    )}
+                                </div>
+                            </div>
+                        </section>
+
+                        <section className="dashboard-stats-grid">
                             <StatCard
                                 icon={<FiEdit3 />}
                                 label="Applications Sent"
                                 value={stats.totalApplicationsSent}
-                                trend={12}
-                                color="var(--primary-500)"
+                                colorClass="dashboard-stat-icon-blue"
                                 delay={0}
+                                loading={false}
                             />
                             <StatCard
                                 icon={<FiBookmark />}
                                 label="Saved Jobs"
                                 value={stats.savedJobsCount}
-                                trend={stats.savedJobsCount > 0 ? 25 : 0}
-                                color="var(--success-500)"
-                                delay={100}
+                                colorClass="dashboard-stat-icon-green"
+                                delay={60}
+                                loading={false}
                             />
                             <StatCard
                                 icon={<FiStar />}
                                 label="Recommended Jobs"
                                 value={stats.recommendedJobsCount}
-                                color="var(--accent-500)"
-                                delay={200}
+                                colorClass="dashboard-stat-icon-purple"
+                                delay={120}
+                                loading={false}
                             />
                             <StatCard
                                 icon={<FiBell />}
                                 label="New Notifications"
                                 value={stats.notificationsCount}
-                                color="var(--warning-500)"
-                                delay={300}
+                                colorClass="dashboard-stat-icon-amber"
+                                delay={180}
+                                loading={false}
                             />
-                        </div>
-                        
-                        {/* Main Content Grid */}
-                        <div style={{
-                            display: 'grid',
-                            gridTemplateColumns: 'repeat(auto-fit, minmax(320px, 1fr))',
-                            gap: '14px',
-                            marginBottom: '10px'
-                        }}>
-                            <QuickActions onActionClick={handleActionClick} stats={stats} />
-                            <ActivityTimeline activities={recentActivities} onActivityClick={handleActionClick} formatRelativeTime={formatRelativeTime} />
-                        </div>
+                        </section>
 
-                        <div style={{ marginTop: '-4px' }}>
+                        <section className="dashboard-main-grid">
+                            <QuickActions onActionClick={handleActionClick} profileCompletion={profileCompletion} />
+                            <ActivityTimeline activities={recentActivities} onActivityClick={handleActionClick} formatRelativeTime={formatRelativeTime} />
+                        </section>
+
+                        <div className="dashboard-chat-wrap dashboard-slide-up" style={{ animationDelay: '320ms' }}>
                             <AiCareerChat
                                 studentSkills={Array.isArray(user?.skills) ? user.skills : []}
                                 stats={stats}
