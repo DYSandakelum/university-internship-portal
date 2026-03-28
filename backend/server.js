@@ -53,6 +53,7 @@ app.use('/api/jobs', require('./job_matching_component/routes/jobRoutes'));
 app.use('/api/notifications', require('./job_matching_component/routes/notificationRoutes'));
 app.use('/api/opportunity', require('./job_matching_component/routes/opportunityRoutes'));
 app.use('/api/ai', require('./job_matching_component/routes/aiChatRoutes'));
+app.use('/api/interviews', require('./job_matching_component/routes/interviewRoutes'));
 
 // Start server
 const PORT = process.env.PORT || 5000;

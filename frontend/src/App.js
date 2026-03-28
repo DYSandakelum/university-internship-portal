@@ -14,6 +14,8 @@ import SavedJobs from './job_matching_component/pages/SavedJobs';
 import Notifications from './job_matching_component/pages/Notifications';
 import NotificationSettings from './job_matching_component/pages/NotificationSettings';
 import OpportunityCentre from './job_matching_component/pages/OpportunityCentre';
+import PracticeInterview from './job_matching_component/pages/PracticeInterview';
+import PracticeInterviewAttempt from './job_matching_component/pages/PracticeInterviewAttempt';
 
 function App() {
     return (
@@ -31,6 +33,8 @@ function App() {
                     <Route path="/job-matching/notifications" element={<Notifications />} />
                     <Route path="/job-matching/notifications/settings" element={<NotificationSettings />} />
                     <Route path="/job-matching/opportunity" element={<OpportunityCentre />} />
+                    <Route path="/job-matching/practice-interview" element={<PracticeInterview />} />
+                    <Route path="/job-matching/practice-interview/attempt/:attemptId" element={<PracticeInterviewAttempt />} />
                     
                     {/* Auth Routes */}
                     <Route path="/verify-email/:token" element={<VerifyEmailPage />} />

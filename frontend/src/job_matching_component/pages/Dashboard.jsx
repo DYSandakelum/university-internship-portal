@@ -129,7 +129,7 @@ function ApplicationPipeline({ saved, applied, interviews, offers }) {
                     return (
                         <div key={stage.key} className="dashboard-pipeline-row">
                             <div className="dashboard-pipeline-labels"><span>{stage.label}</span><strong>{stage.value}</strong></div>
-                            <div className="dashboard-pipeline-track">`r`n                                <div className={`dashboard-pipeline-fill ${stage.colorClass}`} style={{ width: `${widthPercent}%` }} />`r`n                            </div>
+                            <div className="dashboard-pipeline-track">                                <div className={`dashboard-pipeline-fill ${stage.colorClass}`} style={{ width: `${widthPercent}%` }} />                            </div>
                         </div>
                     );
                 })}
@@ -166,6 +166,7 @@ function QuickActions({ onActionClick }) {
         { id: 'search', title: 'Search Jobs', subtitle: 'Find new openings', icon: <FiSearch />, path: '/job-matching/search' },
         { id: 'recommended', title: 'Recommendations', subtitle: 'View AI picks', icon: <FiStar />, path: '/job-matching/recommended' },
         { id: 'saved', title: 'Saved Jobs', subtitle: 'Continue your shortlist', icon: <FiBookmark />, path: '/job-matching/saved' },
+        { id: 'practice-interview', title: 'Practice Interview', subtitle: 'Timed MCQ papers', icon: <FiEdit3 />, path: '/job-matching/practice-interview' },
         { id: 'notifications', title: 'Notifications', subtitle: 'Review latest alerts', icon: <FiBell />, path: '/job-matching/notifications' }
     ];
 
