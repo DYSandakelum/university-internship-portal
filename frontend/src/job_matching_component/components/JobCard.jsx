@@ -1,4 +1,4 @@
-﻿import React, { useState } from 'react';
+import React, { useState } from 'react';
 import { FiDollarSign, FiClock, FiMapPin, FiBriefcase, FiEdit3, FiBookmark, FiCheck, FiStar, FiSend, FiTrash2 } from 'react-icons/fi';
 import './JobCard.css';
 

@@ -1,55 +1,64 @@
-import React, { useState, useEffect } from 'react';
-import { FiRefreshCw, FiAlertCircle, FiArrowRight, FiTarget, FiZap, FiCalendar, FiAlertTriangle } from 'react-icons/fi';
-import { useNavigate } from 'react-router-dom';
+import React, { useEffect, useMemo, useRef, useState } from 'react';
+import { FiAlertCircle, FiArrowLeft, FiArrowRight, FiCalendar, FiTarget } from 'react-icons/fi';
 import { jobService } from '../../services/jobService';
-import ScoreGauge from '../components/ScoreGauge';
 import ActionQueue from '../components/ActionQueue';
 import DeadlineTimeline from '../components/DeadlineTimeline';
-import SkillGapPanel from '../components/SkillGapPanel';
 import MomentumChart from '../components/MomentumChart';
+import ScoreGauge from '../components/ScoreGauge';
+import SkillGapPanel from '../components/SkillGapPanel';
 import './OpportunityCentre.css';
 
-function OpportunityCentre() {
-    const navigate = useNavigate();
+const SCROLL_STEP_PX = 360;
+
+export default function OpportunityCentre() {
     const [dashboard, setDashboard] = useState(null);
     const [loading, setLoading] = useState(true);
+    const [error, setError] = useState('');
     const [selectedOpportunity, setSelectedOpportunity] = useState(null);
-    const [error, setError] = useState(null);
-    const [refreshing, setRefreshing] = useState(false);
+
+    const scrollerRef = useRef(null);
 
     useEffect(() => {
-        fetchDashboard();
+        let mounted = true;
+
+        const load = async () => {
+            try {
+                setLoading(true);
+                setError('');
+                const response = await jobService.getOpportunityDashboard();
+                if (!mounted) return;
+                setDashboard(response.data);
+                const first = response.data?.topOpportunities?.[0] || null;
+                setSelectedOpportunity(first);
+            } catch (e) {
+                if (!mounted) return;
+                setError('Failed to load opportunity dashboard');
+                // eslint-disable-next-line no-console
+                console.error('Opportunity dashboard error:', e);
+            } finally {
+                if (mounted) setLoading(false);
+            }
+        };
+
+        load();
+        return () => {
+            mounted = false;
+        };
     }, []);
 
-    const fetchDashboard = async () => {
-        try {
-            setLoading(true);
-            setError(null);
-            const response = await jobService.getOpportunityDashboard();
-            setDashboard(response.data);
-            if (response.data.topOpportunities.length > 0) {
-                setSelectedOpportunity(response.data.topOpportunities[0]);
-            }
-        } catch (err) {
-            setError('Failed to load opportunity dashboard');
-            console.error('Dashboard error:', err);
-        } finally {
-            setLoading(false);
-        }
-    };
+    const topOpportunities = useMemo(() => dashboard?.topOpportunities || [], [dashboard]);
 
-    const handleRefresh = async () => {
-        setRefreshing(true);
-        await fetchDashboard();
-        setRefreshing(false);
+    const scrollBy = (dx) => {
+        if (!scrollerRef.current) return;
+        scrollerRef.current.scrollBy({ left: dx, behavior: 'smooth' });
     };
 
     if (loading && !dashboard) {
         return (
-            <div className="opportunity-centre-container">
-                <div className="loading-state">
-                    <div className="spinner"></div>
-                    <p>Loading your opportunity insights...</p>
+            <div className="opx-page">
+                <div className="opx-state">
+                    <div className="opx-spinner" />
+                    <p>Loading opportunities…</p>
                 </div>
             </div>
         );
@@ -57,12 +66,12 @@ function OpportunityCentre() {
 
     if (error) {
         return (
-            <div className="opportunity-centre-container">
-                <div className="error-state">
-                    <FiAlertCircle className="error-icon" />
+            <div className="opx-page">
+                <div className="opx-state opx-state-error">
+                    <FiAlertCircle className="opx-state-icon" />
                     <p>{error}</p>
-                    <button onClick={handleRefresh} className="retry-button">
-                        Try Again
+                    <button type="button" className="opx-btn" onClick={() => window.location.reload()}>
+                        Reload
                     </button>
                 </div>
             </div>
@@ -70,155 +79,92 @@ function OpportunityCentre() {
     }
 
     return (
-        <div className="opportunity-centre-container">
-            <button
-                onClick={() => navigate('/job-matching')}
-                style={{
-                    display: 'inline-flex',
-                    alignItems: 'center',
-                    gap: '6px',
-                    padding: '8px 12px',
-                    marginBottom: '16px',
-                    background: 'transparent',
-                    border: 'none',
-                    color: 'var(--primary-500)',
-                    fontSize: '14px',
-                    fontWeight: '600',
-                    cursor: 'pointer'
-                }}
-            >
-                Back to Dashboard
-            </button>
-            {/* Header */}
-            <div className="opp-header">
-                <div>
-                    <h1 className="opp-title">
-                        <span className="title-icon"><FiTarget /></span>
-                        Opportunity Command Center
-                    </h1>
-                    <p className="opp-subtitle">Intelligent insights to land your next internship</p>
-                </div>
-                <button 
-                    className={`refresh-button ${refreshing ? 'spinning' : ''}`}
-                    onClick={handleRefresh}
-                    disabled={refreshing}
-                    title="Refresh insights"
-                >
-                    <FiRefreshCw />
-                </button>
-            </div>
+        <div className="opx-page">
+            <header className="opx-header">
+                <h1 className="opx-title">
+                    <FiTarget /> Opportunity Mission Board
+                </h1>
+            </header>
 
-            {/* Top Opportunities List */}
-            {dashboard?.topOpportunities && dashboard.topOpportunities.length > 0 && (
-                <div className="top-opportunities-section">
-                    <h2 className="section-title">
-                        <span className="icon"><FiZap /></span> Top Opportunities This Week
-                    </h2>
-                    <div className="opportunities-grid">
-                        {dashboard.topOpportunities.map((opp, idx) => (
-                            <div
-                                key={idx}
-                                className={`opp-card ${selectedOpportunity?._id === opp._id ? 'selected' : ''}`}
+            <section className="opx-selector" aria-label="Opportunity selector">
+                <button
+                    type="button"
+                    className="opx-arrow opx-arrow-left"
+                    onClick={() => scrollBy(-SCROLL_STEP_PX)}
+                    aria-label="Scroll opportunities left"
+                >
+                    <FiArrowLeft />
+                </button>
+
+                <div className="opx-scroller" ref={scrollerRef}>
+                    {topOpportunities.length > 0 ? (
+                        topOpportunities.map((opp) => (
+                            <button
+                                key={opp._id}
+                                type="button"
+                                className={`opx-card ${selectedOpportunity?._id === opp._id ? 'is-selected' : ''}`}
                                 onClick={() => setSelectedOpportunity(opp)}
+                                title={`${opp.jobId?.title || 'Role'} at ${opp.jobId?.company || 'Company'}`}
                             >
-                                <div className="opp-card-header">
-                                    <h3>{opp.jobId?.title}</h3>
-                                    <span className={`score-badge score-${
-                                        opp.overallSuccessScore >= 75 ? 'high' :
-                                        opp.overallSuccessScore >= 50 ? 'medium' : 'low'
-                                    }`}>
-                                        {opp.overallSuccessScore}%
+                                <div className="opx-card-top">
+                                    <h2 className="opx-card-title">{opp.jobId?.title}</h2>
+                                    <span
+                                        className={`opx-pill ${
+                                            opp.overallSuccessScore >= 75
+                                                ? 'high'
+                                                : opp.overallSuccessScore >= 50
+                                                  ? 'mid'
+                                                  : 'low'
+                                        }`}
+                                    >
+                                        {opp.overallSuccessScore || 0}%
                                     </span>
                                 </div>
-                                <div className="opp-card-body">
-                                    <p className="company">{opp.jobId?.company}</p>
-                                    <p className="deadline">
-                                        <FiCalendar /> {opp.daysUntilDeadline > 0 ? `${opp.daysUntilDeadline} days left` : 'Deadline passed'}
-                                    </p>
-                                    <div className="card-actions">
-                                        <span className={`status ${opp.applicationStatus}`}>
-                                            {opp.applicationStatus.replace('_', ' ').toUpperCase()}
-                                        </span>
-                                        <FiArrowRight className="card-arrow" />
-                                    </div>
+                                <p className="opx-card-company">{opp.jobId?.company}</p>
+                                <p className="opx-card-deadline">
+                                    <FiCalendar />
+                                    {opp.daysUntilDeadline > 0 ? `${opp.daysUntilDeadline}d` : 'Expired'}
+                                </p>
+                                <div className="opx-card-bottom">
+                                    <span className={`opx-status ${opp.applicationStatus}`}>
+                                        {opp.applicationStatus?.replace('_', ' ').toUpperCase()}
+                                    </span>
                                 </div>
-                            </div>
-                        ))}
-                    </div>
-                </div>
-            )}
-
-            {/* Main Content Grid */}
-            <div className="opp-main-grid">
-                {/* Left Column */}
-                <div className="opp-left-column">
-                    {/* Score Gauge */}
-                    {selectedOpportunity && (
-                        <ScoreGauge opportunity={selectedOpportunity} />
-                    )}
-
-                    {/* Action Queue */}
-                    {selectedOpportunity && (
-                        <ActionQueue 
-                            actions={selectedOpportunity.recommendedActions}
-                            opportunity={selectedOpportunity}
-                        />
+                            </button>
+                        ))
+                    ) : (
+                        <div className="opx-empty">No opportunities yet.</div>
                     )}
                 </div>
 
-                {/* Right Column */}
-                <div className="opp-right-column">
-                    {/* Deadline Timeline */}
-                    {selectedOpportunity && (
-                        <DeadlineTimeline opportunity={selectedOpportunity} />
-                    )}
+                <button
+                    type="button"
+                    className="opx-arrow opx-arrow-right"
+                    onClick={() => scrollBy(SCROLL_STEP_PX)}
+                    aria-label="Scroll opportunities right"
+                >
+                    <FiArrowRight />
+                </button>
+            </section>
 
-                    {/* Skill Gap Panel */}
+            <section className="opx-modules" aria-label="Opportunity modules">
+                <div className="opx-module">{selectedOpportunity && <ScoreGauge opportunity={selectedOpportunity} />}</div>
+                <div className="opx-module">
                     {selectedOpportunity && (
-                        <SkillGapPanel 
+                        <ActionQueue actions={selectedOpportunity.recommendedActions} opportunity={selectedOpportunity} />
+                    )}
+                </div>
+                <div className="opx-module">{selectedOpportunity && <DeadlineTimeline opportunity={selectedOpportunity} />}</div>
+                <div className="opx-module">
+                    {selectedOpportunity && (
+                        <SkillGapPanel
                             skills={selectedOpportunity.missingSkills}
                             skillMatchScore={selectedOpportunity.skillMatchScore}
                         />
                     )}
-
-                    {/* Momentum Chart */}
-                    {dashboard?.momentumData && (
-                        <MomentumChart data={dashboard.momentumData} />
-                    )}
                 </div>
-            </div>
-
-            {/* At-Risk Opportunities Alert */}
-            {dashboard?.atRiskOpportunities && dashboard.atRiskOpportunities.length > 0 && (
-                <div className="at-risk-section">
-                    <div className="at-risk-header">
-                        <h2 className="section-title">
-                            <span className="icon-alert"><FiAlertTriangle /></span> Attention Needed: {dashboard.atRiskOpportunities.length} Opportunity(ies)
-                        </h2>
-                    </div>
-                    <div className="at-risk-list">
-                        {dashboard.atRiskOpportunities.map((opp, idx) => (
-                            <div key={idx} className="at-risk-item">
-                                <div className="risk-indicator"></div>
-                                <div className="risk-content">
-                                    <h4>{opp.jobId?.title}</h4>
-                                    <p>{opp.jobId?.company}</p>
-                                </div>
-                                <div className="risk-meta">
-                                    <span className={`risk-level risk-${opp.riskLevel}`}>
-                                        {opp.riskLevel.toUpperCase()}
-                                    </span>
-                                    <span className="days-left">
-                                        {opp.daysUntilDeadline > 0 ? `${opp.daysUntilDeadline}d left` : 'EXPIRED'}
-                                    </span>
-                                </div>
-                            </div>
-                        ))}
-                    </div>
-                </div>
-            )}
+                <div className="opx-module opx-module-wide">{dashboard?.momentumData && <MomentumChart data={dashboard.momentumData} />}</div>
+            </section>
         </div>
     );
 }
-
-export default OpportunityCentre;
