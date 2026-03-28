@@ -190,7 +190,7 @@
   display: grid;
   grid-template-columns: 1fr;
   gap: 8px;
-  align-items: start;
+  align-items: stretch;
 }
 
 .opx-module {
@@ -199,7 +199,8 @@
   background: var(--opx-surface);
   padding: 8px;
   min-width: 0;
-  align-self: start;
+  align-self: stretch;
+  height: 100%;
 }
 
 .opx-module :is(

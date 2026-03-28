@@ -152,14 +152,14 @@ export default function OpportunityCentre() {
                     {selectedOpportunity ? <ScoreGauge opportunity={selectedOpportunity} /> : null}
                 </div>
 
+                <div className="opx-module opx-module-deadline">
+                    {selectedOpportunity ? <DeadlineTimeline opportunity={selectedOpportunity} /> : null}
+                </div>
+
                 <div className="opx-module">
                     {selectedOpportunity ? (
                         <ActionQueue actions={selectedOpportunity.recommendedActions} opportunity={selectedOpportunity} />
                     ) : null}
-                </div>
-
-                <div className="opx-module opx-module-full opx-module-deadline">
-                    {selectedOpportunity ? <DeadlineTimeline opportunity={selectedOpportunity} /> : null}
                 </div>
 
                 <div className="opx-module opx-module-skills">
