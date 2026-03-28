@@ -3,7 +3,8 @@ const mongoose = require('mongoose');
 const JobSchema = new mongoose.Schema({
     title: {
         type: String,
-        required: true
+        required: true,
+        trim: true
     },
     description: {
         type: String,
@@ -15,11 +16,12 @@ const JobSchema = new mongoose.Schema({
     },
     salaryRange: {
         type: String,
-        required: true
+        default: ''
     },
     location: {
         type: String,
-        required: true
+        required: true,
+        trim: true
     },
     deadline: {
         type: Date,

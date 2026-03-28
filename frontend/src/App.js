@@ -72,6 +72,7 @@ function App() {
                     <Route path="/employer/login" element={<EmployerLogin />} />
                     <Route path="/employer/dashboard" element={<EmployerDashboard />} />
                     <Route path="/employer/post-job" element={<PostJob />} />
+                    <Route path="/employer/edit-job/:id" element={<PostJob />} />
                     <Route path="/employer/my-jobs" element={<MyJobs />} />
                     <Route path="/employer/applications" element={<ViewApplications />} />
                     <Route path="/employer/profile" element={<EmployerProfile />} />

@@ -14,6 +14,7 @@ const EmployerProfile = () => {
     const [editing, setEditing] = useState(false);
     const [saving, setSaving] = useState(false);
     const [message, setMessage] = useState({ type: '', text: '' });
+    const [fieldErrors, setFieldErrors] = useState({});
 
     useEffect(() => {
         const token = localStorage.getItem('token');
@@ -46,12 +47,37 @@ const EmployerProfile = () => {
     };
 
     const handleChange = (e) => {
-        setFormData((prev) => ({ ...prev, [e.target.name]: e.target.value }));
+        const { name, value } = e.target;
+        setFormData((prev) => ({ ...prev, [name]: value }));
+        setFieldErrors((prev) => ({ ...prev, [name]: '' }));
+    };
+
+    const validateProfile = () => {
+        const newErrors = {};
+        if (!formData.companyName.trim()) {
+            newErrors.companyName = 'Company name is required';
+        }
+        if (!formData.companyAddress.trim()) {
+            newErrors.companyAddress = 'Company address is required';
+        }
+        if (!formData.companyDescription.trim()) {
+            newErrors.companyDescription = 'Company description is required';
+        }
+        return newErrors;
     };
 
     const handleSave = async () => {
         const token = localStorage.getItem('token');
         if (!token) { navigate('/login'); return; }
+
+        const newErrors = validateProfile();
+        if (Object.keys(newErrors).length > 0) {
+            setFieldErrors(newErrors);
+            setMessage({ type: 'error', text: 'Please fill all required fields!' });
+            return;
+        }
+
+        setFieldErrors({});
         setSaving(true);
         setMessage({ type: '', text: '' });
         try {
@@ -72,6 +98,20 @@ const EmployerProfile = () => {
             setMessage({ type: 'error', text: error.message });
         } finally {
             setSaving(false);
+        }
+    };
+
+    const handleCancelEdit = () => {
+        setEditing(false);
+        setFieldErrors({});
+        setMessage({ type: '', text: '' });
+        if (profile) {
+            setFormData({
+                companyName: profile.companyName || '',
+                email: profile.email || '',
+                companyAddress: profile.companyAddress || '',
+                companyDescription: profile.companyDescription || ''
+            });
         }
     };
 
@@ -113,7 +153,6 @@ const EmployerProfile = () => {
                     alignItems: 'center',
                     gap: '24px'
                 }}>
-                    {/* Avatar */}
                     <div style={{
                         width: '80px',
                         height: '80px',
@@ -127,7 +166,6 @@ const EmployerProfile = () => {
                     }}>
                         🏢
                     </div>
-                    {/* Info */}
                     <div style={{ flex: 1 }}>
                         <h1 style={{ color: 'white', margin: 0, fontSize: '24px', fontWeight: '700' }}>
                             {formData.companyName || profile?.name || 'Your Company'}
@@ -139,7 +177,6 @@ const EmployerProfile = () => {
                             📍 {formData.companyAddress || 'No address added'}
                         </p>
                     </div>
-                    {/* Badge */}
                     <div style={{
                         background: isVerified ? '#10b981' : '#f59e0b',
                         color: 'white',
@@ -181,10 +218,24 @@ const EmployerProfile = () => {
                     {/* Company Name */}
                     <div style={{ marginBottom: '16px' }}>
                         <label style={{ fontSize: '13px', fontWeight: '600', color: '#7C3AED', display: 'block', marginBottom: '6px' }}>
-                            🏢 COMPANY NAME
+                            🏢 COMPANY NAME <span style={{ color: 'red' }}>*</span>
                         </label>
                         {editing ? (
-                            <input className="form-input" name="companyName" value={formData.companyName} onChange={handleChange} />
+                            <>
+                                <input
+                                    className="form-input"
+                                    name="companyName"
+                                    value={formData.companyName}
+                                    onChange={handleChange}
+                                    placeholder="Enter company name"
+                                    style={{ borderColor: fieldErrors.companyName ? 'red' : '' }}
+                                />
+                                {fieldErrors.companyName && (
+                                    <p style={{ color: 'red', fontSize: '13px', margin: '4px 0 0' }}>
+                                        ⚠️ {fieldErrors.companyName}
+                                    </p>
+                                )}
+                            </>
                         ) : (
                             <p style={{ margin: 0, fontSize: '16px', color: '#1e1b4b', padding: '10px', background: '#f9fafb', borderRadius: '8px' }}>
                                 {formData.companyName || 'Not provided'}
@@ -205,10 +256,24 @@ const EmployerProfile = () => {
                     {/* Address */}
                     <div style={{ marginBottom: '16px' }}>
                         <label style={{ fontSize: '13px', fontWeight: '600', color: '#7C3AED', display: 'block', marginBottom: '6px' }}>
-                            📍 COMPANY ADDRESS
+                            📍 COMPANY ADDRESS <span style={{ color: 'red' }}>*</span>
                         </label>
                         {editing ? (
-                            <input className="form-input" name="companyAddress" value={formData.companyAddress} onChange={handleChange} />
+                            <>
+                                <input
+                                    className="form-input"
+                                    name="companyAddress"
+                                    value={formData.companyAddress}
+                                    onChange={handleChange}
+                                    placeholder="Enter company address"
+                                    style={{ borderColor: fieldErrors.companyAddress ? 'red' : '' }}
+                                />
+                                {fieldErrors.companyAddress && (
+                                    <p style={{ color: 'red', fontSize: '13px', margin: '4px 0 0' }}>
+                                        ⚠️ {fieldErrors.companyAddress}
+                                    </p>
+                                )}
+                            </>
                         ) : (
                             <p style={{ margin: 0, fontSize: '16px', color: '#1e1b4b', padding: '10px', background: '#f9fafb', borderRadius: '8px' }}>
                                 {formData.companyAddress || 'Not provided'}
@@ -219,10 +284,25 @@ const EmployerProfile = () => {
                     {/* Description */}
                     <div style={{ marginBottom: '24px' }}>
                         <label style={{ fontSize: '13px', fontWeight: '600', color: '#7C3AED', display: 'block', marginBottom: '6px' }}>
-                            📝 COMPANY DESCRIPTION
+                            📝 COMPANY DESCRIPTION <span style={{ color: 'red' }}>*</span>
                         </label>
                         {editing ? (
-                            <textarea className="form-textarea" name="companyDescription" value={formData.companyDescription} onChange={handleChange} rows="4" />
+                            <>
+                                <textarea
+                                    className="form-textarea"
+                                    name="companyDescription"
+                                    value={formData.companyDescription}
+                                    onChange={handleChange}
+                                    rows="4"
+                                    placeholder="Describe your company..."
+                                    style={{ borderColor: fieldErrors.companyDescription ? 'red' : '' }}
+                                />
+                                {fieldErrors.companyDescription && (
+                                    <p style={{ color: 'red', fontSize: '13px', margin: '4px 0 0' }}>
+                                        ⚠️ {fieldErrors.companyDescription}
+                                    </p>
+                                )}
+                            </>
                         ) : (
                             <p style={{ margin: 0, fontSize: '16px', color: '#1e1b4b', padding: '10px', background: '#f9fafb', borderRadius: '8px', lineHeight: '1.6' }}>
                                 {formData.companyDescription || 'No description added'}
@@ -267,7 +347,7 @@ const EmployerProfile = () => {
                                     {saving ? 'Saving...' : '💾 Save Changes'}
                                 </button>
                                 <button
-                                    onClick={() => setEditing(false)}
+                                    onClick={handleCancelEdit}
                                     style={{
                                         background: '#f3f4f6',
                                         color: '#374151',

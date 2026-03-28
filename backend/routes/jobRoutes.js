@@ -1,18 +1,18 @@
 const express = require('express');
 const router = express.Router();
 const { protect } = require('../middleware/authMiddleware');
-
 const Job = require('../models/Job');
 
 // Post a new job
 router.post('/', protect, async (req, res) => {
     try {
-        const { title, description, requirements, salaryRange, location, deadline, jobType } = req.body;
+        const { title, description, requirements, salaryRange, salary, location, deadline, jobType } = req.body;
         const job = new Job({
             title,
             description,
             requirements,
-            salaryRange,
+            salaryRange: salary || salaryRange,
+            salary: salary || salaryRange,
             location,
             deadline,
             jobType,
@@ -36,11 +36,49 @@ router.get('/employer', protect, async (req, res) => {
     }
 });
 
-// Get all jobs (for students)
+// Get all jobs for students
 router.get('/', async (req, res) => {
     try {
-        const jobs = await Job.find({ status: 'Active' }).populate('employer', 'companyName').sort({ createdAt: -1 });
+        const jobs = await Job.find({ status: 'Active' })
+            .populate('employer', 'companyName name')
+            .sort({ createdAt: -1 });
         res.json(jobs);
+    } catch (error) {
+        res.status(500).json({ message: error.message });
+    }
+});
+
+// Get single job by id
+router.get('/:id', protect, async (req, res) => {
+    try {
+        const job = await Job.findById(req.params.id);
+        if (!job) return res.status(404).json({ message: 'Job not found' });
+        res.json({ job });
+    } catch (error) {
+        res.status(500).json({ message: error.message });
+    }
+});
+
+// Edit a job
+router.put('/:id', protect, async (req, res) => {
+    try {
+        const { title, description, requirements, salary, salaryRange, location, deadline, jobType } = req.body;
+        const job = await Job.findByIdAndUpdate(
+            req.params.id,
+            {
+                title,
+                description,
+                requirements,
+                salaryRange: salary || salaryRange,
+                salary: salary || salaryRange,
+                location,
+                deadline,
+                jobType
+            },
+            { new: true }
+        );
+        if (!job) return res.status(404).json({ message: 'Job not found' });
+        res.json({ message: 'Job updated successfully', job });
     } catch (error) {
         res.status(500).json({ message: error.message });
     }
