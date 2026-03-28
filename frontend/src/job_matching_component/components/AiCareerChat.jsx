@@ -5,6 +5,7 @@ import './AiCareerChat.css';
 
 export default function AiCareerChat({ studentSkills = [], stats = {}, recentActivities = [] }) {
     const [input, setInput] = useState('');
+    const [inputError, setInputError] = useState('');
     const [isSending, setIsSending] = useState(false);
     const [messages, setMessages] = useState([
         {
@@ -27,6 +28,21 @@ export default function AiCareerChat({ studentSkills = [], stats = {}, recentAct
     const handleSend = async (messageOverride) => {
         const message = (messageOverride ?? input).trim();
         if (!message || isSending) return;
+
+        // Validation: must contain at least one letter (not only numbers/symbols)
+        const hasLetter = (() => {
+            try {
+                return new RegExp('\\p{L}', 'u').test(message);
+            } catch {
+                return /[A-Za-z]/.test(message);
+            }
+        })();
+        if (!hasLetter) {
+            setInputError('Please enter a valid text message (include at least one letter).');
+            return;
+        }
+
+        setInputError('');
 
         const userEntry = { role: 'user', text: message };
         setMessages((prev) => [...prev, userEntry]);
@@ -119,10 +135,13 @@ export default function AiCareerChat({ studentSkills = [], stats = {}, recentAct
 
             <form onSubmit={onSubmit} className="ai-chat-form">
                 <input
-                    className="ai-chat-input"
+                    className={`ai-chat-input ${inputError ? 'has-error' : ''}`}
                     type="text"
                     value={input}
-                    onChange={(event) => setInput(event.target.value)}
+                    onChange={(event) => {
+                        setInput(event.target.value);
+                        if (inputError) setInputError('');
+                    }}
                     placeholder="Ask about your skill gaps or job requirement difficulties..."
                     disabled={isSending}
                 />
@@ -131,6 +150,8 @@ export default function AiCareerChat({ studentSkills = [], stats = {}, recentAct
                     {isSending ? 'Thinking...' : 'Send'}
                 </button>
             </form>
+
+            {inputError && <div className="ai-chat-error" role="alert">{inputError}</div>}
 
             <div className="ai-chat-tips">
                 {tips.map((tip) => (

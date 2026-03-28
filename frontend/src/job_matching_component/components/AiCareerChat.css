@@ -154,3 +154,20 @@
     border-color: var(--primary-300);
     color: var(--primary-700);
 }
+
+.ai-chat-input.has-error {
+    border-color: var(--error-500);
+    box-shadow: 0 0 0 3px rgba(239, 68, 68, 0.12);
+}
+
+.ai-chat-error {
+    margin-top: 10px;
+    padding: 10px 12px;
+    border-radius: 12px;
+    border: 1px solid var(--error-500);
+    border-left: 4px solid var(--error-500);
+    background: var(--secondary-50);
+    font-size: 12px;
+    font-weight: 900;
+    color: var(--error-500);
+}
