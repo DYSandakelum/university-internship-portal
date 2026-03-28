@@ -33,8 +33,16 @@ function App() {
                     <Route path="/job-matching/notifications" element={<Notifications />} />
                     <Route path="/job-matching/notifications/settings" element={<NotificationSettings />} />
                     <Route path="/job-matching/opportunity" element={<OpportunityCentre />} />
-                    <Route path="/job-matching/practice-interview" element={<PracticeInterview />} />
-                    <Route path="/job-matching/practice-interview/attempt/:attemptId" element={<PracticeInterviewAttempt />} />
+                    <Route path="/job-matching/practice-interview" element={
+                        <ProtectedRoute allowedRoles={['student']}>
+                            <PracticeInterview />
+                        </ProtectedRoute>
+                    } />
+                    <Route path="/job-matching/practice-interview/attempt/:attemptId" element={
+                        <ProtectedRoute allowedRoles={['student']}>
+                            <PracticeInterviewAttempt />
+                        </ProtectedRoute>
+                    } />
                     
                     {/* Auth Routes */}
                     <Route path="/verify-email/:token" element={<VerifyEmailPage />} />

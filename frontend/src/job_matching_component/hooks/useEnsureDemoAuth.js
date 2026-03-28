@@ -31,6 +31,8 @@ export default function useEnsureDemoAuth() {
                 const token = res?.data?.token;
                 if (token) {
                     localStorage.setItem('token', token);
+                    // Notify AuthContext to refresh `/auth/me` and populate `user`.
+                    window.dispatchEvent(new Event('auth:updated'));
                     if (!cancelled) setReady(true);
                     return;
                 }
