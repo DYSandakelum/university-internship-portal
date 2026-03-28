@@ -73,6 +73,16 @@ const StudentDashboard = () => {
                                 <span style={styles.actionIcon}>📄</span>
                                 <span style={styles.actionLabel}>CV Generator</span>
                             </Link>
+                            <Link
+                                to="/job-matching/practice-interview"
+                                style={{
+                                    ...styles.actionButton,
+                                    background: 'linear-gradient(135deg, #0f766e 0%, #0c5e58 100%)'
+                                }}
+                            >
+                                <span style={styles.actionIcon}>📝</span>
+                                <span style={styles.actionLabel}>Practice Interview</span>
+                            </Link>
                         </div>
                     </div>
                 </div>
