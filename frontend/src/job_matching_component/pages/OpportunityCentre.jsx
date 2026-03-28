@@ -1,5 +1,5 @@
 import React, { useEffect, useMemo, useRef, useState } from 'react';
-import { FiAlertCircle, FiArrowLeft, FiArrowRight, FiCalendar, FiTarget } from 'react-icons/fi';
+import { FiAlertCircle, FiArrowLeft, FiArrowRight, FiCalendar, FiInfo, FiTarget } from 'react-icons/fi';
 import { jobService } from '../../services/jobService';
 import ActionQueue from '../components/ActionQueue';
 import DeadlineTimeline from '../components/DeadlineTimeline';
@@ -148,22 +148,38 @@ export default function OpportunityCentre() {
             </section>
 
             <section className="opx-modules" aria-label="Opportunity modules">
-                <div className="opx-module">{selectedOpportunity && <ScoreGauge opportunity={selectedOpportunity} />}</div>
                 <div className="opx-module">
-                    {selectedOpportunity && (
-                        <ActionQueue actions={selectedOpportunity.recommendedActions} opportunity={selectedOpportunity} />
-                    )}
+                    {selectedOpportunity ? <ScoreGauge opportunity={selectedOpportunity} /> : null}
                 </div>
-                <div className="opx-module">{selectedOpportunity && <DeadlineTimeline opportunity={selectedOpportunity} />}</div>
+
                 <div className="opx-module">
-                    {selectedOpportunity && (
+                    {selectedOpportunity ? (
+                        <ActionQueue actions={selectedOpportunity.recommendedActions} opportunity={selectedOpportunity} />
+                    ) : null}
+                </div>
+
+                <div className="opx-module opx-module-full opx-module-deadline">
+                    {selectedOpportunity ? <DeadlineTimeline opportunity={selectedOpportunity} /> : null}
+                </div>
+
+                <div className="opx-module opx-module-skills">
+                    {selectedOpportunity ? (
                         <SkillGapPanel
                             skills={selectedOpportunity.missingSkills}
                             skillMatchScore={selectedOpportunity.skillMatchScore}
                         />
-                    )}
+                    ) : null}
                 </div>
-                <div className="opx-module opx-module-wide">{dashboard?.momentumData && <MomentumChart data={dashboard.momentumData} />}</div>
+
+                <div className="opx-module opx-module-momentum">
+                    {dashboard?.momentumData ? <MomentumChart data={dashboard.momentumData} /> : null}
+                </div>
+
+                <div className="opx-module opx-module-calendar" aria-label="Deadline calendar tip">
+                    <div className="opx-calendar-hint">
+                        <FiInfo /> Tip: Add this deadline to your calendar so you don't miss it!
+                    </div>
+                </div>
             </section>
         </div>
     );
