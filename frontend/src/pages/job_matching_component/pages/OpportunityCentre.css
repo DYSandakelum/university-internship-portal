@@ -1,17 +1,17 @@
 .opx-page {
-  --opx-bg: #dbe5ef;
+  --opx-bg: transparent;
   --opx-surface: #ffffff;
-  --opx-soft: #f5f8fc;
-  --opx-border: #c8d5e5;
-  --opx-text: #1a2d40;
-  --opx-text-soft: #60768d;
-  --opx-primary: #124c8a;
-  --opx-primary-deep: #0f3f71;
-  --opx-danger: #b91c1c;
+  --opx-soft: var(--color-gray-50);
+  --opx-border: var(--color-gray-border);
+  --opx-text: var(--color-text-dark);
+  --opx-text-soft: var(--color-gray-text);
+  --opx-primary: var(--primary-600);
+  --opx-primary-deep: var(--primary-700);
+  --opx-danger: var(--color-error);
 
-  background: var(--opx-bg);
+  background: transparent;
   color: var(--opx-text);
-  padding: 10px 12px;
+  padding: 0;
   min-height: 100%;
 }
 
@@ -199,7 +199,8 @@
   background: var(--opx-surface);
   padding: 8px;
   min-width: 0;
-  align-self: stretch;
+  align-self: stretch;
+
   height: 100%;
 }
 

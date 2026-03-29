@@ -1,26 +1,26 @@
 /* Dashboard styles - complete dashboard layout with solid colors only */
 
 .dashboard-page {
-  --ds-primary: #124c8a;
-  --ds-primary-deep: #0f3f71;
-  --ds-teal: #0f766e;
-  --ds-violet: #5b21b6;
-  --ds-amber: #a16207;
-  --ds-success: #166534;
-  --ds-danger: #b91c1c;
+  --ds-primary: var(--primary-600);
+  --ds-primary-deep: var(--primary-700);
+  --ds-teal: var(--color-success);
+  --ds-violet: var(--color-accent);
+  --ds-amber: var(--color-warning);
+  --ds-success: var(--color-success);
+  --ds-danger: var(--color-error);
 
-  --ds-bg: #dbe5ef;
+  --ds-bg: transparent;
   --ds-surface: #ffffff;
-  --ds-surface-soft: #f5f8fc;
-  --ds-surface-muted: #e8eef5;
-  --ds-border: #c8d5e5;
+  --ds-surface-soft: var(--color-gray-50);
+  --ds-surface-muted: var(--color-gray-light);
+  --ds-border: var(--color-gray-border);
 
-  --ds-text: #1a2d40;
-  --ds-text-soft: #3d546b;
-  --ds-text-muted: #60768d;
+  --ds-text: var(--color-text-dark);
+  --ds-text-soft: var(--color-text-medium);
+  --ds-text-muted: var(--color-gray-text);
 
-  font-family: 'Segoe UI', 'Helvetica Neue', sans-serif;
-  background: var(--ds-bg);
+  font-family: var(--font-family);
+  background: transparent;
   color: var(--ds-text);
   min-height: 100%;
 }

@@ -3,7 +3,7 @@ import HomePage from './pages/HomePage';
 import RegisterPage from './pages/auth/RegisterPage';
 import LoginPage from './pages/auth/LoginPage';
 import VerifyEmailPage from './pages/auth/VerifyEmailPage';
-import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
+import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
 import StudentDashboard from './pages/student/StudentDashboard';
 import ProtectedRoute from './components/ProtectedRoute';
 import JobDetailsPage from './pages/student/JobDetailsPage';
@@ -27,6 +27,7 @@ import NotificationSettings from './pages/job_matching_component/pages/Notificat
 import OpportunityCentre from './pages/job_matching_component/pages/OpportunityCentre';
 import PracticeInterview from './pages/job_matching_component/pages/PracticeInterview';
 import PracticeInterviewAttempt from './pages/job_matching_component/pages/PracticeInterviewAttempt';
+import JobMatchingShell from './pages/job_matching_component/components/JobMatchingShell';
 
 function App() {
     return (
@@ -48,23 +49,32 @@ function App() {
                     <Route path="/verify-email/:token" element={<VerifyEmailPage />} />
 
                     {/* Job Matching Module Routes */}
-                    <Route path="/job-matching/dashboard" element={<Dashboard />} />
-                    <Route path="/job-matching/search" element={<JobSearch />} />
-                    <Route path="/job-matching/recommended" element={<RecommendedJobs />} />
-                    <Route path="/job-matching/saved" element={<SavedJobs />} />
-                    <Route path="/job-matching/notifications" element={<Notifications />} />
-                    <Route path="/job-matching/notifications/settings" element={<NotificationSettings />} />
-                    <Route path="/job-matching/opportunity" element={<OpportunityCentre />} />
-                    <Route path="/job-matching/practice-interview" element={
-                        <ProtectedRoute allowedRoles={['student']}>
-                            <PracticeInterview />
-                        </ProtectedRoute>
-                    } />
-                    <Route path="/job-matching/practice-interview/attempt/:attemptId" element={
-                        <ProtectedRoute allowedRoles={['student']}>
-                            <PracticeInterviewAttempt />
-                        </ProtectedRoute>
-                    } />
+                    <Route path="/job-matching" element={<JobMatchingShell />}>
+                        <Route index element={<Navigate to="dashboard" replace />} />
+                        <Route path="dashboard" element={<Dashboard />} />
+                        <Route path="search" element={<JobSearch />} />
+                        <Route path="recommended" element={<RecommendedJobs />} />
+                        <Route path="saved" element={<SavedJobs />} />
+                        <Route path="notifications" element={<Notifications />} />
+                        <Route path="notifications/settings" element={<NotificationSettings />} />
+                        <Route path="opportunity" element={<OpportunityCentre />} />
+                        <Route
+                            path="practice-interview"
+                            element={
+                                <ProtectedRoute allowedRoles={['student']}>
+                                    <PracticeInterview />
+                                </ProtectedRoute>
+                            }
+                        />
+                        <Route
+                            path="practice-interview/attempt/:attemptId"
+                            element={
+                                <ProtectedRoute allowedRoles={['student']}>
+                                    <PracticeInterviewAttempt />
+                                </ProtectedRoute>
+                            }
+                        />
+                    </Route>
 
                     {/* Student Routes */}
                     <Route path="/student/dashboard" element={
