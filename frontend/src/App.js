@@ -1,29 +1,51 @@
 import React from 'react';
+import HomePage from './pages/HomePage';
+import RegisterPage from './pages/auth/RegisterPage';
+import LoginPage from './pages/auth/LoginPage';
 import VerifyEmailPage from './pages/auth/VerifyEmailPage';
-import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
+import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
 import StudentDashboard from './pages/student/StudentDashboard';
 import ProtectedRoute from './components/ProtectedRoute';
 import JobDetailsPage from './pages/student/JobDetailsPage';
 import ApplicationFormPage from './pages/student/ApplicationFormPage';
 import MyApplicationsPage from './pages/student/MyApplicationsPage';
 import StudentProfilePage from './pages/student/StudentProfilePage';
-import Dashboard from './job_matching_component/pages/Dashboard';
-import JobSearch from './job_matching_component/pages/JobSearch';
-import RecommendedJobs from './job_matching_component/pages/RecommendedJobs';
-import SavedJobs from './job_matching_component/pages/SavedJobs';
-import Notifications from './job_matching_component/pages/Notifications';
-import NotificationSettings from './job_matching_component/pages/NotificationSettings';
-import OpportunityCentre from './job_matching_component/pages/OpportunityCentre';
-import PracticeInterview from './job_matching_component/pages/PracticeInterview';
-import PracticeInterviewAttempt from './job_matching_component/pages/PracticeInterviewAttempt';
+import PublicRoute from './components/PublicRoute';
+import EmployerDashboard from './pages/employer/EmployerDashboard';
+import EmployerLogin from './pages/employer/EmployerLogin';
+import PostJob from './pages/employer/PostJob';
+import MyJobs from './pages/employer/MyJobs';
+import ViewApplications from './pages/employer/ViewApplications';
+import EmployerProfile from './pages/employer/EmployerProfile';
+
+import Dashboard from './pages/job_matching_component/pages/Dashboard';
+import JobSearch from './pages/job_matching_component/pages/JobSearch';
+import RecommendedJobs from './pages/job_matching_component/pages/RecommendedJobs';
+import SavedJobs from './pages/job_matching_component/pages/SavedJobs';
+import Notifications from './pages/job_matching_component/pages/Notifications';
+import NotificationSettings from './pages/job_matching_component/pages/NotificationSettings';
+import OpportunityCentre from './pages/job_matching_component/pages/OpportunityCentre';
+import PracticeInterview from './pages/job_matching_component/pages/PracticeInterview';
+import PracticeInterviewAttempt from './pages/job_matching_component/pages/PracticeInterviewAttempt';
 
 function App() {
     return (
         <Router>
             <div className="App">
                 <Routes>
-                    {/* Redirect root to job-matching dashboard */}
-                    <Route path="/" element={<Navigate to="/job-matching/dashboard" replace />} />
+                    {/* Auth Routes */}
+                    <Route path="/" element={<HomePage />} />
+                    <Route path="/login" element={
+                        <PublicRoute>
+                            <LoginPage />
+                        </PublicRoute>
+                    } />
+                    <Route path="/register" element={
+                        <PublicRoute>
+                            <RegisterPage />
+                        </PublicRoute>
+                    } />
+                    <Route path="/verify-email/:token" element={<VerifyEmailPage />} />
 
                     {/* Job Matching Module Routes */}
                     <Route path="/job-matching/dashboard" element={<Dashboard />} />
@@ -43,9 +65,6 @@ function App() {
                             <PracticeInterviewAttempt />
                         </ProtectedRoute>
                     } />
-                    
-                    {/* Auth Routes */}
-                    <Route path="/verify-email/:token" element={<VerifyEmailPage />} />
 
                     {/* Student Routes */}
                     <Route path="/student/dashboard" element={
@@ -79,7 +98,13 @@ function App() {
                     } />
 
                     {/* Employer Routes */}
-                    <Route path="/employer/dashboard" element={<h1>Employer Dashboard</h1>} />
+                    <Route path="/employer/login" element={<EmployerLogin />} />
+                    <Route path="/employer/dashboard" element={<EmployerDashboard />} />
+                    <Route path="/employer/post-job" element={<PostJob />} />
+                    <Route path="/employer/edit-job/:id" element={<PostJob />} />
+                    <Route path="/employer/my-jobs" element={<MyJobs />} />
+                    <Route path="/employer/applications" element={<ViewApplications />} />
+                    <Route path="/employer/profile" element={<EmployerProfile />} />
 
                     {/* Admin Routes */}
                     <Route path="/admin/dashboard" element={<h1>Admin Dashboard</h1>} />

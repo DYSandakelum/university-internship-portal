@@ -3,14 +3,17 @@ import { useParams, useNavigate } from 'react-router-dom';
 import Navbar from '../../components/Navbar';
 import api from '../../services/api';
 
+const steps = ['Job Details', 'Resume', 'Cover Letter', 'Submit'];
+
 const ApplicationFormPage = () => {
     const [job, setJob] = useState(null);
+    const [currentStep, setCurrentStep] = useState(0);
     const [coverLetter, setCoverLetter] = useState('');
     const [resume, setResume] = useState(null);
     const [loading, setLoading] = useState(true);
     const [submitting, setSubmitting] = useState(false);
     const [error, setError] = useState('');
-    const [success, setSuccess] = useState('');
+    const [submitted, setSubmitted] = useState(false);
     const { jobId } = useParams();
     const navigate = useNavigate();
 
@@ -28,148 +31,207 @@ const ApplicationFormPage = () => {
         fetchJob();
     }, [jobId]);
 
-    const handleSubmit = async (e) => {
-        e.preventDefault();
+    const handleNext = () => {
         setError('');
-        setSuccess('');
-
-        if (!resume) {
-            return setError('Please upload your resume');
+        if (currentStep === 1 && !resume) {
+            return setError('Please upload your resume to continue');
         }
-
-        if (coverLetter.length < 100) {
-            return setError('Cover letter must be at least 100 characters');
+        if (currentStep === 2 && coverLetter.length < 100) {
+            return setError(`Cover letter needs ${100 - coverLetter.length} more characters`);
         }
+        setCurrentStep(prev => prev + 1);
+    };
 
+    const handleSubmit = async () => {
+        setError('');
         setSubmitting(true);
-
         try {
             const formData = new FormData();
             formData.append('coverLetter', coverLetter);
             formData.append('resume', resume);
-
             await api.post(`/student/apply/${jobId}`, formData, {
                 headers: { 'Content-Type': 'multipart/form-data' }
             });
-
-            setSuccess('Application submitted successfully!');
-            setTimeout(() => navigate('/student/applications'), 2000);
-
+            setSubmitted(true);
         } catch (error) {
-            setError(error.response?.data?.message || 'Failed to submit application. Please try again.');
+            setError(error.response?.data?.message || 'Failed to submit application.');
+            setCurrentStep(2);
         } finally {
             setSubmitting(false);
         }
     };
 
     if (loading) return (
-        <div style={styles.container}>
+        <div className="page-wrapper">
             <Navbar />
-            <div style={styles.centerContent}>
-                <div style={styles.spinner}></div>
+            <div className="loading-wrapper">
+                <div className="spinner"></div>
                 <p>Loading...</p>
             </div>
         </div>
     );
 
-    return (
-        <div style={styles.container}>
+    // Success State
+    if (submitted) return (
+        <div className="page-wrapper">
             <Navbar />
-            <div style={styles.main}>
-                {/* Back Button */}
-                <button
-                    onClick={() => navigate(-1)}
-                    style={styles.backLink}
-                >
-                    ← Back
-                </button>
+            <div style={styles.successWrapper}>
+                <div style={styles.successCard}>
+                    <div style={styles.successIcon}>✓</div>
+                    <h2 style={styles.successTitle}>Application Submitted!</h2>
+                    <p style={styles.successSubtitle}>
+                        Your application for <strong>{job?.title}</strong> at <strong>{job?.company}</strong> has been submitted successfully.
+                        You'll receive updates via email.
+                    </p>
+                    <button onClick={() => navigate('/student/applications')}
+                        className="btn btn-primary btn-lg">
+                        View My Applications →
+                    </button>
+                </div>
+            </div>
+        </div>
+    );
 
-                {/* Job Summary Card */}
-                {job && (
-                    <div style={styles.jobSummaryCard}>
-                        <div style={styles.jobSummaryHeader}>
-                            <h2 style={styles.jobSummaryTitle}>📋 Applying for: {job.title}</h2>
-                        </div>
-                        <div style={styles.jobSummaryBody}>
-                            <span style={styles.jobSummaryItem}>🏢 {job.company}</span>
-                            <span style={styles.jobSummaryItem}>📍 {job.location}</span>
-                            <span style={styles.jobSummaryItem}>⏰ Deadline: {new Date(job.deadline).toLocaleDateString()}</span>
-                        </div>
+    return (
+        <div className="page-wrapper">
+            <Navbar />
+
+            {/* Page Banner */}
+            <div className="page-banner">
+                <h1 className="page-banner-title">Apply for Internship</h1>
+                <p className="page-banner-subtitle">
+                    {job?.title} at {job?.company}
+                </p>
+            </div>
+
+            <div style={styles.formWrapper}>
+                <div style={styles.formCard}>
+
+                    {/* Step Indicator */}
+                    <div className="step-indicator">
+                        {steps.map((step, index) => (
+                            <div key={index} className={`step-item ${index < currentStep ? 'completed' : ''}`}>
+                                <div className={`step-circle ${
+                                    index < currentStep ? 'step-circle-completed' :
+                                    index === currentStep ? 'step-circle-current' :
+                                    'step-circle-upcoming'
+                                }`}>
+                                    {index < currentStep ? '✓' : index + 1}
+                                </div>
+                                <span className={`step-label ${
+                                    index < currentStep ? 'step-label-completed' :
+                                    index === currentStep ? 'step-label-current' : ''
+                                }`}>{step}</span>
+                            </div>
+                        ))}
                     </div>
-                )}
 
-                {/* Application Form */}
-                <div style={styles.card}>
-                    <div style={styles.cardHeader}>
-                        <h2 style={styles.cardTitle}>✏️ Application Form</h2>
-                    </div>
-                    <div style={styles.cardBody}>
-                        {error && <div style={styles.error}>{error}</div>}
-                        {success && <div style={styles.success}>{success}</div>}
+                    <div style={styles.divider}></div>
 
-                        <form onSubmit={handleSubmit} style={styles.form}>
-                            {/* Resume Upload */}
-                            <div style={styles.inputGroup}>
-                                <label style={styles.label}>
-                                    Upload Resume <span style={styles.required}>*</span>
+                    {error && <div className="alert alert-error" style={{marginBottom: '16px'}}>⚠️ {error}</div>}
+
+                    {/* Step 0 — Job Details */}
+                    {currentStep === 0 && job && (
+                        <div style={styles.stepContent}>
+                            <h3 style={styles.stepTitle}>Confirm Job Details</h3>
+                            <div style={styles.jobDetails}>
+                                {[
+                                    {label: 'Position', value: job.title},
+                                    {label: 'Company', value: job.company},
+                                    {label: 'Location', value: job.location},
+                                    {label: 'Type', value: job.type},
+                                    {label: 'Deadline', value: new Date(job.deadline).toLocaleDateString()}
+                                ].map((d, i) => (
+                                    <div key={i} style={styles.detailRow}>
+                                        <span style={styles.detailLabel}>{d.label}</span>
+                                        <span style={styles.detailValue}>{d.value}</span>
+                                    </div>
+                                ))}
+                            </div>
+                        </div>
+                    )}
+
+                    {/* Step 1 — Resume */}
+                    {currentStep === 1 && (
+                        <div style={styles.stepContent}>
+                            <h3 style={styles.stepTitle}>Upload Your Resume</h3>
+                            <p style={styles.stepDesc}>Upload your most recent CV or resume</p>
+                            <div className="upload-area" style={{marginTop: '16px'}}>
+                                <input type="file" accept=".pdf,.doc,.docx"
+                                    onChange={(e) => setResume(e.target.files[0])}
+                                    style={{display: 'none'}} id="resume" />
+                                <label htmlFor="resume" className="upload-label">
+                                    {resume ? (
+                                        <span style={{color: 'var(--success-dark)'}}>✅ {resume.name}</span>
+                                    ) : (
+                                        <>
+                                            <span style={{fontSize: '32px', display: 'block', marginBottom: '8px'}}>📎</span>
+                                            <span>Click to upload your resume</span>
+                                        </>
+                                    )}
                                 </label>
-                                <p style={styles.hint}>Accepted formats: PDF, DOC, DOCX (Max 5MB)</p>
-                                <div style={styles.uploadArea}>
-                                    <input
-                                        type="file"
-                                        accept=".pdf,.doc,.docx"
-                                        onChange={(e) => setResume(e.target.files[0])}
-                                        style={styles.fileInput}
-                                        id="resume"
-                                    />
-                                    <label htmlFor="resume" style={styles.uploadLabel}>
-                                        {resume ? (
-                                            <span style={styles.fileName}>
-                                                ✅ {resume.name}
-                                            </span>
-                                        ) : (
-                                            <span>
-                                                📎 Click to upload your resume
-                                            </span>
-                                        )}
-                                    </label>
+                            </div>
+                            <p className="form-hint" style={{marginTop: '8px'}}>Accepted: PDF, DOC, DOCX — Max 5MB</p>
+                        </div>
+                    )}
+
+                    {/* Step 2 — Cover Letter */}
+                    {currentStep === 2 && (
+                        <div style={styles.stepContent}>
+                            <h3 style={styles.stepTitle}>Write Your Cover Letter</h3>
+                            <p style={styles.stepDesc}>Explain why you're a great fit for this role (min. 100 characters)</p>
+                            <textarea value={coverLetter} onChange={(e) => setCoverLetter(e.target.value)}
+                                placeholder="Dear Hiring Manager,&#10;&#10;I am writing to express my strong interest in this internship position..."
+                                className="form-textarea" rows={10} style={{marginTop: '16px'}} />
+                            <span style={{
+                                fontSize: '12px', fontWeight: '600', marginTop: '6px', display: 'block',
+                                color: coverLetter.length < 100 ? 'var(--danger)' : 'var(--success-dark)'
+                            }}>
+                                {coverLetter.length} characters
+                                {coverLetter.length < 100 && ` — ${100 - coverLetter.length} more needed`}
+                            </span>
+                        </div>
+                    )}
+
+                    {/* Step 3 — Review & Submit */}
+                    {currentStep === 3 && (
+                        <div style={styles.stepContent}>
+                            <h3 style={styles.stepTitle}>Review & Submit</h3>
+                            <p style={styles.stepDesc}>Please review your application before submitting</p>
+                            <div style={styles.reviewItems}>
+                                <div style={styles.reviewItem}>
+                                    <span style={styles.reviewLabel}>Position</span>
+                                    <span style={styles.reviewValue}>{job?.title} at {job?.company}</span>
+                                </div>
+                                <div style={styles.reviewItem}>
+                                    <span style={styles.reviewLabel}>Resume</span>
+                                    <span style={{...styles.reviewValue, color: 'var(--success-dark)'}}>✅ {resume?.name}</span>
+                                </div>
+                                <div style={styles.reviewItem}>
+                                    <span style={styles.reviewLabel}>Cover Letter</span>
+                                    <span style={{...styles.reviewValue, color: 'var(--success-dark)'}}>✅ {coverLetter.length} characters</span>
                                 </div>
                             </div>
+                        </div>
+                    )}
 
-                            {/* Cover Letter */}
-                            <div style={styles.inputGroup}>
-                                <label style={styles.label}>
-                                    Cover Letter <span style={styles.required}>*</span>
-                                </label>
-                                <p style={styles.hint}>
-                                    Minimum 100 characters. Explain why you're a good fit for this role.
-                                </p>
-                                <textarea
-                                    value={coverLetter}
-                                    onChange={(e) => setCoverLetter(e.target.value)}
-                                    placeholder="Dear Hiring Manager,&#10;&#10;I am writing to express my interest in this internship position..."
-                                    style={styles.textarea}
-                                    rows={10}
-                                    required
-                                />
-                                <span style={{
-                                    ...styles.charCount,
-                                    color: coverLetter.length < 100 ? '#dc2626' : '#16a34a'
-                                }}>
-                                    {coverLetter.length} characters
-                                    {coverLetter.length < 100 && ` (${100 - coverLetter.length} more needed)`}
-                                </span>
-                            </div>
-
-                            {/* Submit Button */}
-                            <button
-                                type="submit"
-                                style={submitting ? styles.buttonDisabled : styles.button}
-                                disabled={submitting}
-                            >
-                                {submitting ? 'Submitting...' : '🚀 Submit Application'}
+                    {/* Navigation Buttons */}
+                    <div style={styles.navButtons}>
+                        <button onClick={() => currentStep === 0 ? navigate(-1) : setCurrentStep(p => p - 1)}
+                            className="btn btn-gray">
+                            {currentStep === 0 ? '← Cancel' : '← Previous'}
+                        </button>
+                        {currentStep < steps.length - 1 ? (
+                            <button onClick={handleNext} className="btn btn-primary">
+                                Next →
                             </button>
-                        </form>
+                        ) : (
+                            <button onClick={handleSubmit}
+                                className={`btn btn-amber ${submitting ? 'btn-disabled' : ''}`}
+                                disabled={submitting}>
+                                {submitting ? 'Submitting...' : 'Submit Application →'}
+                            </button>
+                        )}
                     </div>
                 </div>
             </div>
@@ -178,192 +240,61 @@ const ApplicationFormPage = () => {
 };
 
 const styles = {
-    container: {
-        minHeight: '100vh',
-        backgroundColor: '#f5f5f5',
-        display: 'flex',
-        flexDirection: 'column'
-    },
-    main: {
-        padding: '32px',
-        maxWidth: '800px',
-        margin: '0 auto',
-        width: '100%',
-        display: 'flex',
-        flexDirection: 'column',
-        gap: '24px'
-    },
-    centerContent: {
+    formWrapper: {
         flex: 1,
         display: 'flex',
-        flexDirection: 'column',
-        alignItems: 'center',
         justifyContent: 'center',
-        gap: '16px',
-        padding: '40px'
+        padding: '40px 24px',
+        backgroundColor: 'var(--bg)'
     },
-    spinner: {
-        width: '48px',
-        height: '48px',
-        border: '4px solid #e5e7eb',
-        borderTop: '4px solid #6366f1',
-        borderRadius: '50%',
-        animation: 'spin 1s linear infinite'
-    },
-    backLink: {
-        backgroundColor: 'transparent',
-        border: 'none',
-        color: '#6366f1',
-        fontSize: '14px',
-        fontWeight: '600',
-        cursor: 'pointer',
-        padding: '0',
-        textAlign: 'left'
-    },
-    // Job Summary Card
-    jobSummaryCard: {
-        backgroundColor: '#ffffff',
-        borderRadius: '12px',
-        boxShadow: '0 4px 12px rgba(0,0,0,0.08)',
-        overflow: 'hidden'
-    },
-    jobSummaryHeader: {
-        background: 'linear-gradient(135deg, #6366f1 0%, #8b5cf6 100%)',
-        padding: '16px 24px'
-    },
-    jobSummaryTitle: {
-        color: '#ffffff',
-        fontSize: '18px',
-        fontWeight: '700',
-        margin: 0
-    },
-    jobSummaryBody: {
-        padding: '16px 24px',
-        display: 'flex',
-        gap: '24px',
-        flexWrap: 'wrap'
-    },
-    jobSummaryItem: {
-        fontSize: '14px',
-        color: '#555',
-        fontWeight: '500'
-    },
-    // Form Card
-    card: {
-        backgroundColor: '#ffffff',
-        borderRadius: '12px',
-        boxShadow: '0 4px 12px rgba(0,0,0,0.08)',
-        overflow: 'hidden'
-    },
-    cardHeader: {
-        background: 'linear-gradient(135deg, #6366f1 0%, #8b5cf6 100%)',
-        padding: '16px 24px'
-    },
-    cardTitle: {
-        color: '#ffffff',
-        fontSize: '18px',
-        fontWeight: '700',
-        margin: 0
-    },
-    cardBody: {
-        padding: '24px'
-    },
-    error: {
-        backgroundColor: '#fee2e2',
-        color: '#dc2626',
-        padding: '12px',
-        borderRadius: '8px',
-        marginBottom: '16px',
-        fontSize: '14px'
-    },
-    success: {
-        backgroundColor: '#dcfce7',
-        color: '#16a34a',
-        padding: '12px',
-        borderRadius: '8px',
-        marginBottom: '16px',
-        fontSize: '14px'
-    },
-    form: {
+    formCard: {
+        background: '#ffffff',
+        borderRadius: '20px',
+        padding: '40px',
+        width: '100%',
+        maxWidth: '680px',
+        border: '1px solid var(--border)',
+        boxShadow: '0 4px 24px rgba(0,0,0,0.06)',
         display: 'flex',
         flexDirection: 'column',
         gap: '24px'
     },
-    inputGroup: {
-        display: 'flex',
-        flexDirection: 'column',
-        gap: '8px'
+    divider: { height: '1px', background: 'var(--border)' },
+    stepContent: { display: 'flex', flexDirection: 'column', gap: '8px' },
+    stepTitle: { fontSize: '18px', fontWeight: '700', color: 'var(--text-primary)' },
+    stepDesc: { fontSize: '14px', color: 'var(--text-secondary)' },
+    jobDetails: { display: 'flex', flexDirection: 'column', gap: '0', marginTop: '8px' },
+    detailRow: {
+        display: 'flex', justifyContent: 'space-between', alignItems: 'center',
+        padding: '12px 0', borderBottom: '1px solid var(--border)'
     },
-    label: {
-        fontSize: '14px',
-        fontWeight: '600',
-        color: '#333'
+    detailLabel: { fontSize: '13px', color: 'var(--text-light)', fontWeight: '600' },
+    detailValue: { fontSize: '14px', color: 'var(--text-primary)', fontWeight: '500' },
+    reviewItems: { display: 'flex', flexDirection: 'column', gap: '0', marginTop: '8px' },
+    reviewItem: {
+        display: 'flex', justifyContent: 'space-between', alignItems: 'center',
+        padding: '14px 0', borderBottom: '1px solid var(--border)'
     },
-    required: {
-        color: '#dc2626'
+    reviewLabel: { fontSize: '13px', color: 'var(--text-light)', fontWeight: '600' },
+    reviewValue: { fontSize: '14px', color: 'var(--text-primary)', fontWeight: '500' },
+    navButtons: { display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginTop: '8px' },
+    successWrapper: {
+        flex: 1, display: 'flex', alignItems: 'center',
+        justifyContent: 'center', padding: '40px 24px', backgroundColor: 'var(--bg)'
     },
-    hint: {
-        fontSize: '12px',
-        color: '#888',
-        margin: 0
+    successCard: {
+        background: '#ffffff', borderRadius: '20px', padding: '56px 48px',
+        textAlign: 'center', boxShadow: '0 8px 32px rgba(0,0,0,0.08)',
+        border: '1px solid var(--border)', width: '100%', maxWidth: '480px',
+        display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '16px'
     },
-    uploadArea: {
-        border: '2px dashed #d1d5db',
-        borderRadius: '8px',
-        padding: '24px',
-        textAlign: 'center',
-        cursor: 'pointer',
-        backgroundColor: '#fafafa'
+    successIcon: {
+        width: '72px', height: '72px', borderRadius: '50%', background: 'var(--success)',
+        color: '#ffffff', fontSize: '32px', fontWeight: '700',
+        display: 'flex', alignItems: 'center', justifyContent: 'center'
     },
-    fileInput: {
-        display: 'none'
-    },
-    uploadLabel: {
-        cursor: 'pointer',
-        fontSize: '14px',
-        color: '#6366f1',
-        fontWeight: '600'
-    },
-    fileName: {
-        color: '#16a34a',
-        fontWeight: '600',
-        fontSize: '14px'
-    },
-    textarea: {
-        padding: '12px',
-        borderRadius: '8px',
-        border: '1px solid #ddd',
-        fontSize: '14px',
-        outline: 'none',
-        resize: 'vertical',
-        fontFamily: 'inherit',
-        backgroundColor: '#fafafa',
-        lineHeight: '1.6'
-    },
-    charCount: {
-        fontSize: '12px',
-        fontWeight: '600'
-    },
-    button: {
-        background: 'linear-gradient(135deg, #22c55e 0%, #16a34a 100%)',
-        color: '#ffffff',
-        padding: '14px',
-        borderRadius: '8px',
-        border: 'none',
-        fontSize: '16px',
-        fontWeight: '600',
-        cursor: 'pointer'
-    },
-    buttonDisabled: {
-        backgroundColor: '#86efac',
-        color: '#ffffff',
-        padding: '14px',
-        borderRadius: '8px',
-        border: 'none',
-        fontSize: '16px',
-        fontWeight: '600',
-        cursor: 'not-allowed'
-    }
+    successTitle: { fontSize: '24px', fontWeight: '800', color: 'var(--text-primary)' },
+    successSubtitle: { fontSize: '14px', color: 'var(--text-secondary)', lineHeight: '1.7', maxWidth: '340px' }
 };
 
 export default ApplicationFormPage;

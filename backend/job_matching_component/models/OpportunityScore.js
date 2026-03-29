@@ -9,7 +9,7 @@ const opportunityScoreSchema = new mongoose.Schema(
         },
         jobId: {
             type: mongoose.Schema.Types.ObjectId,
-            ref: 'Job',
+            ref: 'JobMatchingJob',
             required: true
         },
         // Core scoring components
@@ -133,4 +133,4 @@ const opportunityScoreSchema = new mongoose.Schema(
 opportunityScoreSchema.index({ studentId: 1, jobId: 1 });
 opportunityScoreSchema.index({ studentId: 1, createdAt: -1 });
 
-module.exports = mongoose.model('OpportunityScore', opportunityScoreSchema);
+module.exports = mongoose.models.OpportunityScore || mongoose.model('OpportunityScore', opportunityScoreSchema);

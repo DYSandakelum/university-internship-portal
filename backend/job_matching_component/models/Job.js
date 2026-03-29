@@ -38,4 +38,4 @@ const jobSchema = new mongoose.Schema(
     }
 );
 
-module.exports = mongoose.model('Job', jobSchema);
+module.exports = mongoose.models.JobMatchingJob || mongoose.model('JobMatchingJob', jobSchema);
