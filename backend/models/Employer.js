@@ -1,27 +1,30 @@
-const mongoose = require("mongoose");
+const mongoose = require('mongoose');
+const bcrypt = require('bcryptjs');
 
-const employerSchema = new mongoose.Schema(
+const EmployerSchema = new mongoose.Schema(
   {
-    companyName: {
+    name: { type: String, required: true },
+    email: { type: String, required: true, unique: true },
+    password: { type: String, required: true },
+    companyName: { type: String, required: true },
+    companyAddress: { type: String, required: true },
+    companyDescription: { type: String },
+    description: { type: String },
+    documents: [{ type: String }],
+    status: {
       type: String,
-      required: true,
+      enum: ['pending', 'approved', 'rejected'],
+      default: 'pending',
     },
-
-    description: {
-      type: String,
-    },
-
     verificationStatus: {
       type: String,
-      enum: ["pending", "approved", "rejected"],
-      default: "pending",
+      enum: ['pending', 'approved', 'rejected'],
+      default: 'pending',
     },
-
     averageRating: {
       type: Number,
       default: 0,
     },
-
     totalReviews: {
       type: Number,
       default: 0,
@@ -30,4 +33,11 @@ const employerSchema = new mongoose.Schema(
   { timestamps: true }
 );
 
-module.exports = mongoose.model("Employer", employerSchema);
+EmployerSchema.pre('save', async function (next) {
+  if (!this.isModified('password')) return next();
+  const salt = await bcrypt.genSalt(10);
+  this.password = await bcrypt.hash(this.password, salt);
+  next();
+});
+
+module.exports = mongoose.model('Employer', EmployerSchema);

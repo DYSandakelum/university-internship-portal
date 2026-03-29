@@ -28,6 +28,18 @@ const userSchema = new mongoose.Schema({
         type: Boolean,
         default: false
     },
+    companyName: {
+        type: String,
+        default: ''
+    },
+    companyAddress: {
+        type: String,
+        default: ''
+    },
+    companyDescription: {
+        type: String,
+        default: ''
+    },
     verificationToken: {
         type: String
     },
