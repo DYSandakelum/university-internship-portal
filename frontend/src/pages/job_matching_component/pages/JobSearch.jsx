@@ -4,7 +4,7 @@ import { useLocation, useNavigate } from 'react-router-dom';
 import SearchBar from '../components/SearchBar';
 import FilterPanel from '../components/FilterPanel';
 import JobCard from '../components/JobCard';
-import { getSavedJobs, saveJob, searchJobs } from '../../services/jobService';
+import { getSavedJobs, saveJob, searchJobs } from '../../../services/jobService';
 import '../styles/JobMatchingLayout.css';
 import '../styles/JobMatchingControls.css';
 

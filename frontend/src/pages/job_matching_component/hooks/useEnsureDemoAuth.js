@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
 
-import api from '../../services/api';
+import api from '../../../services/api';
 
 export default function useEnsureDemoAuth() {
     const [ready, setReady] = useState(() => Boolean(localStorage.getItem('token')));

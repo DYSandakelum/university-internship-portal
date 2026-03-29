@@ -4,7 +4,7 @@ import { useNavigate } from 'react-router-dom';
 import useEnsureDemoAuth from '../hooks/useEnsureDemoAuth';
 import '../styles/JobMatchingLayout.css';
 import './practiceInterview.css';
-import { getInterviewPapers, getInterviewRoles, startInterviewAttempt } from '../../services/interviewService';
+import { getInterviewPapers, getInterviewRoles, startInterviewAttempt } from '../../../services/interviewService';
 
 export default function PracticeInterview() {
     const navigate = useNavigate();

@@ -18,11 +18,11 @@ import {
     FiAward
 } from 'react-icons/fi';
 import { useNavigate } from 'react-router-dom';
-import { getRecommendedJobs, getSavedJobs } from '../../services/jobService';
-import { getNotifications } from '../../services/notificationService';
+import { getRecommendedJobs, getSavedJobs } from '../../../services/jobService';
+import { getNotifications } from '../../../services/notificationService';
 import useEnsureDemoAuth from '../hooks/useEnsureDemoAuth';
 import AiCareerChat from '../components/AiCareerChat';
-import { useAuth } from '../../context/AuthContext';
+import { useAuth } from '../../../context/AuthContext';
 import './dashboard.css';
 
 function MetricCard({ icon, label, value, helper, colorClass, delay = 0 }) {

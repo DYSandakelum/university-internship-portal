@@ -1,6 +1,6 @@
 import React, { useEffect, useMemo, useRef, useState } from 'react';
 import { FiAlertCircle, FiArrowLeft, FiArrowRight, FiCalendar, FiInfo, FiTarget } from 'react-icons/fi';
-import { jobService } from '../../services/jobService';
+import { jobService } from '../../../services/jobService';
 import ActionQueue from '../components/ActionQueue';
 import DeadlineTimeline from '../components/DeadlineTimeline';
 import MomentumChart from '../components/MomentumChart';

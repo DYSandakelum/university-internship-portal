@@ -2,7 +2,7 @@ import React, { useEffect, useState, useMemo } from 'react';
 import { FiBell, FiCheck, FiSettings, FiSearch } from 'react-icons/fi';
 import { useNavigate } from 'react-router-dom';
 import NotificationItem from '../components/NotificationItem';
-import { getNotifications } from '../../services/notificationService';
+import { getNotifications } from '../../../services/notificationService';
 import useEnsureDemoAuth from '../hooks/useEnsureDemoAuth';
 
 // Professional Notification Header

@@ -1,6 +1,6 @@
 import React, { useMemo, useState } from 'react';
 import { FiCpu, FiSend, FiBookOpen } from 'react-icons/fi';
-import { sendCareerChatMessage } from '../../services/aiChatService';
+import { sendCareerChatMessage } from '../../../services/aiChatService';
 import './AiCareerChat.css';
 
 export default function AiCareerChat({ studentSkills = [], stats = {}, recentActivities = [] }) {

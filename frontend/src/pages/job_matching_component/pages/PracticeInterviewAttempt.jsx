@@ -4,7 +4,7 @@ import { useNavigate, useParams } from 'react-router-dom';
 import useEnsureDemoAuth from '../hooks/useEnsureDemoAuth';
 import '../styles/JobMatchingLayout.css';
 import './practiceInterview.css';
-import { getInterviewAttempt, submitInterviewAttempt } from '../../services/interviewService';
+import { getInterviewAttempt, submitInterviewAttempt } from '../../../services/interviewService';
 
 function formatTimeMs(ms) {
     const clamped = Math.max(0, ms);

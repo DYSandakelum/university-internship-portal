@@ -2,7 +2,7 @@ import React, { useEffect, useState, useMemo } from 'react';
 import { FiBookmark, FiSearch, FiTrash2, FiZap, FiStar, FiAlertTriangle, FiRotateCw } from 'react-icons/fi';
 import { useNavigate } from 'react-router-dom';
 import JobCard from '../components/JobCard';
-import { getSavedJobs, removeSavedJob } from '../../services/jobService';
+import { getSavedJobs, removeSavedJob } from '../../../services/jobService';
 import useEnsureDemoAuth from '../hooks/useEnsureDemoAuth';
 import '../styles/JobMatchingLayout.css';
 import '../styles/JobMatchingControls.css';

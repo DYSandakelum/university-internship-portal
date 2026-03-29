@@ -2,7 +2,7 @@ import React, { useEffect, useState, useMemo } from 'react';
 import { FiTarget, FiZap, FiStar, FiTrendingUp, FiInfo, FiSearch, FiBarChart, FiMonitor, FiChevronLeft, FiChevronRight, FiThumbsUp, FiAlertTriangle, FiRotateCw } from 'react-icons/fi';
 import { useNavigate } from 'react-router-dom';
 import JobCard from '../components/JobCard';
-import { getRecommendedJobs, getSavedJobs, saveJob } from '../../services/jobService';
+import { getRecommendedJobs, getSavedJobs, saveJob } from '../../../services/jobService';
 import useEnsureDemoAuth from '../hooks/useEnsureDemoAuth';
 import '../styles/JobMatchingLayout.css';
 import '../styles/JobMatchingControls.css';
@@ -291,7 +291,7 @@ export default function RecommendedJobs() {
                 // This keeps the page useful immediately after seeding.
                 if (nextJobs.length === 0) {
                     try {
-                        const { searchJobs } = await import('../../services/jobService');
+                        const { searchJobs } = await import('../../../services/jobService');
                         nextJobs = await searchJobs({});
                     } catch {
                         // ignore fallback errors
@@ -346,7 +346,7 @@ export default function RecommendedJobs() {
             let nextJobs = Array.isArray(recommended) ? recommended : [];
             if (nextJobs.length === 0) {
                 try {
-                    const { searchJobs } = await import('../../services/jobService');
+                    const { searchJobs } = await import('../../../services/jobService');
                     nextJobs = await searchJobs({});
                 } catch {
                     // ignore fallback errors

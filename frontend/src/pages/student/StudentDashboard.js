@@ -150,6 +150,7 @@ const quickActions = [
     { icon: '📋', label: 'My Applications', path: '/student/applications', color: 'var(--primary)' },
     { icon: '👤', label: 'My Profile', path: '/student/profile', color: 'var(--success)' },
     { icon: '📄', label: 'CV Generator', path: '/student/cv-generator', color: 'var(--info)' },
+    { icon: '🎯', label: 'Job Matching', path: '/job-matching/dashboard', color: 'var(--amber)' },
     { icon: '📝', label: 'Practice Interview', path: '/job-matching/practice-interview', color: 'var(--secondary)' }
 ];
 

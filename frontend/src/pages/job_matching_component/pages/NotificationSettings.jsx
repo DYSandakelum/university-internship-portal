@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { FiSettings, FiCheck, FiMail, FiBell, FiArrowLeft } from 'react-icons/fi';
 import { useNavigate } from 'react-router-dom';
-import api from '../../services/api';
+import api from '../../../services/api';
 import useEnsureDemoAuth from '../hooks/useEnsureDemoAuth';
 
 // Clean Toggle Switch Component
