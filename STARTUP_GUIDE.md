@@ -95,8 +95,8 @@ npm --prefix frontend start
    ```
 
 4. **Check MongoDB connection:**
-   - Backend won't fully start if MongoDB Atlas isn't reachable
-   - Check `.env` file has correct `MONGODB_URI`
+   - Backend won't fully start if MongoDB isn't reachable
+   - Check `.env` file has correct `MONGO_URI`
 
 5. **View full startup logs:**
    - The startup helper will show all attempts
@@ -114,7 +114,7 @@ REACT_APP_API_BASE_URL=http://localhost:5000/api
 Backend (`.env`):
 ```
 PORT=5000
-MONGODB_URI=<your-mongodb-uri>
+MONGO_URI=<your-mongodb-uri>
 [other configs]
 ```
 

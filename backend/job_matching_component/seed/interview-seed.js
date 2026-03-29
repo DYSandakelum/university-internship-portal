@@ -1,17 +1,15 @@
 /* eslint-disable no-console */
 const dotenv = require('dotenv');
-const mongoose = require('mongoose');
 const path = require('path');
+
+const connectDB = require('../../config/db');
 
 dotenv.config({ path: path.resolve(__dirname, '../../../.env') });
 
 const InterviewQuestion = require('../models/InterviewQuestion');
 
 const connect = async () => {
-    if (!process.env.MONGO_URI) {
-        throw new Error('MONGO_URI is missing in .env');
-    }
-    await mongoose.connect(process.env.MONGO_URI);
+    await connectDB();
 };
 
 const role = 'Software Engineer Intern';
@@ -415,13 +413,13 @@ const run = async () => {
     const count = await InterviewQuestion.countDocuments({ role });
     console.log(`✅ Inserted ${count} questions for role: ${role}`);
 
-    await mongoose.disconnect();
+    await connectDB.disconnect?.();
 };
 
 run().catch(async (err) => {
     console.error('❌ Seed failed:', err);
     try {
-        await mongoose.disconnect();
+        await connectDB.disconnect?.();
     } catch (_) {
         // ignore
     }

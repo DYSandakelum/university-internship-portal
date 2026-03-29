@@ -7,8 +7,10 @@
 
 /* eslint-disable no-console */
 const dotenv = require('dotenv');
-const mongoose = require('mongoose');
 const path = require('path');
+const bcrypt = require('bcryptjs');
+
+const connectDB = require('../../config/db');
 
 dotenv.config({ path: path.resolve(__dirname, '../../../.env') });
 
@@ -25,16 +27,18 @@ const log = (type, message) => {
 };
 
 const connect = async () => {
-    if (!process.env.MONGO_URI) {
-        throw new Error('MONGO_URI is missing in .env');
-    }
-    await mongoose.connect(process.env.MONGO_URI);
+    await connectDB();
     log('✅', 'Connected to MongoDB');
 };
 
 const disconnect = async () => {
-    await mongoose.disconnect();
+    await connectDB.disconnect?.();
     log('✅', 'Disconnected from MongoDB');
+};
+
+const hashPassword = async (plainPassword) => {
+    const salt = await bcrypt.genSalt(10);
+    return bcrypt.hash(plainPassword, salt);
 };
 
 // ============= DEMO DATA =============
@@ -215,19 +219,28 @@ const seedUsers = async () => {
     // Create Students
     const students = [];
     for (const studentData of DEMO_STUDENTS) {
-        const user = await User.create(studentData);
+        const user = await User.create({
+            ...studentData,
+            password: await hashPassword(studentData.password)
+        });
         students.push(user);
     }
 
     // Create Employers
     const employers = [];
     for (const employerData of DEMO_EMPLOYERS) {
-        const user = await User.create(employerData);
+        const user = await User.create({
+            ...employerData,
+            password: await hashPassword(employerData.password)
+        });
         employers.push(user);
     }
 
     // Create Admin
-    const admin = await User.create(ADMIN_USER);
+    const admin = await User.create({
+        ...ADMIN_USER,
+        password: await hashPassword(ADMIN_USER.password)
+    });
 
     log('✅', `Created ${students.length} Students, ${employers.length} Employers, 1 Admin`);
     return { students, employers, admin };

@@ -4,12 +4,11 @@ const cors = require('cors');
 const path = require('path');
 const connectDB = require('./config/db');
 const { initializeDeadlineScheduler } = require('./job_matching_component/services/deadlineReminderService');
+const bcrypt = require('bcryptjs');
+const User = require('./models/User');
 
 // Load environment variables
 dotenv.config({ path: path.resolve(__dirname, '../.env') });
-
-// Connect to MongoDB
-connectDB();
 
 // Initialize Express app
 const app = express();
@@ -63,15 +62,65 @@ app.use('/api/interviews', require('./job_matching_component/routes/interviewRou
 app.use('/api/jobs', require('./routes/jobRoutes'));
 app.use('/api/applications', require('./routes/applicationRoutes'));
 
-// Start server
 const PORT = process.env.PORT || 5000;
-const server = app.listen(PORT, () => {
-    console.log(`Server running on port ${PORT}`);
-    initializeDeadlineScheduler();
-});
 
-process.on('SIGTERM', () => {
-    server.close(() => {
-        process.exit(0);
+let server;
+
+const bootstrapDevUser = async () => {
+    if (!connectDB.usingInMemory) return;
+
+    const email = process.env.DEV_BOOTSTRAP_EMAIL || 'it23716346@my.sliit.lk';
+    const password = process.env.DEV_BOOTSTRAP_PASSWORD || '000000';
+    const name = process.env.DEV_BOOTSTRAP_NAME || 'Dev Student';
+
+    const salt = await bcrypt.genSalt(10);
+    const hashedPassword = await bcrypt.hash(password, salt);
+
+    const existing = await User.findOne({ email });
+    if (!existing) {
+        await User.create({
+            name,
+            email,
+            password: hashedPassword,
+            role: 'student',
+            isVerified: true
+        });
+    } else {
+        existing.name = existing.name || name;
+        existing.role = existing.role || 'student';
+        existing.isVerified = true;
+        existing.password = hashedPassword;
+        await existing.save();
+    }
+
+    console.log(`Dev login (in-memory DB): ${email} / ${password}`);
+};
+
+const startServer = async () => {
+    await connectDB();
+    await bootstrapDevUser();
+
+    server = app.listen(PORT, () => {
+        console.log(`Server running on port ${PORT}`);
+        initializeDeadlineScheduler();
     });
+
+    process.on('SIGTERM', () => {
+        server.close(async () => {
+            await connectDB.disconnect?.();
+            process.exit(0);
+        });
+    });
+
+    process.on('SIGINT', () => {
+        server.close(async () => {
+            await connectDB.disconnect?.();
+            process.exit(0);
+        });
+    });
+};
+
+startServer().catch((error) => {
+    console.error('Failed to start server:', error);
+    process.exit(1);
 });

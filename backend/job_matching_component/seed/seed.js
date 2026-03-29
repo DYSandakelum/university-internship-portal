@@ -1,7 +1,9 @@
 /* eslint-disable no-console */
 const dotenv = require('dotenv');
-const mongoose = require('mongoose');
 const path = require('path');
+const bcrypt = require('bcryptjs');
+
+const connectDB = require('../../config/db');
 
 dotenv.config({ path: path.resolve(__dirname, '../../../.env') });
 
@@ -16,10 +18,19 @@ const DEMO = {
 };
 
 const connect = async () => {
-    if (!process.env.MONGO_URI) {
-        throw new Error('MONGO_URI is missing in .env');
+    await connectDB();
+};
+
+const hashPassword = async (plainPassword) => {
+    const salt = await bcrypt.genSalt(10);
+    return bcrypt.hash(plainPassword, salt);
+};
+
+const ensureHashedPassword = async (user, plainPassword) => {
+    const current = String(user.password || '');
+    if (!current || !current.startsWith('$2')) {
+        user.password = await hashPassword(plainPassword);
     }
-    await mongoose.connect(process.env.MONGO_URI);
 };
 
 const upsertDemoUser = async () => {
@@ -38,19 +49,17 @@ const upsertDemoUser = async () => {
             applicationUpdates: true
         };
 
-        // Only set password if user has none (avoid re-hashing on every seed)
-        if (!existing.password) {
-            existing.password = DEMO.password;
-        }
+        await ensureHashedPassword(existing, DEMO.password);
 
         await existing.save();
         return existing;
     }
 
+    const hashedPassword = await hashPassword(DEMO.password);
     const user = await User.create({
         name: DEMO.name,
         email: DEMO.email,
-        password: DEMO.password,
+        password: hashedPassword,
         role: 'student',
         isVerified: true,
         skills: ['React', 'JavaScript', 'Node.js', 'MongoDB'],
@@ -225,13 +234,13 @@ const main = async () => {
     console.log(`  password: ${DEMO.password}`);
     console.log(`Jobs upserted: ${jobs.length}`);
 
-    await mongoose.disconnect();
+    await connectDB.disconnect?.();
 };
 
 main().catch(async (err) => {
     console.error(err);
     try {
-        await mongoose.disconnect();
+        await connectDB.disconnect?.();
     } catch {
         // ignore
     }
