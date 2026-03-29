@@ -15,7 +15,7 @@ const VerifyEmailPage = () => {
                 setMessage(res.data.message);
                 setStatus('success');
             } catch (error) {
-                setMessage(error.response?.data?.message || 'Verification failed. Please try again.');
+                setMessage(error.response?.data?.message || 'Verification failed.');
                 setStatus('error');
             }
         };
@@ -25,62 +25,112 @@ const VerifyEmailPage = () => {
     return (
         <div className="auth-container">
             <Navbar />
-            <div className="main-content-sm">
-                <div className="auth-card">
-                    <div className={`auth-card-header ${
-                        status === 'success' ? 'card-header-success' :
-                        status === 'error' ? '' : ''
-                    }`} style={status === 'error' ? {background: 'linear-gradient(135deg, #ef4444 0%, #dc2626 100%)'} : {}}>
-                        <h1 className="auth-card-title">
-                            {status === 'verifying' && '⏳ Verifying Email...'}
-                            {status === 'success' && '✅ Email Verified!'}
-                            {status === 'error' && '❌ Verification Failed'}
-                        </h1>
-                        <p className="auth-card-subtitle">
-                            {status === 'verifying' && 'Please wait a moment'}
-                            {status === 'success' && 'Your account is now active'}
-                            {status === 'error' && 'Something went wrong'}
-                        </p>
-                    </div>
-                    <div className="auth-card-body" style={{alignItems: 'center', textAlign: 'center', gap: '20px'}}>
-                        {status === 'verifying' && (
-                            <>
-                                <div className="spinner"></div>
-                                <p style={{color: 'var(--text-secondary)', fontSize: '14px'}}>
-                                    Verifying your email address...
-                                </p>
-                            </>
-                        )}
-
-                        {status === 'success' && (
-                            <>
-                                <div style={{fontSize: '56px'}}>🎉</div>
-                                <p style={{color: 'var(--text-secondary)', fontSize: '14px'}}>{message}</p>
-                                <Link to="/login" className="btn btn-primary btn-full btn-lg">
-                                    🔑 Go to Login
+            <div style={styles.wrapper}>
+                <div style={styles.card}>
+                    {status === 'verifying' && (
+                        <>
+                            <div className="spinner" style={{margin: '0 auto'}}></div>
+                            <h2 style={styles.title}>Verifying your email...</h2>
+                            <p style={styles.subtitle}>Please wait a moment</p>
+                        </>
+                    )}
+                    {status === 'success' && (
+                        <>
+                            <div style={styles.successIcon}>✓</div>
+                            <h2 style={styles.title}>Email Verified!</h2>
+                            <p style={styles.subtitle}>{message}</p>
+                            <Link to="/login" className="btn btn-primary btn-lg" style={{marginTop: '8px'}}>
+                                Login to your account →
+                            </Link>
+                        </>
+                    )}
+                    {status === 'error' && (
+                        <>
+                            <div style={styles.errorIcon}>✕</div>
+                            <h2 style={{...styles.title, color: 'var(--danger)'}}>Verification Failed</h2>
+                            <p style={styles.subtitle}>{message}</p>
+                            <div style={styles.errorButtons}>
+                                <Link to="/register" className="btn btn-gray">
+                                    Register Again
                                 </Link>
-                            </>
-                        )}
-
-                        {status === 'error' && (
-                            <>
-                                <div style={{fontSize: '56px'}}>😕</div>
-                                <p style={{color: 'var(--text-secondary)', fontSize: '14px'}}>{message}</p>
-                                <div style={{display: 'flex', gap: '12px', width: '100%'}}>
-                                    <Link to="/register" className="btn btn-ghost btn-full">
-                                        Register Again
-                                    </Link>
-                                    <Link to="/login" className="btn btn-primary btn-full">
-                                        🔑 Login
-                                    </Link>
-                                </div>
-                            </>
-                        )}
-                    </div>
+                                <Link to="/login" className="btn btn-primary">
+                                    Login →
+                                </Link>
+                            </div>
+                        </>
+                    )}
                 </div>
             </div>
         </div>
     );
+};
+
+const styles = {
+    wrapper: {
+        flex: 1,
+        display: 'flex',
+        alignItems: 'center',
+        justifyContent: 'center',
+        padding: '40px 20px'
+    },
+    card: {
+        background: '#ffffff',
+        borderRadius: '20px',
+        padding: '56px 48px',
+        textAlign: 'center',
+        boxShadow: '0 8px 32px rgba(0,0,0,0.08)',
+        border: '1px solid var(--border)',
+        width: '100%',
+        maxWidth: '440px',
+        display: 'flex',
+        flexDirection: 'column',
+        alignItems: 'center',
+        gap: '12px',
+        animation: 'fadeIn 0.4s ease'
+    },
+    successIcon: {
+        width: '64px',
+        height: '64px',
+        borderRadius: '50%',
+        background: 'var(--success)',
+        color: '#ffffff',
+        fontSize: '28px',
+        fontWeight: '700',
+        display: 'flex',
+        alignItems: 'center',
+        justifyContent: 'center',
+        marginBottom: '8px'
+    },
+    errorIcon: {
+        width: '64px',
+        height: '64px',
+        borderRadius: '50%',
+        background: 'var(--danger)',
+        color: '#ffffff',
+        fontSize: '28px',
+        fontWeight: '700',
+        display: 'flex',
+        alignItems: 'center',
+        justifyContent: 'center',
+        marginBottom: '8px'
+    },
+    title: {
+        fontSize: '22px',
+        fontWeight: '800',
+        color: 'var(--text-primary)',
+        letterSpacing: '-0.3px'
+    },
+    subtitle: {
+        fontSize: '14px',
+        color: 'var(--text-secondary)',
+        maxWidth: '300px',
+        lineHeight: '1.6'
+    },
+    errorButtons: {
+        display: 'flex',
+        gap: '12px',
+        marginTop: '8px'
+    }
 };
 
 export default VerifyEmailPage;

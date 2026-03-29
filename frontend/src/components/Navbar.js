@@ -13,9 +13,9 @@ const Navbar = () => {
 
     return (
         <nav className="navbar">
-            <div className="navbar-brand">
+            <Link to="/" className="navbar-brand">
                 🎓 Internship Portal
-            </div>
+            </Link>
             <div className="navbar-links">
                 {user ? (
                     <>
@@ -42,7 +42,9 @@ const Navbar = () => {
                     <>
                         <Link to="/" className="nav-link">Home</Link>
                         <Link to="/login" className="nav-link">Login</Link>
-                        <Link to="/register" className="nav-link">Register</Link>
+                        <Link to="/register" className="btn btn-amber" style={{padding: '8px 20px'}}>
+                            Register
+                        </Link>
                     </>
                 )}
             </div>
