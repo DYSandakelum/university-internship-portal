@@ -11,6 +11,12 @@ import ApplicationFormPage from './pages/student/ApplicationFormPage';
 import MyApplicationsPage from './pages/student/MyApplicationsPage';
 import StudentProfilePage from './pages/student/StudentProfilePage';
 import PublicRoute from './components/PublicRoute';
+import EmployerDashboard from './pages/employer/EmployerDashboard';
+import EmployerLogin from './pages/employer/EmployerLogin';
+import PostJob from './pages/employer/PostJob';
+import MyJobs from './pages/employer/MyJobs';
+import ViewApplications from './pages/employer/ViewApplications';
+import EmployerProfile from './pages/employer/EmployerProfile';
 
 function App() {
     return (
@@ -63,7 +69,13 @@ function App() {
                     } />
 
                     {/* Employer Routes */}
-                    <Route path="/employer/dashboard" element={<h1>Employer Dashboard</h1>} />
+                    <Route path="/employer/login" element={<EmployerLogin />} />
+                    <Route path="/employer/dashboard" element={<EmployerDashboard />} />
+                    <Route path="/employer/post-job" element={<PostJob />} />
+                    <Route path="/employer/edit-job/:id" element={<PostJob />} />
+                    <Route path="/employer/my-jobs" element={<MyJobs />} />
+                    <Route path="/employer/applications" element={<ViewApplications />} />
+                    <Route path="/employer/profile" element={<EmployerProfile />} />
 
                     {/* Admin Routes */}
                     <Route path="/admin/dashboard" element={<h1>Admin Dashboard</h1>} />

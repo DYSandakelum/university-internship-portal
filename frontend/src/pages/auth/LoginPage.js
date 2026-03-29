@@ -21,6 +21,13 @@ const LoginPage = () => {
         setLoading(true);
         try {
             const data = await login(formData);
+            
+            // If employer, also store employer-specific tokens
+            if (data.user.role === 'employer') {
+                localStorage.setItem('employerToken', data.token);
+                localStorage.setItem('employerData', JSON.stringify(data.user));
+            }
+            
             if (data.user.role === 'student') navigate('/student/dashboard');
             else if (data.user.role === 'employer') navigate('/employer/dashboard');
             else if (data.user.role === 'admin') navigate('/admin/dashboard');
