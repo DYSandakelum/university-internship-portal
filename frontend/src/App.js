@@ -85,6 +85,11 @@ function App() {
                     {/* Admin Routes */}
                     <Route path="/admin/dashboard" element={<h1>Admin Dashboard</h1>} />
 
+
+        
+
+
+
                     {/* 404 Route */}
                     <Route path="*" element={<div style={{ textAlign: 'center', padding: '50px' }}><h1>404 - Page Not Found</h1><a href="/">Go Home</a></div>} />
                 </Routes>
