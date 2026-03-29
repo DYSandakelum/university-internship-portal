@@ -61,6 +61,10 @@ body {
     min-height: 100vh;
 }
 
+.App {
+    min-height: 100vh;
+}
+
 /* ===== ANIMATIONS ===== */
 @keyframes fadeIn {
     from { opacity: 0; transform: translateY(16px); }

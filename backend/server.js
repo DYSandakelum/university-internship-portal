@@ -30,13 +30,9 @@ app.get('/', (req, res) => {
 
 // Routes
 app.use('/api/auth', require('./routes/authRoutes'));
-
 app.use('/api/employer', require('./routes/employerRoutes'));
-
 app.use('/api/student', require('./routes/studentRoutes'));
-
 app.use('/api/jobs', require('./routes/jobRoutes'));
-
 app.use('/api/applications', require('./routes/applicationRoutes'));
 
 // Start server

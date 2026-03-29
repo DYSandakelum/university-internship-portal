@@ -39,7 +39,7 @@ const registerUser = async (req, res) => {
 
         // Create verification token
         const verificationToken = crypto.randomBytes(32).toString('hex');
-        const verificationTokenExpire = Date.now() + 24 * 60 * 60 * 1000;
+        const verificationTokenExpire = Date.now() + 24 * 60 * 60 * 1000; // 24 hours
 
         // Create user with hashed password
         const user = await User.create({
@@ -103,14 +103,11 @@ const registerUser = async (req, res) => {
 const verifyEmail = async (req, res) => {
     try {
         const { token } = req.params;
-        console.log('Verification token received:', token);
 
         const user = await User.findOne({
             verificationToken: token,
             verificationTokenExpire: { $gt: Date.now() }
         });
-
-        console.log('User found:', user);
 
         if (!user) {
             return res.status(400).json({ message: 'Invalid or expired verification token' });

@@ -1,21 +1,37 @@
 const mongoose = require('mongoose');
 const bcrypt = require('bcryptjs');
 
-const EmployerSchema = new mongoose.Schema({
-  name: { type: String, required: true },
-  email: { type: String, required: true, unique: true },
-  password: { type: String, required: true },
-  companyName: { type: String, required: true },
-  companyAddress: { type: String, required: true },
-  companyDescription: { type: String },
-  documents: [{ type: String }],
-  status: {
-    type: String,
-    enum: ['pending', 'approved', 'rejected'],
-    default: 'pending',
+const EmployerSchema = new mongoose.Schema(
+  {
+    name: { type: String, required: true },
+    email: { type: String, required: true, unique: true },
+    password: { type: String, required: true },
+    companyName: { type: String, required: true },
+    companyAddress: { type: String, required: true },
+    companyDescription: { type: String },
+    description: { type: String },
+    documents: [{ type: String }],
+    status: {
+      type: String,
+      enum: ['pending', 'approved', 'rejected'],
+      default: 'pending',
+    },
+    verificationStatus: {
+      type: String,
+      enum: ['pending', 'approved', 'rejected'],
+      default: 'pending',
+    },
+    averageRating: {
+      type: Number,
+      default: 0,
+    },
+    totalReviews: {
+      type: Number,
+      default: 0,
+    },
   },
-  createdAt: { type: Date, default: Date.now },
-});
+  { timestamps: true }
+);
 
 EmployerSchema.pre('save', async function (next) {
   if (!this.isModified('password')) return next();
