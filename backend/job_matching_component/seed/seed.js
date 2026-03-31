@@ -10,6 +10,7 @@ dotenv.config({ path: path.resolve(__dirname, '../../../.env') });
 const User = require('../../models/User');
 const Job = require('../models/Job');
 const Notification = require('../models/Notification');
+const { createDemoJobs } = require('./demo-jobs');
 
 const DEMO = {
     email: 'student.demo@careersync.test',
@@ -77,109 +78,7 @@ const upsertDemoUser = async () => {
 };
 
 const upsertJobs = async () => {
-    const jobs = [
-        {
-            title: 'Frontend Intern (React)',
-            company: 'CareerSync Labs',
-            location: 'Remote',
-            jobType: 'Internship',
-            requiredSkills: ['React', 'JavaScript'],
-            salary: 1500,
-            deadline: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000)
-        },
-        {
-            title: 'Full-Stack Intern (MERN)',
-            company: 'BlueWave Systems',
-            location: 'Remote',
-            jobType: 'Internship',
-            requiredSkills: ['React', 'Node.js', 'MongoDB'],
-            salary: 1800,
-            deadline: new Date(Date.now() + 10 * 24 * 60 * 60 * 1000)
-        },
-        {
-            title: 'Part-time Web Assistant',
-            company: 'StudentTech Support',
-            location: 'Campus',
-            jobType: 'Part-time',
-            requiredSkills: ['HTML', 'CSS', 'JavaScript'],
-            salary: 800,
-            deadline: new Date(Date.now() + 5 * 24 * 60 * 60 * 1000)
-        },
-        {
-            title: 'Backend Intern (Node.js)',
-            company: 'API Makers',
-            location: 'Remote',
-            jobType: 'Internship',
-            requiredSkills: ['Node.js', 'Express'],
-            salary: 1700,
-            deadline: new Date(Date.now() + 12 * 24 * 60 * 60 * 1000)
-        },
-        {
-            title: 'UI Developer (Part-time)',
-            company: 'Campus Media',
-            location: 'Remote',
-            jobType: 'Part-time',
-            requiredSkills: ['React'],
-            salary: 1200,
-            deadline: new Date(Date.now() + 14 * 24 * 60 * 60 * 1000)
-        },
-
-        // Extra demo data for better filtering/recommendations
-        {
-            title: 'Junior Data Intern (Analytics)',
-            company: 'InsightWorks',
-            location: 'Remote',
-            jobType: 'Internship',
-            requiredSkills: ['SQL', 'Excel', 'Python'],
-            salary: 1600,
-            deadline: new Date(Date.now() + 9 * 24 * 60 * 60 * 1000)
-        },
-        {
-            title: 'QA Intern (Web Testing)',
-            company: 'QualityFirst',
-            location: 'Remote',
-            jobType: 'Internship',
-            requiredSkills: ['JavaScript', 'Testing', 'Cypress'],
-            salary: 1400,
-            deadline: new Date(Date.now() + 8 * 24 * 60 * 60 * 1000)
-        },
-        {
-            title: 'Mobile App Support (Part-time)',
-            company: 'UniTech Helpdesk',
-            location: 'Campus',
-            jobType: 'Part-time',
-            requiredSkills: ['Communication', 'Troubleshooting'],
-            salary: 700,
-            deadline: new Date(Date.now() + 6 * 24 * 60 * 60 * 1000)
-        },
-        {
-            title: 'Cloud Intern (DevOps Basics)',
-            company: 'CloudBridge',
-            location: 'Remote',
-            jobType: 'Internship',
-            requiredSkills: ['Linux', 'Docker', 'CI/CD'],
-            salary: 1900,
-            deadline: new Date(Date.now() + 15 * 24 * 60 * 60 * 1000)
-        },
-        {
-            title: 'Frontend Intern (UI + CSS)',
-            company: 'PixelNest',
-            location: 'Remote',
-            jobType: 'Internship',
-            requiredSkills: ['HTML', 'CSS', 'React'],
-            salary: 1550,
-            deadline: new Date(Date.now() + 11 * 24 * 60 * 60 * 1000)
-        },
-        {
-            title: 'Backend Part-time (Express APIs)',
-            company: 'LocalStartups',
-            location: 'Remote',
-            jobType: 'Part-time',
-            requiredSkills: ['Node.js', 'Express', 'MongoDB'],
-            salary: 1100,
-            deadline: new Date(Date.now() + 13 * 24 * 60 * 60 * 1000)
-        }
-    ];
+    const jobs = createDemoJobs();
 
     const results = [];
     for (const j of jobs) {

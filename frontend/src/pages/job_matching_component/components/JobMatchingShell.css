@@ -41,8 +41,8 @@
 }
 
 .jm-shell-inner {
-  max-width: var(--max-width-container);
-  margin: 0 auto;
+  max-width: none;
+  margin: 0;
   padding: var(--space-4);
 }
 

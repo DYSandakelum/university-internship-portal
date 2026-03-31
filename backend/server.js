@@ -4,6 +4,7 @@ const cors = require('cors');
 const path = require('path');
 const connectDB = require('./config/db');
 const { initializeDeadlineScheduler } = require('./job_matching_component/services/deadlineReminderService');
+const { seedJobMatchingDemoData } = require('./job_matching_component/seed/auto-seed');
 const bcrypt = require('bcryptjs');
 const User = require('./models/User');
 
@@ -78,27 +79,44 @@ const bootstrapDevUser = async () => {
 
     const existing = await User.findOne({ email });
     if (!existing) {
-        await User.create({
+        const created = await User.create({
             name,
             email,
             password: hashedPassword,
             role: 'student',
             isVerified: true
         });
+
+        return created;
     } else {
         existing.name = existing.name || name;
         existing.role = existing.role || 'student';
         existing.isVerified = true;
         existing.password = hashedPassword;
         await existing.save();
+
+        return existing;
     }
 
-    console.log(`Dev login (in-memory DB): ${email} / ${password}`);
+    // unreachable (kept for clarity)
 };
 
 const startServer = async () => {
     await connectDB();
-    await bootstrapDevUser();
+    const devUser = await bootstrapDevUser();
+
+    if (connectDB.usingInMemory && devUser) {
+        console.log(`Dev login (in-memory DB): ${devUser.email} / ${process.env.DEV_BOOTSTRAP_PASSWORD || '000000'}`);
+    }
+
+    const autoSeedEnabled =
+        connectDB.usingInMemory || String(process.env.AUTO_SEED || '').toLowerCase() === 'true';
+
+    if (autoSeedEnabled) {
+        console.log('Seeding demo data...');
+        await seedJobMatchingDemoData({ userId: devUser?._id });
+        console.log('Demo data seeded');
+    }
 
     server = app.listen(PORT, () => {
         console.log(`Server running on port ${PORT}`);

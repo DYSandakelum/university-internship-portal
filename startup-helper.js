@@ -2,10 +2,13 @@ const http = require('http');
 const { spawn } = require('child_process');
 const path = require('path');
 
-const BACKEND_PORT = 5000;
+const BACKEND_PORT = Number.parseInt(process.env.BACKEND_PORT, 10) || 5000;
 const FRONTEND_DEFAULT_PORT = 3010;
-const MAX_RETRIES = 30;
+
 const RETRY_INTERVAL = 1000; // 1 second
+const BACKEND_STARTUP_TIMEOUT_MS =
+    Number.parseInt(process.env.BACKEND_STARTUP_TIMEOUT_MS, 10) || 180000;
+const MAX_RETRIES = Math.max(1, Math.ceil(BACKEND_STARTUP_TIMEOUT_MS / RETRY_INTERVAL));
 let retryCount = 0;
 
 console.log('🚀 Starting CareerSync Backend...');
@@ -64,7 +67,11 @@ async function waitForBackend() {
         await new Promise(resolve => setTimeout(resolve, RETRY_INTERVAL));
     }
 
-    console.error('❌ Backend failed to start after 30 seconds');
+    console.error(
+        `❌ Backend failed to start after ${Math.round(
+            (MAX_RETRIES * RETRY_INTERVAL) / 1000
+        )} seconds`
+    );
     process.exit(1);
 }
 

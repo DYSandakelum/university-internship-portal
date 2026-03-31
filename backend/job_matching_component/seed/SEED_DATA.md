@@ -113,6 +113,10 @@ The seed file uses upsert operations and deleteMany to clear demo data before cr
 
 This ensures clean data state without data duplicates.
 
+## Shared Seed Data Files
+
+- Demo job definitions are centralized in `backend/job_matching_component/seed/demo-jobs.js` and consumed by both `seed.js` and `comprehensive-seed.js`.
+
 ## Data Structure
 
 All seeded data follows the MongoDB schema structures defined in:
