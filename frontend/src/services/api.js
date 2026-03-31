@@ -1,8 +1,16 @@
 import axios from 'axios';
 
+const baseURL = process.env.REACT_APP_API_BASE_URL || 'http://localhost:5000/api';
+
 const api = axios.create({
-    baseURL: process.env.REACT_APP_API_BASE_URL || 'http://localhost:5000/api',
+    baseURL,
     timeout: 10000,
+});
+
+// Bare client for auth recovery (no interceptors)
+const authClient = axios.create({
+    baseURL,
+    timeout: 10000
 });
 
 // Retry logic for failed requests
@@ -44,7 +52,33 @@ api.interceptors.response.use(
         }
 
         // Handle 401 errors
-        if (error.response && error.response.status === 401) {
+        if (error.response && error.response.status === 401 && config) {
+            const isDemoEnabled =
+                String(process.env.REACT_APP_ENABLE_DEMO_LOGIN || '').toLowerCase() === 'true' ||
+                process.env.NODE_ENV !== 'production';
+
+            const url = String(config.url || '');
+            const isAuthRequest = url.includes('/auth/login') || url.includes('/auth/register') || url.includes('/auth/demo-login');
+
+            // In dev/in-memory mode the backend can restart and wipe users.
+            // If demo login is enabled, recover once by getting a fresh token and retrying the original request.
+            if (isDemoEnabled && !isAuthRequest && !config.__retriedAfterDemoLogin) {
+                config.__retriedAfterDemoLogin = true;
+                try {
+                    const res = await authClient.post('/auth/demo-login');
+                    const token = res?.data?.token;
+                    if (token) {
+                        localStorage.setItem('token', token);
+                        window.dispatchEvent(new Event('auth:updated'));
+                        config.headers = config.headers || {};
+                        config.headers.Authorization = `Bearer ${token}`;
+                        return api(config);
+                    }
+                } catch (_) {
+                    // fall through to token cleanup
+                }
+            }
+
             localStorage.removeItem('token');
         }
 

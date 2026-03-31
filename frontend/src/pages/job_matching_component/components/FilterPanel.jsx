@@ -411,7 +411,7 @@ export default function FilterPanel({ filters, onChange, onApply, embedded = fal
                 </button>
             </div>
             
-            <style jsx>{`
+            <style>{`
                 input[type="range"] {
                     -webkit-appearance: none;
                     pointer-events: all;

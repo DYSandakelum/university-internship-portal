@@ -457,7 +457,7 @@ export default function JobSearch() {
                 )}
             </div>
 
-            <style jsx>{`
+            <style>{`
                 @media (max-width: 900px) {
                     .search-interface-grid {
                         grid-template-columns: 1fr !important;
