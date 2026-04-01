@@ -3,7 +3,6 @@
     border: 1px solid var(--glass-border);
     border-radius: 12px;
     padding: var(--space-4);
-    backdrop-filter: blur(20px);
 }
 
 .timeline-header {
@@ -66,7 +65,8 @@
 .deadline-date,
 .deadline-countdown,
 .deadline-message {
-    background: rgba(255, 255, 255, 0.5);
+    background: #ffffff;
+    border: 1px solid var(--glass-border);
     padding: var(--space-4);
     border-radius: 8px;
     text-align: center;
@@ -112,7 +112,7 @@
 }
 
 .countdown-value.expired {
-    color: #7c2d12;
+    color: var(--error-500);
 }
 
 .message-text {
@@ -165,8 +165,8 @@
 
 /* Recommendation Box */
 .recommendation {
-    background: rgba(255, 255, 255, 0.6);
-    border: 1px solid rgba(255, 255, 255, 0.4);
+    background: #ffffff;
+    border: 1px solid var(--glass-border);
     border-radius: 8px;
     padding: var(--space-4);
     margin-bottom: var(--space-4);
@@ -175,17 +175,17 @@
 
 .recommendation.safe {
     border-left-color: var(--success-500);
-    background: rgba(16, 185, 129, 0.05);
+    background: #ffffff;
 }
 
 .recommendation.warning {
     border-left-color: var(--warning-500);
-    background: rgba(245, 158, 11, 0.05);
+    background: #ffffff;
 }
 
 .recommendation.critical {
     border-left-color: var(--error-500);
-    background: rgba(239, 68, 68, 0.1);
+    background: #ffffff;
 }
 
 .rec-title {
@@ -234,11 +234,45 @@
 
 /* Application Status */
 .application-status {
-    background: rgba(37, 99, 235, 0.05);
-    border: 1px solid rgba(37, 99, 235, 0.2);
+    background: #ffffff;
+    border: 1px solid var(--glass-border);
     border-radius: 8px;
     padding: var(--space-4);
     margin-bottom: var(--space-4);
+}
+
+.status-badge {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    padding: 6px 10px;
+    border-radius: 999px;
+    font-size: var(--text-xs);
+    font-weight: 800;
+    letter-spacing: 0.2px;
+    background: #ffffff;
+    border: 1px solid var(--glass-border);
+    border-left: 4px solid var(--secondary-400);
+    color: var(--secondary-800);
+}
+
+.status-badge.status-applied {
+    border-left-color: var(--secondary-500);
+}
+
+.status-badge.status-interview {
+    border-left-color: var(--success-500);
+    color: var(--success-700);
+}
+
+.status-badge.status-offer {
+    border-left-color: var(--success-500);
+    color: var(--success-700);
+}
+
+.status-badge.status-rejected {
+    border-left-color: var(--error-500);
+    color: var(--error-700);
 }
 
 .status-title {
@@ -267,8 +301,8 @@
 
 /* Calendar Hint */
 .calendar-hint {
-    background: rgba(37, 99, 235, 0.05);
-    border: 1px dashed rgba(124, 58, 237, 0.3);
+    background: var(--secondary-50);
+    border: 1px dashed var(--glass-border);
     border-radius: 6px;
     padding: var(--space-3);
     text-align: center;

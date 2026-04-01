@@ -3,10 +3,10 @@ import { FiDollarSign, FiClock, FiMapPin, FiBriefcase, FiEdit3, FiBookmark, FiCh
 import './JobCard.css';
 
 const getScoreColor = (score) => {
-  if (score >= 90) return '#10B981';
-  if (score >= 70) return '#3B82F6';
-  if (score >= 50) return '#F59E0B';
-  return '#94A3B8';
+  if (score >= 90) return 'var(--success-500)';
+  if (score >= 70) return 'var(--success-500)';
+  if (score >= 50) return 'var(--warning-500)';
+  return 'var(--secondary-400)';
 };
 
 const getScoreClass = (score) => {

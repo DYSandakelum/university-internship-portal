@@ -165,7 +165,7 @@ function FilterChip({ label, isActive, onClick, onRemove }) {
     );
 }
 
-export default function FilterPanel({ filters, onChange, onApply, embedded = false }) {
+export default function FilterPanel({ filters, onChange, onApply, embedded = false, showApplyButton = true }) {
     const [showAdvanced, setShowAdvanced] = useState(false);
     const [localFilters, setLocalFilters] = useState(filters);
     
@@ -389,27 +389,29 @@ export default function FilterPanel({ filters, onChange, onApply, embedded = fal
             </div>
             
             {/* Apply Button */}
-            <div style={{ 
-                display: 'flex', 
-                justifyContent: 'flex-end', 
-                gap: '12px',
-                marginTop: '12px',
-                paddingTop: '12px',
-                borderTop: '1px solid var(--glass-border)'
-            }}>
-                <button 
-                    className="btn-primary"
-                    onClick={() => onApply?.()}
-                    style={{
-                        display: 'flex',
-                        alignItems: 'center',
-                        gap: '8px',
-                        padding: '10px 16px'
-                    }}
-                >
-                    <FiSend /> Apply Filters
-                </button>
-            </div>
+            {showApplyButton && (
+                <div style={{ 
+                    display: 'flex', 
+                    justifyContent: 'flex-end', 
+                    gap: '12px',
+                    marginTop: '12px',
+                    paddingTop: '12px',
+                    borderTop: '1px solid var(--glass-border)'
+                }}>
+                    <button 
+                        className="btn-primary"
+                        onClick={() => onApply?.()}
+                        style={{
+                            display: 'flex',
+                            alignItems: 'center',
+                            gap: '8px',
+                            padding: '10px 16px'
+                        }}
+                    >
+                        <FiSend /> Apply Filters
+                    </button>
+                </div>
+            )}
             
             <style>{`
                 input[type="range"] {
@@ -426,7 +428,7 @@ export default function FilterPanel({ filters, onChange, onApply, embedded = fal
                     background: var(--primary-500);
                     cursor: pointer;
                     border: 2px solid white;
-                    box-shadow: 0 2px 8px rgba(59, 130, 246, 0.3);
+                    box-shadow: var(--shadow-card);
                 }
                 
                 input[type="range"]::-moz-range-thumb {
@@ -436,7 +438,7 @@ export default function FilterPanel({ filters, onChange, onApply, embedded = fal
                     background: var(--primary-500);
                     cursor: pointer;
                     border: 2px solid white;
-                    box-shadow: 0 2px 8px rgba(59, 130, 246, 0.3);
+                    box-shadow: var(--shadow-card);
                 }
             `}</style>
         </div>

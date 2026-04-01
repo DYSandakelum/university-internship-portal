@@ -6,7 +6,7 @@
   align-items: flex-start;
   padding: var(--space-3);
   border-radius: var(--radius-lg);
-  border: 1px solid var(--color-gray-light);
+  border: 1px solid var(--glass-border);
   background: white;
   transition: box-shadow var(--transition-base), transform var(--transition-base), border-color var(--transition-base);
 }
@@ -21,8 +21,9 @@
 }
 
 .notification-item.unread {
-  background: rgba(59, 130, 246, 0.05);
+  background: var(--secondary-50);
   border-left-width: 4px;
+  border-left-color: var(--primary-600);
 }
 
 .notification-item.read {
@@ -88,7 +89,7 @@
   width: 10px;
   height: 10px;
   border-radius: 9999px;
-  background: var(--color-primary);
+  background: var(--primary-600);
 }
 
 .notification-markread {
@@ -102,6 +103,6 @@
 }
 
 .notification-markread:hover {
-  background: rgba(59, 130, 246, 0.1);
-  color: var(--color-primary);
+  background: var(--secondary-50);
+  color: var(--primary-600);
 }

@@ -123,14 +123,7 @@ function DeadlineTimeline({ opportunity }) {
             {opportunity.applicationStatus !== 'not_applied' && (
                 <div className="application-status">
                     <h4 className="status-title">Application Status</h4>
-                    <div className="status-badge" style={{
-                        background: opportunity.applicationStatus === 'applied' ? 'rgba(37, 99, 235, 0.1)' :
-                                   opportunity.applicationStatus === 'interview' ? 'rgba(16, 185, 129, 0.1)' :
-                                   opportunity.applicationStatus === 'offer' ? 'rgba(16, 185, 129, 0.2)' : 'rgba(239, 68, 68, 0.1)',
-                        color: opportunity.applicationStatus === 'applied' ? '#2563eb' :
-                               opportunity.applicationStatus === 'interview' ? '#10b981' :
-                               opportunity.applicationStatus === 'offer' ? '#059669' : '#dc2626'
-                    }}>
+                    <div className={`status-badge status-${opportunity.applicationStatus}`}>
                         {opportunity.applicationStatus.replace('_', ' ').toUpperCase()}
                     </div>
                     {opportunity.applicationDate && (

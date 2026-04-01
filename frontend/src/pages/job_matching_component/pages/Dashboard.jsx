@@ -22,6 +22,8 @@ import { getRecommendedJobs, getSavedJobs } from '../../../services/jobService';
 import { getNotifications } from '../../../services/notificationService';
 import useEnsureDemoAuth from '../hooks/useEnsureDemoAuth';
 import AiCareerChat from '../components/AiCareerChat';
+import AdvancedFiltersModal from '../components/AdvancedFiltersModal';
+import FilterPanel from '../components/FilterPanel';
 import { useAuth } from '../../../context/AuthContext';
 import './dashboard.css';
 
@@ -243,7 +245,7 @@ function RecentActivityFeed({ activities, onActivityClick, formatRelativeTime })
     );
 }
 
-function HeroSection({ stats, navigate }) {
+function HeroSection({ stats, onViewRecommendations, recommendationsOpen }) {
     return (
         <section className="dashboard-hero-panel dashboard-slide-up" style={{ animationDelay: '80ms' }}>
             <div className="dashboard-hero-copy">
@@ -253,7 +255,9 @@ function HeroSection({ stats, navigate }) {
             </div>
             <div className="dashboard-hero-actions">
                 <div className="dashboard-hero-actions-row">
-                    <button className="dashboard-hero-secondary-btn" onClick={() => navigate('/job-matching/recommended')}><FiZap /> View Recommendations</button>
+                    <button className="dashboard-hero-secondary-btn" onClick={() => onViewRecommendations?.()}>
+                        <FiZap /> {recommendationsOpen ? 'Hide Recommendations' : 'View Recommendations'}
+                    </button>
                 </div>
             </div>
         </section>
@@ -266,10 +270,19 @@ export default function Dashboard() {
     const { ready, error: authError } = useEnsureDemoAuth();
     const [dashboardSearch, setDashboardSearch] = useState('');
     const [isSearchFocused, setIsSearchFocused] = useState(false);
+    const [isAdvancedSearchOpen, setIsAdvancedSearchOpen] = useState(false);
+    const [advancedFilters, setAdvancedFilters] = useState({
+        jobType: '',
+        location: '',
+        minSalary: '',
+        maxSalary: ''
+    });
     const [stats, setStats] = useState({ totalApplicationsSent: 0, savedJobsCount: 0, recommendedJobsCount: 0, notificationsCount: 0 });
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState('');
     const [recentActivities, setRecentActivities] = useState([]);
+    const [recommendedJobs, setRecommendedJobs] = useState([]);
+    const [showRecommendationsRow, setShowRecommendationsRow] = useState(false);
 
     const profileCompletion = Math.min(100, Math.max(45, (Array.isArray(user?.skills) ? user.skills.length * 9 : 0) + 42));
 
@@ -292,7 +305,23 @@ export default function Dashboard() {
         setError('');
 
         try {
-            const [saved, recommended, notifications] = await Promise.all([getSavedJobs(), getRecommendedJobs(), getNotifications().catch(() => [])]);
+            const [saved, recommendedRaw, notifications] = await Promise.all([getSavedJobs(), getRecommendedJobs(), getNotifications().catch(() => [])]);
+
+            let recommended = Array.isArray(recommendedRaw) ? recommendedRaw : [];
+
+            // Keep behavior consistent with RecommendedJobs page:
+            // If recommendations are empty (common right after seeding), fall back to showing DB jobs.
+            if (recommended.length === 0) {
+                try {
+                    const { searchJobs } = await import('../../../services/jobService');
+                    const fallback = await searchJobs({});
+                    recommended = Array.isArray(fallback) ? fallback : [];
+                } catch {
+                    // ignore fallback errors
+                }
+            }
+
+            setRecommendedJobs(recommended);
             setStats({
                 totalApplicationsSent: Math.floor(Math.random() * 12) + 1,
                 savedJobsCount: Array.isArray(saved) ? saved.length : 0,
@@ -386,6 +415,23 @@ export default function Dashboard() {
         navigate(`/job-matching/search?q=${encodeURIComponent(q)}`);
     };
 
+    const buildJobSearchUrl = ({ q, filters }) => {
+        const params = new URLSearchParams();
+        if (q) params.set('q', q);
+        if (filters?.jobType) params.set('jobType', filters.jobType);
+        if (filters?.location) params.set('location', filters.location);
+        if (filters?.minSalary) params.set('minSalary', String(filters.minSalary));
+        if (filters?.maxSalary) params.set('maxSalary', String(filters.maxSalary));
+        const qs = params.toString();
+        return `/job-matching/search${qs ? `?${qs}` : ''}`;
+    };
+
+    const handleAdvancedSearchSubmit = () => {
+        const url = buildJobSearchUrl({ q: dashboardSearch.trim(), filters: advancedFilters });
+        setIsAdvancedSearchOpen(false);
+        navigate(url);
+    };
+
     const handleDashboardSearchKeyDown = (event) => {
         if (event.key === 'Enter') {
             event.preventDefault();
@@ -473,7 +519,7 @@ export default function Dashboard() {
                                         className="dashboard-header-advanced-btn"
                                         onMouseDown={(event) => {
                                             event.preventDefault();
-                                            navigate('/job-matching/search');
+                                            setIsAdvancedSearchOpen(true);
                                         }}
                                     >
                                         Advanced
@@ -483,7 +529,39 @@ export default function Dashboard() {
                             <button className="dashboard-header-btn" onClick={() => navigate('/job-matching/search')}><FiTarget /> Start New Search</button>
                         </header>
 
-                        <HeroSection stats={stats} navigate={navigate} />
+                        <HeroSection
+                            stats={stats}
+                            recommendationsOpen={showRecommendationsRow}
+                            onViewRecommendations={() => setShowRecommendationsRow((v) => !v)}
+                        />
+
+                        {showRecommendationsRow && (
+                            <section className="dashboard-reco-panel dashboard-slide-up" style={{ animationDelay: '100ms' }}>
+                                <div className="dashboard-panel-head">
+                                    <h3 className="dashboard-panel-title"><FiStar /> Top picks for you</h3>
+                                    <span className="dashboard-panel-meta">Top 5</span>
+                                </div>
+
+                                {Array.isArray(recommendedJobs) && recommendedJobs.length > 0 ? (
+                                    <div className="dashboard-reco-row" role="list">
+                                        {recommendedJobs.slice(0, 5).map((job) => (
+                                            <article key={job._id} className="dashboard-reco-card" role="listitem">
+                                                <div className="dashboard-reco-card-top">
+                                                    <div className="dashboard-reco-card-title" title={job.title}>{job.title}</div>
+                                                    <div className="dashboard-reco-badge">{typeof job.matchPercentage === 'number' ? `${job.matchPercentage}%` : '--'}</div>
+                                                </div>
+                                                <div className="dashboard-reco-card-sub">{job.company || 'Company'} • {job.location || 'Location'}</div>
+                                                <div className="dashboard-reco-card-meta">{job.jobType || 'Role'} • {job.salary ? `$${job.salary}` : 'Salary n/a'}</div>
+                                            </article>
+                                        ))}
+                                    </div>
+                                ) : (
+                                    <div className="dashboard-reco-empty">
+                                        No recommendations yet — update skills to improve matches.
+                                    </div>
+                                )}
+                            </section>
+                        )}
 
                         <section className="dashboard-metrics-grid">
                             <MetricCard icon={<FiEdit3 />} label="Applications Sent" value={stats.totalApplicationsSent} helper="Across your active search" colorClass="dashboard-metric-blue" delay={0} />
@@ -509,6 +587,24 @@ export default function Dashboard() {
                             <QuickActions onActionClick={handleActionClick} />
                             <RecentActivityFeed activities={recentActivities} onActivityClick={handleActionClick} formatRelativeTime={formatRelativeTime} />
                         </section>
+
+                        <AdvancedFiltersModal
+                            open={isAdvancedSearchOpen}
+                            title="Advanced Search"
+                            subtitle="Adjust filters here, then open results in Search."
+                            query={dashboardSearch}
+                            onQueryChange={setDashboardSearch}
+                            onClose={() => setIsAdvancedSearchOpen(false)}
+                            onSubmit={handleAdvancedSearchSubmit}
+                            submitLabel="View Results"
+                        >
+                            <FilterPanel
+                                filters={advancedFilters}
+                                onChange={setAdvancedFilters}
+                                embedded={true}
+                                showApplyButton={false}
+                            />
+                        </AdvancedFiltersModal>
                     </>
                 )}
             </div>

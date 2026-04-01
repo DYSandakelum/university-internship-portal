@@ -3,7 +3,6 @@
     border: 1px solid var(--glass-border);
     border-radius: 12px;
     padding: var(--space-4);
-    backdrop-filter: blur(20px);
 }
 
 .action-title {
@@ -25,7 +24,8 @@
 .no-actions {
     text-align: center;
     padding: var(--space-6) var(--space-4);
-    background: rgba(16, 185, 129, 0.1);
+    background: var(--secondary-50);
+    border: 1px solid var(--glass-border);
     border-radius: 8px;
 }
 
@@ -49,8 +49,8 @@
 }
 
 .action-item {
-    background: rgba(255, 255, 255, 0.5);
-    border: 1px solid rgba(255, 255, 255, 0.3);
+    background: #ffffff;
+    border: 1px solid var(--glass-border);
     border-radius: 8px;
     overflow: hidden;
     transition: all var(--transition-normal);
@@ -58,8 +58,7 @@
 }
 
 .action-item:hover {
-    background: rgba(255, 255, 255, 0.7);
-    border-color: rgba(37, 99, 235, 0.2);
+    border-color: var(--primary-500);
 }
 
 .action-item.priority-high {
@@ -71,12 +70,12 @@
 }
 
 .action-item.priority-low {
-    border-left: 4px solid #22c55e;
+    border-left: 4px solid var(--success-500);
 }
 
 .action-item.expanded {
     border-color: var(--primary-300);
-    box-shadow: 0 4px 12px rgba(37, 99, 235, 0.15);
+    box-shadow: var(--shadow-hover);
 }
 
 /* Action Bar */
@@ -161,7 +160,7 @@
 /* Action Details */
 .action-details {
     padding: 0 var(--space-4) var(--space-4) var(--space-11);
-    border-top: 1px solid rgba(0, 0, 0, 0.05);
+    border-top: 1px solid var(--glass-border);
     animation: slideDown 0.3s ease;
 }
 
@@ -205,13 +204,13 @@
 
 .action-button:hover {
     transform: translateY(-2px);
-    box-shadow: 0 4px 12px rgba(37, 99, 235, 0.3);
+    box-shadow: var(--shadow-hover);
 }
 
 /* Action Summary */
 .action-summary {
-    background: rgba(37, 99, 235, 0.1);
-    border: 1px solid rgba(37, 99, 235, 0.2);
+    background: var(--secondary-50);
+    border: 1px solid var(--glass-border);
     border-radius: 8px;
     padding: var(--space-3) var(--space-4);
     margin-bottom: var(--space-4);
@@ -237,8 +236,8 @@
 
 /* What-If Simulator */
 .whatif-simulator {
-    background: rgba(37, 99, 235, 0.1);
-    border: 1px solid rgba(124, 58, 237, 0.2);
+    background: var(--secondary-50);
+    border: 1px solid var(--glass-border);
     border-radius: 8px;
     padding: var(--space-4);
 }
@@ -258,15 +257,17 @@
 
 .whatif-card {
     flex: 1;
-    background: rgba(255, 255, 255, 0.7);
+    background: #ffffff;
+    border: 1px solid var(--glass-border);
     padding: var(--space-3);
     border-radius: 6px;
     text-align: center;
 }
 
 .whatif-card.success {
-    background: rgba(16, 185, 129, 0.1);
-    border: 1px solid rgba(16, 185, 129, 0.3);
+    background: #ffffff;
+    border-color: var(--success-500);
+    border-left: 4px solid var(--success-500);
 }
 
 .whatif-label {

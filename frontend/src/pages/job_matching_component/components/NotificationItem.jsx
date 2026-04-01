@@ -17,27 +17,27 @@ const labelForType = (type) => {
 const accentForType = (type, isRead) => {
     if (type === 'deadline_reminder') {
         return {
-            borderLeft: isRead ? '1px solid var(--secondary-200)' : '3px solid var(--error-500)',
-            iconBg: isRead ? 'var(--secondary-100)' : 'rgba(239, 68, 68, 0.12)',
-            iconColor: isRead ? 'var(--secondary-600)' : '#7f1d1d',
-            labelColor: isRead ? 'var(--secondary-600)' : '#7f1d1d',
-            messageColor: '#7f1d1d'
+            borderLeft: isRead ? '1px solid var(--secondary-200)' : '4px solid var(--error-500)',
+            iconBg: isRead ? 'var(--secondary-100)' : 'var(--secondary-50)',
+            iconColor: isRead ? 'var(--secondary-600)' : 'var(--error-700)',
+            labelColor: isRead ? 'var(--secondary-600)' : 'var(--error-700)',
+            messageColor: isRead ? 'var(--secondary-700)' : 'var(--secondary-800)'
         };
     }
 
     if (type === 'new_job') {
         return {
-            borderLeft: isRead ? '1px solid var(--secondary-200)' : '3px solid var(--success-500)',
-            iconBg: isRead ? 'var(--secondary-100)' : 'rgba(16, 185, 129, 0.14)',
-            iconColor: isRead ? 'var(--secondary-600)' : '#14532d',
-            labelColor: isRead ? 'var(--secondary-600)' : '#14532d',
-            messageColor: '#14532d'
+            borderLeft: isRead ? '1px solid var(--secondary-200)' : '4px solid var(--success-500)',
+            iconBg: isRead ? 'var(--secondary-100)' : 'var(--secondary-50)',
+            iconColor: isRead ? 'var(--secondary-600)' : 'var(--success-700)',
+            labelColor: isRead ? 'var(--secondary-600)' : 'var(--success-700)',
+            messageColor: isRead ? 'var(--secondary-700)' : 'var(--secondary-800)'
         };
     }
 
     return {
-        borderLeft: isRead ? '1px solid var(--secondary-200)' : '3px solid var(--primary-500)',
-        iconBg: isRead ? 'var(--secondary-100)' : 'var(--primary-100)',
+        borderLeft: isRead ? '1px solid var(--secondary-200)' : '4px solid var(--primary-500)',
+        iconBg: isRead ? 'var(--secondary-100)' : 'var(--secondary-50)',
         iconColor: isRead ? 'var(--secondary-600)' : 'var(--primary-700)',
         labelColor: 'var(--secondary-600)',
         messageColor: isRead ? 'var(--secondary-700)' : 'var(--secondary-800)'
@@ -58,7 +58,7 @@ export default function NotificationItem({ notification }) {
                 alignItems: 'flex-start',
                 padding: '10px 12px',
                 background: 'white',
-                border: '1px solid var(--secondary-200)',
+                border: '1px solid var(--glass-border)',
                 borderRadius: '8px',
                 borderLeft: accent.borderLeft
             }}

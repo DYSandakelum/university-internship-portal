@@ -28,9 +28,7 @@
   padding: var(--space-4) 96px var(--space-4) var(--space-6);
   border-radius: var(--radius-lg);
   border: 1px solid var(--color-gray-light);
-  background: rgba(255, 255, 255, 0.85);
-  backdrop-filter: blur(14px);
-  -webkit-backdrop-filter: blur(14px);
+  background: #ffffff;
   box-shadow: 0 1px 2px rgba(15, 23, 42, 0.06);
   font-size: var(--text-lg);
   color: var(--color-text-dark);
@@ -44,9 +42,8 @@
 
 .modern-search-input:focus {
   outline: none;
-  border-color: rgba(59, 130, 246, 0.65);
-  box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.18);
-  background: rgba(255, 255, 255, 0.95);
+  border-color: var(--color-success);
+  box-shadow: 0 0 0 3px rgba(16, 185, 129, 0.18);
 }
 
 .modern-search-clear {
@@ -80,9 +77,7 @@
   top: calc(100% + 10px);
   left: 0;
   right: 0;
-  background: rgba(255, 255, 255, 0.95);
-  backdrop-filter: blur(16px);
-  -webkit-backdrop-filter: blur(16px);
+  background: #ffffff;
   border: 1px solid var(--color-gray-light);
   border-radius: var(--radius-lg);
   box-shadow: var(--shadow-hover);
@@ -111,8 +106,8 @@
 }
 
 .search-suggestion-item.active {
-  background: rgba(59, 130, 246, 0.06);
-  color: var(--color-primary);
+  background: var(--color-success-light-bg);
+  color: var(--color-success);
 }
 
 .search-suggestion-icon {

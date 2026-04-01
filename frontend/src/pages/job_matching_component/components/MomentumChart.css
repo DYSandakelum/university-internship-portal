@@ -3,7 +3,6 @@
     border: 1px solid var(--glass-border);
     border-radius: 12px;
     padding: var(--space-4);
-    backdrop-filter: blur(20px);
 }
 
 .chart-title {
@@ -17,7 +16,8 @@
 .no-data {
     text-align: center;
     padding: var(--space-8) var(--space-4);
-    background: rgba(37, 99, 235, 0.05);
+    background: var(--secondary-50);
+    border: 1px solid var(--glass-border);
     border-radius: 8px;
 }
 
@@ -36,8 +36,8 @@
 }
 
 .momentum-stat {
-    background: rgba(255, 255, 255, 0.5);
-    border: 1px solid rgba(255, 255, 255, 0.3);
+    background: #ffffff;
+    border: 1px solid var(--glass-border);
     border-radius: 8px;
     padding: var(--space-3);
     display: flex;
@@ -72,7 +72,8 @@
 
 /* Chart Container */
 .chart-container {
-    background: rgba(255, 255, 255, 0.3);
+    background: var(--secondary-50);
+    border: 1px solid var(--glass-border);
     border-radius: 8px;
     padding: var(--space-4);
     margin-bottom: var(--space-4);
@@ -211,24 +212,22 @@
     font-size: var(--text-sm);
     margin: 0;
     font-weight: 500;
+    background: #ffffff;
+    border: 1px solid var(--glass-border);
+    border-left: 4px solid var(--secondary-300);
+    color: var(--secondary-800);
 }
 
 .trend-message.warning {
-    background: rgba(245, 158, 11, 0.1);
-    border: 1px solid rgba(245, 158, 11, 0.2);
-    color: #92400e;
+    border-left-color: var(--warning-500);
 }
 
 .trend-message.neutral {
-    background: rgba(37, 99, 235, 0.1);
-    border: 1px solid rgba(37, 99, 235, 0.2);
-    color: #1e40af;
+    border-left-color: var(--secondary-400);
 }
 
 .trend-message.success {
-    background: rgba(16, 185, 129, 0.1);
-    border: 1px solid rgba(16, 185, 129, 0.2);
-    color: #065f46;
+    border-left-color: var(--success-500);
 }
 
 /* Responsive */

@@ -1,123 +1,13 @@
 import React, { useCallback, useEffect, useMemo, useState } from 'react';
-import { FiSearch, FiBriefcase, FiBarChart, FiStar, FiGrid, FiList, FiRotateCw, FiAlertTriangle } from 'react-icons/fi';
+import { FiSearch, FiBriefcase, FiStar, FiGrid, FiList, FiRotateCw, FiAlertTriangle, FiSettings } from 'react-icons/fi';
 import { useLocation, useNavigate } from 'react-router-dom';
-import SearchBar from '../components/SearchBar';
+
+import AdvancedFiltersModal from '../components/AdvancedFiltersModal';
 import FilterPanel from '../components/FilterPanel';
 import JobCard from '../components/JobCard';
 import { getSavedJobs, saveJob, searchJobs } from '../../../services/jobService';
 import '../styles/JobMatchingLayout.css';
 import '../styles/JobMatchingControls.css';
-
-// Results Header Component
-function ResultsHeader({ total, query, sortBy, setSortBy, viewMode, setViewMode, embedded = false }) {
-    return (
-        <div className={embedded ? '' : 'glass-panel'} style={{
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'space-between',
-            flexWrap: 'wrap',
-            gap: embedded ? '10px' : '16px',
-            padding: embedded ? '0' : '16px 24px'
-        }}>
-            <div style={{
-                display: 'flex',
-                alignItems: 'center',
-                gap: '12px'
-            }}>
-                <div style={{
-                    fontSize: '16px',
-                    fontWeight: '600',
-                    color: 'var(--secondary-800)'
-                }}>
-                    <FiBarChart style={{ marginRight: '6px' }} /> {total} {total === 1 ? 'result' : 'results'}
-                    {query && (
-                        <span style={{ color: 'var(--secondary-600)' }}>
-                            {' '}for "<span style={{ color: 'var(--primary-500)', fontWeight: '700' }}>{query}</span>"
-                        </span>
-                    )}
-                </div>
-            </div>
-            
-            <div style={{
-                display: 'flex',
-                alignItems: 'center',
-                gap: '16px'
-            }}>
-                {/* Sort Dropdown */}
-                <div style={{
-                    display: 'flex',
-                    alignItems: 'center',
-                    gap: '6px'
-                }}>
-                    <label style={{
-                        fontSize: '14px',
-                        fontWeight: '600',
-                        color: 'var(--secondary-600)'
-                    }}>
-                        Sort by:
-                    </label>
-                    <select
-                        value={sortBy}
-                        onChange={(e) => setSortBy(e.target.value)}
-                        style={{
-                            padding: '8px 12px',
-                            borderRadius: '8px',
-                            border: '1px solid var(--secondary-300)',
-                            background: 'var(--background)',
-                            fontSize: '13px',
-                            fontWeight: '500',
-                            color: 'var(--secondary-700)'
-                        }}
-                    >
-                        <option value="relevance">Relevance</option>
-                        <option value="newest">Newest First</option>
-                        <option value="salary-high">Salary (High to Low)</option>
-                        <option value="salary-low">Salary (Low to High)</option>
-                        <option value="deadline">Application Deadline</option>
-                    </select>
-                </div>
-
-                <div style={{
-                    display: 'flex',
-                    background: 'var(--secondary-200)',
-                    borderRadius: '8px',
-                    padding: '3px'
-                }}>
-                    <button
-                        onClick={() => setViewMode('grid')}
-                        style={{
-                            padding: '7px 10px',
-                            border: 'none',
-                            borderRadius: '6px',
-                            fontSize: '13px',
-                            fontWeight: '500',
-                            background: viewMode === 'grid' ? 'var(--primary-500)' : 'transparent',
-                            color: viewMode === 'grid' ? 'white' : 'var(--secondary-600)',
-                            cursor: 'pointer'
-                        }}
-                    >
-                        <FiGrid style={{ marginRight: '4px' }} /> Grid
-                    </button>
-                    <button
-                        onClick={() => setViewMode('list')}
-                        style={{
-                            padding: '7px 10px',
-                            border: 'none',
-                            borderRadius: '6px',
-                            fontSize: '13px',
-                            fontWeight: '500',
-                            background: viewMode === 'list' ? 'var(--primary-500)' : 'transparent',
-                            color: viewMode === 'list' ? 'white' : 'var(--secondary-600)',
-                            cursor: 'pointer'
-                        }}
-                    >
-                        <FiList style={{ marginRight: '4px' }} /> List
-                    </button>
-                </div>
-            </div>
-        </div>
-    );
-}
 
 // Empty State Component
 function EmptyState({ query, hasFilters, onClearFilters, onViewRecommendations }) {
@@ -208,11 +98,8 @@ function LoadingState() {
 export default function JobSearch() {
     const location = useLocation();
     const navigate = useNavigate();
-    const queryFromUrl = useMemo(() => {
-        return new URLSearchParams(location.search).get('q') || '';
-    }, [location.search]);
 
-    const [query, setQuery] = useState(queryFromUrl);
+    const [query, setQuery] = useState('');
     const [filters, setFilters] = useState({
         jobType: '',
         location: '',
@@ -222,22 +109,40 @@ export default function JobSearch() {
     const [sortBy, setSortBy] = useState('relevance');
     const [viewMode, setViewMode] = useState('grid');
 
+    const [isFiltersOpen, setIsFiltersOpen] = useState(false);
+
     const [jobs, setJobs] = useState([]);
     const [savedJobIds, setSavedJobIds] = useState(() => new Set());
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState('');
 
-    const params = useMemo(
-        () => ({
-            q: query,
-            jobType: filters.jobType || undefined,
-            location: filters.location || undefined,
-            minSalary: filters.minSalary || undefined,
-            maxSalary: filters.maxSalary || undefined,
-            sortBy
-        }),
-        [query, filters, sortBy]
-    );
+    const parseUrlState = useCallback((search) => {
+        const sp = new URLSearchParams(search);
+        return {
+            q: sp.get('q') || '',
+            filters: {
+                jobType: sp.get('jobType') || '',
+                location: sp.get('location') || '',
+                minSalary: sp.get('minSalary') || '',
+                maxSalary: sp.get('maxSalary') || ''
+            },
+            sortBy: sp.get('sortBy') || 'relevance',
+            viewMode: sp.get('view') || 'grid'
+        };
+    }, []);
+
+    const buildSearchQueryString = useCallback(({ q, filters: nextFilters, sortBy: nextSortBy, viewMode: nextViewMode }) => {
+        const sp = new URLSearchParams();
+        if (q) sp.set('q', q);
+        if (nextFilters?.jobType) sp.set('jobType', nextFilters.jobType);
+        if (nextFilters?.location) sp.set('location', nextFilters.location);
+        if (nextFilters?.minSalary) sp.set('minSalary', String(nextFilters.minSalary));
+        if (nextFilters?.maxSalary) sp.set('maxSalary', String(nextFilters.maxSalary));
+        if (nextSortBy && nextSortBy !== 'relevance') sp.set('sortBy', nextSortBy);
+        if (nextViewMode && nextViewMode !== 'grid') sp.set('view', nextViewMode);
+        const qs = sp.toString();
+        return qs ? `?${qs}` : '';
+    }, []);
 
     const hasActiveFilters = useMemo(() => {
         return filters.jobType || filters.location || filters.minSalary || filters.maxSalary;
@@ -261,26 +166,35 @@ export default function JobSearch() {
         }
     }, [jobs, sortBy]);
 
-    const loadJobs = useCallback(async () => {
+    const runSearch = useCallback(async (nextParams) => {
         setLoading(true);
         setError('');
         try {
-            const data = await searchJobs(params);
+            const data = await searchJobs(nextParams);
             setJobs(Array.isArray(data) ? data : []);
         } catch (e) {
             setError(e?.response?.data?.message || 'Unable to load jobs');
         } finally {
             setLoading(false);
         }
-    }, [params]);
+    }, []);
 
+    // Load from URL only (submit/apply updates URL; URL change triggers fetch)
     useEffect(() => {
-        setQuery(queryFromUrl);
-    }, [queryFromUrl]);
-
-    useEffect(() => {
-        loadJobs();
-    }, [loadJobs]);
+        const next = parseUrlState(location.search);
+        setQuery(next.q);
+        setFilters(next.filters);
+        setSortBy(next.sortBy);
+        setViewMode(next.viewMode);
+        runSearch({
+            q: next.q,
+            jobType: next.filters.jobType || undefined,
+            location: next.filters.location || undefined,
+            minSalary: next.filters.minSalary || undefined,
+            maxSalary: next.filters.maxSalary || undefined,
+            sortBy: next.sortBy
+        });
+    }, [location.search, parseUrlState, runSearch]);
 
     useEffect(() => {
         const loadSaved = async () => {
@@ -308,81 +222,166 @@ export default function JobSearch() {
         // Apply flow is owned by a different module; keep button present per spec.
     };
 
-    const handleClearFilters = () => {
+    const navigateWithState = (next) => {
+        navigate({ pathname: location.pathname, search: buildSearchQueryString(next) });
+    };
+
+    const handleSubmitSearch = () => {
+        navigateWithState({ q: query.trim(), filters, sortBy, viewMode });
+    };
+
+    const handleClearAll = () => {
         setQuery('');
-        setFilters({
-            jobType: '',
-            location: '',
-            minSalary: '',
-            maxSalary: ''
-        });
+        setFilters({ jobType: '', location: '', minSalary: '', maxSalary: '' });
+        setSortBy('relevance');
+        setViewMode('grid');
+        navigate({ pathname: location.pathname, search: '' });
     };
 
     return (
-        <div className="page">
-            <div className="container">
-                <button
-                    onClick={() => navigate('/job-matching/dashboard')}
-                    style={{
-                        display: 'inline-flex',
-                        alignItems: 'center',
-                        gap: '6px',
-                        padding: '8px 12px',
-                        marginBottom: '16px',
-                        background: 'transparent',
-                        border: 'none',
-                        color: 'var(--primary-500)',
-                        fontSize: '14px',
-                        fontWeight: '600',
-                        cursor: 'pointer'
-                    }}
-                >
-                    Back to Dashboard
-                </button>
-                {/* Search Interface */}
-                <div className="search-interface-grid" style={{
+        <div>
+            {/* Compact search toolbar */}
+            <div className="glass-panel" style={{ padding: 14, marginBottom: 12 }}>
+                <div style={{
                     display: 'grid',
-                    gridTemplateColumns: '1fr',
-                    gap: '12px',
-                    alignItems: 'start',
-                    marginBottom: '16px'
+                    gridTemplateColumns: '1fr auto auto',
+                    gap: 10,
+                    alignItems: 'center'
                 }}>
-                    <div className="glass-panel" style={{ padding: '14px' }}>
-                        <div className="search-top-row" style={{
-                            display: 'grid',
-                            gridTemplateColumns: 'minmax(320px, 1.4fr) minmax(320px, 1fr)',
-                            gap: '12px',
-                            alignItems: 'center'
-                        }}>
-                            <SearchBar 
-                                value={query} 
-                                onChange={setQuery} 
-                                onSearch={loadJobs}
-                                placeholder="Search by title, skills, company, or keywords..."
-                                embedded={true}
-                            />
+                    <div style={{ position: 'relative' }}>
+                        <FiSearch style={{ position: 'absolute', left: 12, top: '50%', transform: 'translateY(-50%)', color: 'var(--secondary-500)' }} />
+                        <input
+                            className="form-input"
+                            value={query}
+                            onChange={(e) => setQuery(e.target.value)}
+                            onKeyDown={(e) => {
+                                if (e.key === 'Enter') {
+                                    e.preventDefault();
+                                    handleSubmitSearch();
+                                }
+                            }}
+                            placeholder="Title, company, skills, keywords"
+                            style={{ paddingLeft: 38, paddingRight: 108 }}
+                        />
+                        <button
+                            className="btn-primary"
+                            type="button"
+                            onClick={handleSubmitSearch}
+                            disabled={loading}
+                            style={{ position: 'absolute', right: 6, top: 6, bottom: 6, padding: '0 14px' }}
+                        >
+                            Search
+                        </button>
+                    </div>
 
-                            <ResultsHeader
-                                total={sortedJobs.length}
-                                query={query}
-                                sortBy={sortBy}
-                                setSortBy={setSortBy}
-                                viewMode={viewMode}
-                                setViewMode={setViewMode}
-                                embedded={true}
-                            />
-                        </div>
+                    <button
+                        className="btn-secondary"
+                        type="button"
+                        onClick={() => setIsFiltersOpen(true)}
+                        style={{ display: 'inline-flex', alignItems: 'center', gap: 8, whiteSpace: 'nowrap' }}
+                    >
+                        <FiSettings /> Filters{hasActiveFilters ? ' • Active' : ''}
+                    </button>
 
-                        <div style={{ marginTop: '10px', paddingTop: '10px', borderTop: '1px solid var(--glass-border)' }}>
-                            <FilterPanel 
-                                filters={filters} 
-                                onChange={setFilters} 
-                                onApply={loadJobs}
-                                embedded={true}
-                            />
+                    <div style={{ display: 'inline-flex', gap: 8, alignItems: 'center', justifyContent: 'flex-end' }}>
+                        <select
+                            value={sortBy}
+                            onChange={(e) => {
+                                const nextSort = e.target.value;
+                                setSortBy(nextSort);
+                                navigateWithState({ q: query.trim(), filters, sortBy: nextSort, viewMode });
+                            }}
+                            className="form-input"
+                            style={{ width: 190, cursor: 'pointer' }}
+                        >
+                            <option value="relevance">Relevance</option>
+                            <option value="newest">Newest</option>
+                            <option value="salary-high">Salary (High)</option>
+                            <option value="salary-low">Salary (Low)</option>
+                            <option value="deadline">Deadline</option>
+                        </select>
+
+                        <div style={{ display: 'inline-flex', border: '1px solid var(--glass-border)', borderRadius: 12, overflow: 'hidden' }}>
+                            <button
+                                type="button"
+                                className={viewMode === 'grid' ? 'btn-primary' : 'btn-secondary'}
+                                onClick={() => {
+                                    setViewMode('grid');
+                                    navigateWithState({ q: query.trim(), filters, sortBy, viewMode: 'grid' });
+                                }}
+                                style={{ borderRadius: 0, padding: '10px 12px' }}
+                                aria-label="Grid view"
+                            >
+                                <FiGrid />
+                            </button>
+                            <button
+                                type="button"
+                                className={viewMode === 'list' ? 'btn-primary' : 'btn-secondary'}
+                                onClick={() => {
+                                    setViewMode('list');
+                                    navigateWithState({ q: query.trim(), filters, sortBy, viewMode: 'list' });
+                                }}
+                                style={{ borderRadius: 0, padding: '10px 12px' }}
+                                aria-label="List view"
+                            >
+                                <FiList />
+                            </button>
                         </div>
                     </div>
                 </div>
+
+                <div style={{
+                    display: 'flex',
+                    justifyContent: 'space-between',
+                    alignItems: 'center',
+                    gap: 10,
+                    flexWrap: 'wrap',
+                    marginTop: 10,
+                    paddingTop: 10,
+                    borderTop: '1px solid var(--glass-border)'
+                }}>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: 10, flexWrap: 'wrap' }}>
+                        <div style={{ fontSize: 13, fontWeight: 800, color: 'var(--secondary-800)' }}>
+                            {sortedJobs.length} {sortedJobs.length === 1 ? 'result' : 'results'}
+                            {query.trim() ? <span style={{ color: 'var(--secondary-600)' }}> for “{query.trim()}”</span> : null}
+                        </div>
+
+                        {hasActiveFilters ? (
+                            <button className="btn-secondary" type="button" onClick={handleClearAll} style={{ display: 'inline-flex', alignItems: 'center', gap: 8 }}>
+                                <FiRotateCw /> Reset
+                            </button>
+                        ) : null}
+                    </div>
+
+                    <button
+                        className="btn-secondary"
+                        type="button"
+                        onClick={() => navigate('/job-matching/dashboard')}
+                        style={{ display: 'inline-flex', alignItems: 'center', gap: 8 }}
+                    >
+                        Back to Dashboard
+                    </button>
+                </div>
+            </div>
+
+            <AdvancedFiltersModal
+                open={isFiltersOpen}
+                title="Filters"
+                subtitle="Use Advanced for sliders and precise ranges."
+                onClose={() => setIsFiltersOpen(false)}
+                onSubmit={() => {
+                    setIsFiltersOpen(false);
+                    navigateWithState({ q: query.trim(), filters, sortBy, viewMode });
+                }}
+                submitLabel="Apply"
+            >
+                <FilterPanel
+                    filters={filters}
+                    onChange={setFilters}
+                    embedded={true}
+                    showApplyButton={false}
+                />
+            </AdvancedFiltersModal>
 
                 {/* Error State */}
                 {error && (
@@ -398,7 +397,7 @@ export default function JobSearch() {
                         <div style={{ fontWeight: '600' }}>{error}</div>
                         <button 
                             className="btn-secondary" 
-                            onClick={loadJobs}
+                            onClick={handleSubmitSearch}
                             style={{ marginTop: '16px' }}
                         >
                             <FiRotateCw style={{ marginRight: '6px' }} /> Try Again
@@ -449,25 +448,12 @@ export default function JobSearch() {
                             <EmptyState
                                 query={query}
                                 hasFilters={hasActiveFilters}
-                                onClearFilters={handleClearFilters}
+                                onClearFilters={handleClearAll}
                                 onViewRecommendations={() => navigate('/job-matching/recommended')}
                             />
                         )}
                     </>
                 )}
-            </div>
-
-            <style>{`
-                @media (max-width: 900px) {
-                    .search-interface-grid {
-                        grid-template-columns: 1fr !important;
-                    }
-
-                    .search-top-row {
-                        grid-template-columns: 1fr !important;
-                    }
-                }
-            `}</style>
         </div>
     );
 }

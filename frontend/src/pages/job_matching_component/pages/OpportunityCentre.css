@@ -27,7 +27,7 @@
   font-size: 22px;
   line-height: 1.2;
   font-weight: 760;
-  color: #13283d;
+  color: var(--color-text-dark);
 }
 
 .opx-selector {
@@ -90,11 +90,11 @@
   gap: 4px;
 }
 
-.opx-card:hover { border-color: #7ea4c8; }
+.opx-card:hover { border-color: var(--primary-500); }
 
 .opx-card.is-selected {
   border-color: var(--opx-primary);
-  background: #e8f0fa;
+  background: var(--secondary-50);
 }
 
 .opx-card-top {
@@ -109,7 +109,7 @@
   font-size: 12px;
   line-height: 1.25;
   font-weight: 750;
-  color: #153451;
+  color: var(--color-text-dark);
   overflow: hidden;
   display: -webkit-box;
   -webkit-line-clamp: 2;
@@ -383,7 +383,7 @@
   font-family: inherit;
 }
 
-.opx-btn:hover { border-color: #7ea4c8; }
+.opx-btn:hover { border-color: var(--primary-500); }
 
 @keyframes opxSpin { to { transform: rotate(360deg); } }
 

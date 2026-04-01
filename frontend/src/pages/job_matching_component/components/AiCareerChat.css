@@ -126,7 +126,7 @@
 .ai-chat-input:focus {
     outline: none;
     border-color: var(--primary-500);
-    box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.12);
+    box-shadow: 0 0 0 3px rgba(16, 185, 129, 0.18);
 }
 
 .ai-chat-send {
@@ -151,13 +151,13 @@
 }
 
 .ai-chat-tip:hover {
-    border-color: var(--primary-300);
+    border-color: var(--primary-600);
     color: var(--primary-700);
 }
 
 .ai-chat-input.has-error {
     border-color: var(--error-500);
-    box-shadow: 0 0 0 3px rgba(239, 68, 68, 0.12);
+    box-shadow: 0 0 0 3px var(--error-50);
 }
 
 .ai-chat-error {

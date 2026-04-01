@@ -1,0 +1,116 @@
+/* AdvancedFiltersModal - solid surfaces only (no blur/gradients) */
+
+.jm-modal-backdrop {
+  position: fixed;
+  inset: 0;
+  z-index: 2000;
+  background: var(--secondary-100);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: var(--space-6);
+}
+
+.jm-modal {
+  width: min(960px, 100%);
+  max-height: calc(100vh - (var(--space-6) * 2));
+  overflow: hidden;
+  background: #ffffff;
+  border: 1px solid var(--glass-border);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-hover);
+  display: grid;
+  grid-template-rows: auto 1fr auto;
+}
+
+.jm-modal-header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: var(--space-3);
+  padding: var(--space-4);
+  border-bottom: 1px solid var(--glass-border);
+}
+
+.jm-modal-title {
+  margin: 0;
+  font-size: var(--text-lg);
+  font-weight: var(--font-extrabold);
+  color: var(--secondary-900);
+}
+
+.jm-modal-subtitle {
+  margin: 4px 0 0 0;
+  font-size: var(--text-sm);
+  color: var(--secondary-600);
+  font-weight: var(--font-medium);
+}
+
+.jm-modal-close {
+  border: 1px solid var(--glass-border);
+  background: #ffffff;
+  color: var(--secondary-700);
+  border-radius: 10px;
+  padding: 8px 10px;
+  cursor: pointer;
+}
+
+.jm-modal-close:hover {
+  background: var(--secondary-50);
+  border-color: var(--primary-600);
+  color: var(--secondary-900);
+}
+
+.jm-modal-body {
+  overflow: auto;
+  padding: var(--space-4);
+}
+
+.jm-modal-query {
+  display: grid;
+  grid-template-columns: 1fr auto;
+  gap: var(--space-3);
+  align-items: center;
+  padding-bottom: var(--space-4);
+  margin-bottom: var(--space-4);
+  border-bottom: 1px solid var(--glass-border);
+}
+
+.jm-modal-query input {
+  width: 100%;
+  border: 1px solid var(--glass-border);
+  background: #ffffff;
+  border-radius: 12px;
+  padding: 12px 12px;
+  font-size: var(--text-base);
+  color: var(--secondary-900);
+}
+
+.jm-modal-query input:focus {
+  outline: none;
+  border-color: var(--primary-600);
+  box-shadow: 0 0 0 3px rgba(16, 185, 129, 0.18);
+}
+
+.jm-modal-footer {
+  display: flex;
+  justify-content: flex-end;
+  gap: var(--space-2);
+  padding: var(--space-4);
+  border-top: 1px solid var(--glass-border);
+  background: #ffffff;
+}
+
+@media (max-width: 640px) {
+  .jm-modal-backdrop {
+    padding: var(--space-3);
+  }
+
+  .jm-modal {
+    max-height: calc(100vh - (var(--space-3) * 2));
+  }
+
+  .jm-modal-query {
+    grid-template-columns: 1fr;
+  }
+}

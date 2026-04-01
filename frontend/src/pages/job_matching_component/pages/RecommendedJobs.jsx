@@ -149,7 +149,8 @@ function RecommendationCategories({ jobs, activeCategory, setActiveCategory }) {
                     <div style={{
                         padding: '2px 6px',
                         borderRadius: '12px',
-                        background: activeCategory === category.id ? 'rgba(255,255,255,0.2)' : 'var(--secondary-200)',
+                        background: activeCategory === category.id ? '#ffffff' : 'var(--secondary-200)',
+                        color: activeCategory === category.id ? 'var(--primary-700)' : 'var(--secondary-800)',
                         fontSize: '11px',
                         fontWeight: '700'
                     }}>
