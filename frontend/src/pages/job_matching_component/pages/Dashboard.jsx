@@ -23,6 +23,7 @@ import { getNotifications } from '../../../services/notificationService';
 import useEnsureDemoAuth from '../hooks/useEnsureDemoAuth';
 import AiCareerChat from '../components/AiCareerChat';
 import AdvancedFiltersModal from '../components/AdvancedFiltersModal';
+import PracticeInterviewModal from '../components/PracticeInterviewModal';
 import FilterPanel from '../components/FilterPanel';
 import { useAuth } from '../../../context/AuthContext';
 import './dashboard.css';
@@ -245,7 +246,7 @@ function RecentActivityFeed({ activities, onActivityClick, formatRelativeTime })
     );
 }
 
-function HeroSection({ stats, onViewRecommendations, recommendationsOpen }) {
+function HeroSection({ stats, onViewRecommendations, recommendationsOpen, onPracticeInterview }) {
     return (
         <section className="dashboard-hero-panel dashboard-slide-up" style={{ animationDelay: '80ms' }}>
             <div className="dashboard-hero-copy">
@@ -255,6 +256,9 @@ function HeroSection({ stats, onViewRecommendations, recommendationsOpen }) {
             </div>
             <div className="dashboard-hero-actions">
                 <div className="dashboard-hero-actions-row">
+                    <button className="dashboard-hero-cta-btn" onClick={() => onPracticeInterview?.()}>
+                        <FiEdit3 /> Practice Interview
+                    </button>
                     <button className="dashboard-hero-secondary-btn" onClick={() => onViewRecommendations?.()}>
                         <FiZap /> {recommendationsOpen ? 'Hide Recommendations' : 'View Recommendations'}
                     </button>
@@ -283,6 +287,7 @@ export default function Dashboard() {
     const [recentActivities, setRecentActivities] = useState([]);
     const [recommendedJobs, setRecommendedJobs] = useState([]);
     const [showRecommendationsRow, setShowRecommendationsRow] = useState(false);
+    const [isPracticeModalOpen, setIsPracticeModalOpen] = useState(false);
 
     const profileCompletion = Math.min(100, Math.max(45, (Array.isArray(user?.skills) ? user.skills.length * 9 : 0) + 42));
 
@@ -533,6 +538,7 @@ export default function Dashboard() {
                             stats={stats}
                             recommendationsOpen={showRecommendationsRow}
                             onViewRecommendations={() => setShowRecommendationsRow((v) => !v)}
+                            onPracticeInterview={() => setIsPracticeModalOpen(true)}
                         />
 
                         {showRecommendationsRow && (
@@ -605,6 +611,12 @@ export default function Dashboard() {
                                 showApplyButton={false}
                             />
                         </AdvancedFiltersModal>
+
+                        <PracticeInterviewModal
+                            open={isPracticeModalOpen}
+                            ready={ready}
+                            onClose={() => setIsPracticeModalOpen(false)}
+                        />
                     </>
                 )}
             </div>

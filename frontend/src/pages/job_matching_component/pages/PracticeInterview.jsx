@@ -97,12 +97,17 @@ export default function PracticeInterview() {
     };
 
     return (
-        <div className="page">
+        <div className="page practice-page">
             <div className="container">
-                <header className="practice-header glass-panel">
-                    <div className="practice-header-title">
-                        <h2 className="practice-h2"><FiEdit3 /> Practice Interview</h2>
-                        <p className="practice-subtitle">Pick a role, then attempt one paper (10 minutes, 10 MCQs).</p>
+                <header className="practice-top">
+                    <div className="practice-top-title">
+                        <h2 className="practice-h2"><FiEdit3 /> Practice Interview Sessions</h2>
+                        <p className="practice-subtitle">Select a role and start a timed MCQ paper.</p>
+                    </div>
+                    <div className="practice-top-badges" aria-label="Practice session details">
+                        <span className="practice-badge-pill">10 MCQs</span>
+                        <span className="practice-badge-pill">10 minutes</span>
+                        <span className="practice-badge-pill">Instant review</span>
                     </div>
                 </header>
 
@@ -113,10 +118,13 @@ export default function PracticeInterview() {
                     </div>
                 )}
 
-                <section className="practice-panel glass-panel">
-                    <div className="practice-row">
-                        <label className="practice-label">Job role</label>
+                <section className="practice-layout">
+                    <aside className="practice-setup glass-panel">
+                        <div className="practice-section-title">Setup</div>
+
+                        <label className="practice-label" htmlFor="practice-role">Choose role</label>
                         <select
+                            id="practice-role"
                             className="practice-select"
                             value={role}
                             onChange={(e) => setRole(e.target.value)}
@@ -128,44 +136,58 @@ export default function PracticeInterview() {
                             ))}
                         </select>
 
-                        <button
-                            className="practice-refresh"
-                            onClick={() => {
-                                // simple reload: reset role to force papers refresh
-                                setRole('');
-                                setPapers([]);
-                                setError('');
-                            }}
-                            disabled={loading}
-                            title="Reset selection"
-                        >
-                            <FiRotateCw />
-                            Reset
-                        </button>
-                    </div>
-
-                    <div className="practice-divider" />
-
-                    <div className="practice-section-title">Papers</div>
-                    {!role && <p className="practice-muted">Select a role to see available papers.</p>}
-
-                    {role && papers.length === 0 && !loading && (
-                        <p className="practice-muted">No papers found for this role yet.</p>
-                    )}
-
-                    <div className="practice-paper-grid">
-                        {papers.map((p) => (
+                        <div className="practice-setup-actions">
                             <button
-                                key={p}
-                                className="practice-paper-card"
+                                className="practice-refresh"
+                                onClick={() => {
+                                    setRole('');
+                                    setPapers([]);
+                                    setError('');
+                                }}
                                 disabled={loading}
-                                onClick={() => onStartPaper(p)}
+                                title="Reset selection"
                             >
-                                <div className="practice-paper-title">Paper {p}</div>
-                                <div className="practice-paper-meta">10 questions • 10 minutes</div>
-                                <div className="practice-paper-cta">Start <FiChevronRight /></div>
+                                <FiRotateCw /> Reset
                             </button>
-                        ))}
+                        </div>
+
+                        <div className="practice-help">
+                            <div className="practice-help-title">How it works</div>
+                            <ul className="practice-help-list">
+                                <li>Pick a role to load available papers.</li>
+                                <li>Each paper is timed (10 minutes).</li>
+                                <li>You’ll see an instant review after submission.</li>
+                            </ul>
+                        </div>
+                    </aside>
+
+                    <div className="practice-sessions glass-panel">
+                        <div className="practice-sessions-head">
+                            <div className="practice-section-title">Sessions</div>
+                            <div className="practice-sessions-meta">
+                                {role ? `Role: ${role}` : 'Select a role to view papers'}
+                            </div>
+                        </div>
+
+                        {!role && <p className="practice-muted">Choose a role to see available papers.</p>}
+                        {role && papers.length === 0 && !loading && (
+                            <p className="practice-muted">No papers found for this role yet.</p>
+                        )}
+
+                        <div className="practice-paper-grid" aria-label="Available papers">
+                            {papers.map((p) => (
+                                <button
+                                    key={p}
+                                    className="practice-paper-card"
+                                    disabled={loading}
+                                    onClick={() => onStartPaper(p)}
+                                >
+                                    <div className="practice-paper-title">Paper {p}</div>
+                                    <div className="practice-paper-meta">10 questions • 10 minutes</div>
+                                    <div className="practice-paper-cta">Start <FiChevronRight /></div>
+                                </button>
+                            ))}
+                        </div>
                     </div>
                 </section>
             </div>

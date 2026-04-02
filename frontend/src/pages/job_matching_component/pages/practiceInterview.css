@@ -1,3 +1,52 @@
+/* Practice Interview - sessions + attempt pages */
+
+.practice-page {
+  --pi-surface: #ffffff;
+  --pi-surface-soft: var(--color-gray-50);
+  --pi-border: var(--color-gray-border);
+  --pi-text: var(--color-text-dark);
+  --pi-text-soft: var(--color-text-medium);
+  --pi-text-muted: var(--color-gray-text);
+}
+
+/* New sessions header */
+.practice-top {
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 14px 16px;
+  margin-bottom: 12px;
+  border: 1px solid var(--pi-border);
+  border-radius: 12px;
+  background: var(--pi-surface);
+}
+
+.practice-top-title {
+  min-width: 0;
+}
+
+.practice-top-badges {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: wrap;
+  justify-content: flex-end;
+}
+
+.practice-badge-pill {
+  display: inline-flex;
+  align-items: center;
+  border: 1px solid var(--pi-border);
+  background: var(--pi-surface-soft);
+  color: var(--pi-text-soft);
+  border-radius: 999px;
+  padding: 6px 10px;
+  font-size: 12px;
+  font-weight: 800;
+}
+
+/* Attempt header (existing) */
 .practice-header {
   display: flex;
   align-items: center;
@@ -96,6 +145,69 @@
   color: var(--error-500);
 }
 
+/* New sessions layout */
+.practice-layout {
+  display: grid;
+  grid-template-columns: minmax(260px, 360px) 1fr;
+  gap: 12px;
+  align-items: start;
+}
+
+.practice-setup,
+.practice-sessions {
+  padding: 14px 16px;
+  border-radius: 12px;
+  border: 1px solid var(--pi-border);
+  background: var(--pi-surface);
+  box-shadow: none;
+}
+
+.practice-setup-actions {
+  margin-top: 10px;
+  display: flex;
+  gap: 10px;
+}
+
+.practice-help {
+  margin-top: 12px;
+  padding-top: 12px;
+  border-top: 1px solid var(--pi-border);
+}
+
+.practice-help-title {
+  font-size: 12px;
+  font-weight: 900;
+  color: var(--pi-text);
+  margin-bottom: 8px;
+}
+
+.practice-help-list {
+  margin: 0;
+  padding-left: 16px;
+  color: var(--pi-text-soft);
+  font-size: 12px;
+  font-weight: 600;
+  line-height: 1.5;
+}
+
+.practice-sessions-head {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 12px;
+  margin-bottom: 10px;
+}
+
+.practice-sessions-meta {
+  font-size: 12px;
+  font-weight: 700;
+  color: var(--pi-text-muted);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+/* Attempt panel (existing) */
 .practice-panel {
   padding: 16px 18px;
   border-top: 3px solid var(--primary-200);
@@ -467,6 +579,15 @@
 }
 
 @media (max-width: 720px) {
+  .practice-top {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .practice-layout {
+    grid-template-columns: 1fr;
+  }
+
   .practice-header {
     flex-direction: column;
     align-items: stretch;

@@ -1,5 +1,5 @@
 import React, { useEffect, useMemo, useRef, useState } from 'react';
-import { FiAlertCircle, FiArrowLeft, FiArrowRight, FiCalendar, FiInfo, FiTarget } from 'react-icons/fi';
+import { FiAlertCircle, FiArrowLeft, FiArrowRight, FiInfo, FiTarget } from 'react-icons/fi';
 import { jobService } from '../../../services/jobService';
 import ActionQueue from '../components/ActionQueue';
 import DeadlineTimeline from '../components/DeadlineTimeline';
@@ -16,20 +16,47 @@ export default function OpportunityCentre() {
     const [error, setError] = useState('');
     const [selectedOpportunity, setSelectedOpportunity] = useState(null);
 
+    const [savedJobs, setSavedJobs] = useState([]);
+    const [selectedSavedJobId, setSelectedSavedJobId] = useState(null);
+
     const scrollerRef = useRef(null);
 
     useEffect(() => {
         let mounted = true;
 
+        const loadOpportunityForJob = async (jobId) => {
+            try {
+                const result = await jobService.calculateJobOpportunity(jobId);
+                if (!mounted) return;
+                setSelectedOpportunity(result?.data || null);
+            } catch {
+                if (!mounted) return;
+                setSelectedOpportunity(null);
+            }
+        };
+
         const load = async () => {
             try {
                 setLoading(true);
                 setError('');
-                const response = await jobService.getOpportunityDashboard();
+                const [response, saved] = await Promise.all([
+                    jobService.getOpportunityDashboard(),
+                    jobService.getSavedJobs().catch(() => [])
+                ]);
                 if (!mounted) return;
                 setDashboard(response.data);
-                const first = response.data?.topOpportunities?.[0] || null;
-                setSelectedOpportunity(first);
+
+                const savedJobsList = Array.isArray(saved) ? saved : [];
+                setSavedJobs(savedJobsList);
+
+                const firstSavedJob = savedJobsList?.[0]?.jobId || null;
+                if (firstSavedJob?._id) {
+                    setSelectedSavedJobId(String(firstSavedJob._id));
+                    await loadOpportunityForJob(firstSavedJob._id);
+                } else {
+                    setSelectedSavedJobId(null);
+                    setSelectedOpportunity(null);
+                }
             } catch (e) {
                 if (!mounted) return;
                 setError('Failed to load opportunity dashboard');
@@ -46,7 +73,9 @@ export default function OpportunityCentre() {
         };
     }, []);
 
-    const topOpportunities = useMemo(() => dashboard?.topOpportunities || [], [dashboard]);
+    const savedJobItems = useMemo(() => {
+        return (savedJobs || []).map((s) => s?.jobId).filter(Boolean);
+    }, [savedJobs]);
 
     const scrollBy = (dx) => {
         if (!scrollerRef.current) return;
@@ -86,54 +115,50 @@ export default function OpportunityCentre() {
                 </h1>
             </header>
 
-            <section className="opx-selector" aria-label="Opportunity selector">
+            <section className="opx-selector" aria-label="Saved jobs">
                 <button
                     type="button"
                     className="opx-arrow opx-arrow-left"
                     onClick={() => scrollBy(-SCROLL_STEP_PX)}
-                    aria-label="Scroll opportunities left"
+                    aria-label="Scroll saved jobs left"
                 >
                     <FiArrowLeft />
                 </button>
 
                 <div className="opx-scroller" ref={scrollerRef}>
-                    {topOpportunities.length > 0 ? (
-                        topOpportunities.map((opp) => (
+                    {savedJobItems.length > 0 ? (
+                        savedJobItems.map((job) => (
                             <button
-                                key={opp._id}
+                                key={job._id}
                                 type="button"
-                                className={`opx-card ${selectedOpportunity?._id === opp._id ? 'is-selected' : ''}`}
-                                onClick={() => setSelectedOpportunity(opp)}
-                                title={`${opp.jobId?.title || 'Role'} at ${opp.jobId?.company || 'Company'}`}
+                                className={`opx-card ${selectedSavedJobId === String(job._id) ? 'is-selected' : ''}`}
+                                onClick={async () => {
+                                    setSelectedSavedJobId(String(job._id));
+                                    try {
+                                        const result = await jobService.calculateJobOpportunity(job._id);
+                                        setSelectedOpportunity(result?.data || null);
+                                    } catch {
+                                        setSelectedOpportunity(null);
+                                    }
+                                }}
+                                title={`${job?.title || 'Role'} at ${job?.company || 'Company'}`}
                             >
                                 <div className="opx-card-top">
-                                    <h2 className="opx-card-title">{opp.jobId?.title}</h2>
-                                    <span
-                                        className={`opx-pill ${
-                                            opp.overallSuccessScore >= 75
-                                                ? 'high'
-                                                : opp.overallSuccessScore >= 50
-                                                  ? 'mid'
-                                                  : 'low'
-                                        }`}
-                                    >
-                                        {opp.overallSuccessScore || 0}%
-                                    </span>
+                                    <h2 className="opx-card-title">{job?.title}</h2>
+                                    <span className="opx-pill mid">SAVED</span>
                                 </div>
-                                <p className="opx-card-company">{opp.jobId?.company}</p>
+                                <p className="opx-card-company">{job?.company}</p>
                                 <p className="opx-card-deadline">
-                                    <FiCalendar />
-                                    {opp.daysUntilDeadline > 0 ? `${opp.daysUntilDeadline}d` : 'Expired'}
+                                    <FiInfo />
+                                    {(job?.location || 'Location') + (job?.jobType ? ` • ${job.jobType}` : '')}
                                 </p>
                                 <div className="opx-card-bottom">
-                                    <span className={`opx-status ${opp.applicationStatus}`}>
-                                        {opp.applicationStatus?.replace('_', ' ').toUpperCase()}
-                                    </span>
+                                    <span className="opx-status not_applied">OPEN</span>
                                 </div>
                             </button>
                         ))
                     ) : (
-                        <div className="opx-empty">No opportunities yet.</div>
+                        <div className="opx-empty">No saved jobs yet.</div>
                     )}
                 </div>
 
@@ -141,7 +166,7 @@ export default function OpportunityCentre() {
                     type="button"
                     className="opx-arrow opx-arrow-right"
                     onClick={() => scrollBy(SCROLL_STEP_PX)}
-                    aria-label="Scroll opportunities right"
+                    aria-label="Scroll saved jobs right"
                 >
                     <FiArrowRight />
                 </button>
