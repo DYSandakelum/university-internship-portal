@@ -1,6 +1,6 @@
 const Cron = require('node-cron');
 const SavedJob = require('../models/SavedJob');
-const Job = require('../models/Job');
+const Job = require('../../models/Job');
 const User = require('../../models/User');
 const sendEmail = require('../../utils/sendEmail');
 

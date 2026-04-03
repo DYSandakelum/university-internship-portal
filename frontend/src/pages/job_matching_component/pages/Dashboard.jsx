@@ -28,16 +28,84 @@ import FilterPanel from '../components/FilterPanel';
 import { useAuth } from '../../../context/AuthContext';
 import './dashboard.css';
 
-function MetricCard({ icon, label, value, helper, colorClass, delay = 0 }) {
+function MetricCard({ icon, label, value, helper, colorClass, delay = 0, onClick, popTitle, popLines = [] }) {
     return (
-        <article className="dashboard-metric-card dashboard-slide-up" style={{ animationDelay: `${delay}ms` }}>
+        <button
+            type="button"
+            className="dashboard-metric-card dashboard-slide-up"
+            style={{ animationDelay: `${delay}ms` }}
+            onClick={onClick}
+        >
             <div className={`dashboard-metric-icon ${colorClass}`}>{icon}</div>
             <div className="dashboard-metric-content">
                 <p className="dashboard-metric-label">{label}</p>
                 <p className="dashboard-metric-value">{value}</p>
                 <p className="dashboard-metric-helper">{helper}</p>
+                <div className="dashboard-metric-pop" aria-hidden="true">
+                    <div className="dashboard-metric-pop-title">{popTitle || 'Open details'}</div>
+                    {popLines.length > 0 ? (
+                        <ul className="dashboard-metric-pop-list">
+                            {popLines.slice(0, 3).map((line, index) => (
+                                <li key={`${index}-${line}`}>{line}</li>
+                            ))}
+                        </ul>
+                    ) : (
+                        <div className="dashboard-metric-pop-hint">Click to view more.</div>
+                    )}
+                </div>
             </div>
-        </article>
+        </button>
+    );
+}
+
+function NotificationsBell({ unreadCount, items, onViewAll }) {
+    const [open, setOpen] = useState(false);
+
+    const latest = Array.isArray(items) ? items.slice(0, 4) : [];
+
+    return (
+        <div
+            className="dashboard-notify-wrap"
+            onMouseEnter={() => setOpen(true)}
+            onMouseLeave={() => setOpen(false)}
+        >
+            <button
+                type="button"
+                className="dashboard-notify-btn"
+                aria-label="Notifications"
+                onClick={onViewAll}
+                onFocus={() => setOpen(true)}
+                onBlur={() => setOpen(false)}
+            >
+                <FiBell />
+                {unreadCount > 0 ? <span className="dashboard-notify-badge" aria-label={`${unreadCount} unread`}>{unreadCount}</span> : null}
+            </button>
+
+            {open ? (
+                <div className="dashboard-notify-pop" role="dialog" aria-label="Notification preview">
+                    <div className="dashboard-notify-pop-head">
+                        <div className="dashboard-notify-pop-title">Notifications</div>
+                        <button type="button" className="dashboard-notify-pop-link" onMouseDown={(e) => e.preventDefault()} onClick={onViewAll}>
+                            View all
+                        </button>
+                    </div>
+                    {latest.length > 0 ? (
+                        <div className="dashboard-notify-pop-list">
+                            {latest.map((n) => (
+                                <div key={n._id || n.id || n.createdAt} className={`dashboard-notify-item ${n.isRead ? '' : 'is-unread'}`}
+                                    title={n.message}
+                                >
+                                    <div className="dashboard-notify-item-msg">{n.message || 'New update received'}</div>
+                                    <div className="dashboard-notify-item-meta">{n.type || 'Update'}</div>
+                                </div>
+                            ))}
+                        </div>
+                    ) : (
+                        <div className="dashboard-notify-empty">No recent notifications.</div>
+                    )}
+                </div>
+            ) : null}
+        </div>
     );
 }
 
@@ -286,6 +354,8 @@ export default function Dashboard() {
     const [error, setError] = useState('');
     const [recentActivities, setRecentActivities] = useState([]);
     const [recommendedJobs, setRecommendedJobs] = useState([]);
+    const [savedJobs, setSavedJobs] = useState([]);
+    const [notifications, setNotifications] = useState([]);
     const [showRecommendationsRow, setShowRecommendationsRow] = useState(false);
     const [isPracticeModalOpen, setIsPracticeModalOpen] = useState(false);
 
@@ -311,6 +381,9 @@ export default function Dashboard() {
 
         try {
             const [saved, recommendedRaw, notifications] = await Promise.all([getSavedJobs(), getRecommendedJobs(), getNotifications().catch(() => [])]);
+
+            setSavedJobs(Array.isArray(saved) ? saved : []);
+            setNotifications(Array.isArray(notifications) ? notifications : []);
 
             let recommended = Array.isArray(recommendedRaw) ? recommendedRaw : [];
 
@@ -531,7 +604,14 @@ export default function Dashboard() {
                                     </button>
                                 )}
                             </div>
-                            <button className="dashboard-header-btn" onClick={() => navigate('/job-matching/search')}><FiTarget /> Start New Search</button>
+                            <div className="dashboard-header-actions">
+                                <NotificationsBell
+                                    unreadCount={stats.notificationsCount}
+                                    items={notifications}
+                                    onViewAll={() => navigate('/job-matching/notifications')}
+                                />
+                                <button className="dashboard-header-btn" onClick={() => navigate('/job-matching/search')}><FiTarget /> Start New Search</button>
+                            </div>
                         </header>
 
                         <HeroSection
@@ -570,10 +650,60 @@ export default function Dashboard() {
                         )}
 
                         <section className="dashboard-metrics-grid">
-                            <MetricCard icon={<FiEdit3 />} label="Applications Sent" value={stats.totalApplicationsSent} helper="Across your active search" colorClass="dashboard-metric-blue" delay={0} />
-                            <MetricCard icon={<FiBookmark />} label="Saved Roles" value={stats.savedJobsCount} helper="Ready for follow-up" colorClass="dashboard-metric-green" delay={50} />
-                            <MetricCard icon={<FiStar />} label="Recommended" value={stats.recommendedJobsCount} helper={`Match score ${matchRate}%`} colorClass="dashboard-metric-violet" delay={100} />
-                            <MetricCard icon={<FiBell />} label="Unread Alerts" value={stats.notificationsCount} helper="Latest system updates" colorClass="dashboard-metric-amber" delay={150} />
+                            <MetricCard
+                                icon={<FiEdit3 />}
+                                label="Applications Sent"
+                                value={stats.totalApplicationsSent}
+                                helper="Across your active search"
+                                colorClass="dashboard-metric-blue"
+                                delay={0}
+                                onClick={() => navigate('/student/applications')}
+                                popTitle="Open applications"
+                                popLines={[
+                                    'Review submitted applications',
+                                    'Track status and follow-ups'
+                                ]}
+                            />
+                            <MetricCard
+                                icon={<FiBookmark />}
+                                label="Saved Roles"
+                                value={stats.savedJobsCount}
+                                helper="Ready for follow-up"
+                                colorClass="dashboard-metric-green"
+                                delay={50}
+                                onClick={() => navigate('/job-matching/saved')}
+                                popTitle="Open saved jobs"
+                                popLines={(Array.isArray(savedJobs) ? savedJobs : [])
+                                    .slice(0, 2)
+                                    .map((s) => `${s?.jobId?.title || 'Saved job'} • ${s?.jobId?.company || 'Company'}`)}
+                            />
+                            <MetricCard
+                                icon={<FiStar />}
+                                label="Recommended"
+                                value={stats.recommendedJobsCount}
+                                helper={`Match score ${matchRate}%`}
+                                colorClass="dashboard-metric-violet"
+                                delay={100}
+                                onClick={() => navigate('/job-matching/recommended')}
+                                popTitle="Open recommendations"
+                                popLines={(Array.isArray(recommendedJobs) ? recommendedJobs : [])
+                                    .slice(0, 2)
+                                    .map((j) => `${j?.title || 'Recommended job'} • ${j?.company || 'Company'}`)}
+                            />
+                            <MetricCard
+                                icon={<FiBell />}
+                                label="Unread Alerts"
+                                value={stats.notificationsCount}
+                                helper="Latest system updates"
+                                colorClass="dashboard-metric-amber"
+                                delay={150}
+                                onClick={() => navigate('/job-matching/notifications')}
+                                popTitle="Open notifications"
+                                popLines={(Array.isArray(notifications) ? notifications : [])
+                                    .filter((n) => !n.isRead)
+                                    .slice(0, 2)
+                                    .map((n) => n?.message || 'Unread update')}
+                            />
                         </section>
 
                         <section className="dashboard-insights-grid">

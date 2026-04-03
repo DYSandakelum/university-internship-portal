@@ -18,6 +18,21 @@ const JobSchema = new mongoose.Schema({
         type: String,
         default: ''
     },
+    salary: {
+        type: Number,
+        default: null
+    },
+    company: {
+        type: String,
+        default: '',
+        trim: true
+    },
+    requiredSkills: [
+        {
+            type: String,
+            trim: true
+        }
+    ],
     location: {
         type: String,
         required: true,

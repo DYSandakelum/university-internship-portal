@@ -46,6 +46,10 @@
     border: 1px solid transparent;
 }
 
+.ai-msg-text {
+    white-space: pre-wrap;
+}
+
 .ai-msg.user {
     background: var(--primary-50);
     border-color: var(--primary-200);
@@ -111,6 +115,13 @@
 .ai-chat-form {
     display: flex;
     gap: 8px;
+}
+
+.ai-chat-composer {
+    border: 1px solid var(--secondary-200);
+    background: var(--secondary-50);
+    border-radius: 12px;
+    padding: 10px;
 }
 
 .ai-chat-input {

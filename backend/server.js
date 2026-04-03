@@ -4,7 +4,7 @@ const cors = require('cors');
 const path = require('path');
 const connectDB = require('./config/db');
 const { initializeDeadlineScheduler } = require('./job_matching_component/services/deadlineReminderService');
-const { seedJobMatchingDemoData } = require('./job_matching_component/seed/auto-seed');
+const { seedAllDemoData } = require('./seed/seed-all');
 const bcrypt = require('bcryptjs');
 const User = require('./models/User');
 
@@ -114,7 +114,7 @@ const startServer = async () => {
 
     if (autoSeedEnabled) {
         console.log('Seeding demo data...');
-        await seedJobMatchingDemoData({ userId: devUser?._id });
+        await seedAllDemoData({ studentUserId: devUser?._id });
         console.log('Demo data seeded');
     }
 

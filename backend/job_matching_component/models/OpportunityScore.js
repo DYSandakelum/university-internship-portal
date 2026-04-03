@@ -9,7 +9,7 @@ const opportunityScoreSchema = new mongoose.Schema(
         },
         jobId: {
             type: mongoose.Schema.Types.ObjectId,
-            ref: 'JobMatchingJob',
+            ref: 'Job',
             required: true
         },
         // Core scoring components

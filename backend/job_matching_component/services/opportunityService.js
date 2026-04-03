@@ -1,5 +1,5 @@
 const OpportunityScore = require('../models/OpportunityScore');
-const Job = require('../models/Job');
+const Job = require('../../models/Job');
 const SavedJob = require('../models/SavedJob');
 
 const normalizeSkill = (skill) => String(skill || '').trim().toLowerCase();

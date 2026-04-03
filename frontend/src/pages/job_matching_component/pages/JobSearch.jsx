@@ -1,5 +1,5 @@
 import React, { useCallback, useEffect, useMemo, useState } from 'react';
-import { FiSearch, FiBriefcase, FiStar, FiGrid, FiList, FiRotateCw, FiAlertTriangle, FiSettings } from 'react-icons/fi';
+import { FiSearch, FiBriefcase, FiStar, FiBookmark, FiGrid, FiList, FiRotateCw, FiAlertTriangle, FiSettings } from 'react-icons/fi';
 import { useLocation, useNavigate } from 'react-router-dom';
 
 import AdvancedFiltersModal from '../components/AdvancedFiltersModal';
@@ -353,14 +353,32 @@ export default function JobSearch() {
                         ) : null}
                     </div>
 
-                    <button
-                        className="btn-secondary"
-                        type="button"
-                        onClick={() => navigate('/job-matching/dashboard')}
-                        style={{ display: 'inline-flex', alignItems: 'center', gap: 8 }}
-                    >
-                        Back to Dashboard
-                    </button>
+                    <div style={{ display: 'inline-flex', gap: 8, alignItems: 'center', flexWrap: 'wrap', justifyContent: 'flex-end' }}>
+                        <button
+                            className="btn-secondary"
+                            type="button"
+                            onClick={() => navigate('/job-matching/recommended')}
+                            style={{ display: 'inline-flex', alignItems: 'center', gap: 8 }}
+                        >
+                            <FiStar /> Recommendations
+                        </button>
+                        <button
+                            className="btn-secondary"
+                            type="button"
+                            onClick={() => navigate('/job-matching/saved')}
+                            style={{ display: 'inline-flex', alignItems: 'center', gap: 8 }}
+                        >
+                            <FiBookmark /> Saved Jobs
+                        </button>
+                        <button
+                            className="btn-secondary"
+                            type="button"
+                            onClick={() => navigate('/job-matching/dashboard')}
+                            style={{ display: 'inline-flex', alignItems: 'center', gap: 8 }}
+                        >
+                            Back to Dashboard
+                        </button>
+                    </div>
                 </div>
             </div>
 

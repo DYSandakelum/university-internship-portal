@@ -55,7 +55,12 @@ export default function AiCareerChat({ studentSkills = [], stats = {}, recentAct
                 context: {
                     studentSkills,
                     stats,
-                    recentActivities: recentActivities.slice(0, 5)
+                    recentActivities: recentActivities.slice(0, 5).map((activity) => ({
+                        title: activity?.title,
+                        description: activity?.description,
+                        timestamp: activity?.timestamp,
+                        path: activity?.path
+                    }))
                 }
             });
 
@@ -105,7 +110,7 @@ export default function AiCareerChat({ studentSkills = [], stats = {}, recentAct
                 {messages.map((msg, index) => (
                     <div key={index} className={`ai-msg ${msg.role}`}>
                         <div className="ai-msg-label">{msg.role === 'assistant' ? 'Assistant' : 'You'}</div>
-                        <div>{msg.text}</div>
+                        <div className="ai-msg-text">{msg.text}</div>
 
                         {msg.role === 'assistant' && msg.recommendedCourses?.length > 0 && (
                             <div className="ai-courses">
@@ -133,25 +138,27 @@ export default function AiCareerChat({ studentSkills = [], stats = {}, recentAct
                 ))}
             </div>
 
-            <form onSubmit={onSubmit} className="ai-chat-form">
-                <input
-                    className={`ai-chat-input ${inputError ? 'has-error' : ''}`}
-                    type="text"
-                    value={input}
-                    onChange={(event) => {
-                        setInput(event.target.value);
-                        if (inputError) setInputError('');
-                    }}
-                    placeholder="Ask about your skill gaps or job requirement difficulties..."
-                    disabled={isSending}
-                />
-                <button className="btn-primary ai-chat-send" type="submit" disabled={isSending}>
-                    <FiSend style={{ marginRight: '6px' }} />
-                    {isSending ? 'Thinking...' : 'Send'}
-                </button>
-            </form>
+            <div className="ai-chat-composer">
+                <form onSubmit={onSubmit} className="ai-chat-form">
+                    <input
+                        className={`ai-chat-input ${inputError ? 'has-error' : ''}`}
+                        type="text"
+                        value={input}
+                        onChange={(event) => {
+                            setInput(event.target.value);
+                            if (inputError) setInputError('');
+                        }}
+                        placeholder="Ask anything about jobs, skills, interviews, or your next steps…"
+                        disabled={isSending}
+                    />
+                    <button className="btn-primary ai-chat-send" type="submit" disabled={isSending}>
+                        <FiSend style={{ marginRight: '6px' }} />
+                        {isSending ? 'Thinking...' : 'Send'}
+                    </button>
+                </form>
 
-            {inputError && <div className="ai-chat-error" role="alert">{inputError}</div>}
+                {inputError && <div className="ai-chat-error" role="alert">{inputError}</div>}
+            </div>
 
             <div className="ai-chat-tips">
                 {tips.map((tip) => (

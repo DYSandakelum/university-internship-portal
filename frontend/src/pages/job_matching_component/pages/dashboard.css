@@ -58,6 +58,143 @@
   padding-bottom: 10px;
 }
 
+.dashboard-header-actions {
+  justify-self: end;
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.dashboard-notify-wrap {
+  position: relative;
+}
+
+.dashboard-notify-btn {
+  width: 40px;
+  height: 38px;
+  border-radius: 10px;
+  border: 1px solid var(--ds-border);
+  background: var(--ds-surface);
+  color: var(--ds-text);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  position: relative;
+}
+
+.dashboard-notify-btn:hover {
+  box-shadow: var(--shadow-hover);
+  transform: translateY(-1px);
+}
+
+.dashboard-notify-btn:focus {
+  outline: none;
+  box-shadow: 0 0 0 3px var(--color-primary-light-bg);
+}
+
+.dashboard-notify-badge {
+  position: absolute;
+  top: -7px;
+  right: -7px;
+  min-width: 18px;
+  height: 18px;
+  padding: 0 5px;
+  border-radius: 999px;
+  background: var(--ds-danger);
+  color: #ffffff;
+  font-size: 11px;
+  font-weight: 900;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border: 2px solid var(--ds-surface);
+}
+
+.dashboard-notify-pop {
+  position: absolute;
+  right: 0;
+  top: calc(100% + 10px);
+  width: min(360px, 80vw);
+  background: var(--ds-surface);
+  border: 1px solid var(--ds-border);
+  border-radius: 12px;
+  box-shadow: var(--shadow-hover);
+  padding: 10px;
+  transform-origin: top right;
+}
+
+.dashboard-notify-pop-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  padding-bottom: 8px;
+  border-bottom: 1px solid var(--ds-border);
+}
+
+.dashboard-notify-pop-title {
+  font-size: 13px;
+  font-weight: 800;
+  color: var(--ds-text);
+}
+
+.dashboard-notify-pop-link {
+  border: 1px solid var(--ds-border);
+  background: var(--ds-surface-soft);
+  color: var(--ds-text-soft);
+  border-radius: 999px;
+  padding: 4px 10px;
+  font-size: 12px;
+  font-weight: 800;
+  cursor: pointer;
+}
+
+.dashboard-notify-pop-link:hover {
+  box-shadow: var(--shadow-card);
+}
+
+.dashboard-notify-pop-list {
+  margin-top: 10px;
+  display: grid;
+  gap: 8px;
+}
+
+.dashboard-notify-item {
+  border: 1px solid var(--ds-border);
+  border-radius: 10px;
+  padding: 8px 10px;
+  background: var(--ds-surface);
+}
+
+.dashboard-notify-item.is-unread {
+  background: var(--ds-surface-soft);
+}
+
+.dashboard-notify-item-msg {
+  font-size: 12px;
+  font-weight: 700;
+  color: var(--ds-text);
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+.dashboard-notify-item-meta {
+  margin-top: 4px;
+  font-size: 11px;
+  color: var(--ds-text-muted);
+  font-weight: 700;
+}
+
+.dashboard-notify-empty {
+  margin-top: 10px;
+  font-size: 12px;
+  color: var(--ds-text-muted);
+  font-weight: 700;
+}
+
 .dashboard-header-title-wrap {
   min-width: 0;
 }
@@ -418,6 +555,60 @@
   align-items: center;
   gap: 11px;
   padding: 12px;
+  width: 100%;
+  text-align: left;
+  cursor: pointer;
+  font-family: inherit;
+  transition: transform 140ms ease, box-shadow 140ms ease, border-color 140ms ease;
+  position: relative;
+}
+
+.dashboard-metric-card:hover {
+  transform: translateY(-2px);
+  box-shadow: var(--shadow-hover);
+  border-color: #7ea4c8;
+}
+
+.dashboard-metric-card:focus {
+  outline: none;
+  box-shadow: 0 0 0 3px var(--color-primary-light-bg);
+}
+
+.dashboard-metric-pop {
+  margin-top: 8px;
+  border-top: 1px solid var(--ds-border);
+  padding-top: 8px;
+  opacity: 0;
+  max-height: 0;
+  overflow: hidden;
+  transition: opacity 140ms ease, max-height 180ms ease;
+}
+
+.dashboard-metric-card:hover .dashboard-metric-pop,
+.dashboard-metric-card:focus .dashboard-metric-pop {
+  opacity: 1;
+  max-height: 120px;
+}
+
+.dashboard-metric-pop-title {
+  font-size: 12px;
+  font-weight: 900;
+  color: var(--ds-text);
+}
+
+.dashboard-metric-pop-hint {
+  margin-top: 4px;
+  font-size: 11px;
+  color: var(--ds-text-muted);
+  font-weight: 700;
+}
+
+.dashboard-metric-pop-list {
+  margin: 6px 0 0;
+  padding-left: 16px;
+  font-size: 11px;
+  color: var(--ds-text-soft);
+  font-weight: 700;
 }
 
 .dashboard-metric-icon {

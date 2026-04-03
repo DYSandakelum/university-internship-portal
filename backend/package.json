@@ -5,8 +5,9 @@
   "scripts": {
     "dev": "nodemon server.js",
     "start": "node server.js",
-    "seed:job-matching": "node job_matching_component/seed/seed.js",
-    "seed:comprehensive": "node job_matching_component/seed/comprehensive-seed.js"
+    "seed:all": "node seed/seed-all.js",
+    "seed:job-matching": "npm run seed:all",
+    "seed:comprehensive": "npm run seed:all"
   },
   "keywords": [],
   "author": "",

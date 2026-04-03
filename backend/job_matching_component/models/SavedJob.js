@@ -10,7 +10,7 @@ const savedJobSchema = new mongoose.Schema(
         },
         jobId: {
             type: mongoose.Schema.Types.ObjectId,
-            ref: 'JobMatchingJob',
+            ref: 'Job',
             required: true,
             index: true
         },

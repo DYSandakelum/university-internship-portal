@@ -1,5 +1,6 @@
-const Job = require('../models/Job');
+const Job = require('../../models/Job');
 const SavedJob = require('../models/SavedJob');
+const Student = require('../../models/Student');
 
 const normalizeSkill = (skill) => String(skill || '').trim().toLowerCase();
 
@@ -73,9 +74,11 @@ const searchJobs = async (req, res) => {
 // @access  Private
 const getRecommendedJobs = async (req, res) => {
     try {
-        const userSkills = req.user.skills || [];
-        const preferredLocation = (req.user.preferredLocation || '').trim();
-        const preferredJobType = (req.user.preferredJobType || '').trim();
+        const studentProfile = await Student.findOne({ user: req.user._id }).lean();
+
+        const userSkills = studentProfile?.skills || [];
+        const preferredLocation = String(studentProfile?.preferredLocation || '').trim();
+        const preferredJobType = String(studentProfile?.preferredJobType || '').trim();
 
         const filter = {};
         if (preferredLocation) {

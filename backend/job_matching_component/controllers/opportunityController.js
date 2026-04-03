@@ -1,4 +1,5 @@
 const OpportunityScore = require('../models/OpportunityScore');
+const Student = require('../../models/Student');
 const {
     calculateOpportunityScore,
     getTopOpportunities,
@@ -14,7 +15,12 @@ const {
 const getOpportunityDashboard = async (req, res) => {
     try {
         const studentId = req.user._id;
-        const userProfile = req.user;
+        const studentProfile = await Student.findOne({ user: req.user._id }).lean();
+        const userProfile = {
+            skills: studentProfile?.skills || [],
+            email: req.user.email || '',
+            phoneNumber: studentProfile?.phone || ''
+        };
 
         // Check if user has any opportunity scores
         let existingScores = await OpportunityScore.countDocuments({ studentId });
@@ -22,7 +28,7 @@ const getOpportunityDashboard = async (req, res) => {
         // If no scores exist, auto-generate them for all available jobs
         if (existingScores === 0) {
             console.log(`No opportunity scores found for user ${studentId}. Auto-generating...`);
-            const Job = require('../models/Job');
+            const Job = require('../../models/Job');
             const jobs = await Job.find().limit(8);
             
             for (const job of jobs) {
@@ -105,12 +111,13 @@ const calculateJobOpportunity = async (req, res) => {
         }
 
         // Get user profile data (mock - in real app, fetch from User model)
+        const studentProfile = await Student.findOne({ user: req.user._id }).lean();
         const userProfile = {
-            skills: req.user.skills || [],
+            skills: studentProfile?.skills || [],
             email: req.user.email || '',
-            phoneNumber: req.user.phoneNumber || '',
-            experience: req.user.experience || [],
-            education: req.user.education || '',
+            phoneNumber: studentProfile?.phone || '',
+            experience: [],
+            education: studentProfile?.department || '',
             weeklyApplicationCount: 5
         };
 

@@ -1,4 +1,5 @@
 const User = require('../models/User');
+const Student = require('../models/Student');
 const bcrypt = require('bcryptjs');
 const generateToken = require('../utils/generateToken');
 const crypto = require('crypto');
@@ -225,24 +226,12 @@ const demoLogin = async (req, res) => {
                 email: DEMO_USER.email,
                 password: hashedPassword,
                 role: DEMO_USER.role,
-                isVerified: true,
-                skills: ['React', 'JavaScript', 'Node.js', 'MongoDB'],
-                preferredLocation: 'Remote',
-                preferredJobType: 'Internship',
-                notificationSettings: {
-                    emailNotifications: true,
-                    newJobAlerts: true,
-                    deadlineReminders: true,
-                    applicationUpdates: true
-                }
+                isVerified: true
             });
         } else {
             user.name = DEMO_USER.name;
             user.role = DEMO_USER.role;
             user.isVerified = true;
-            user.skills = user.skills?.length ? user.skills : ['React', 'JavaScript', 'Node.js', 'MongoDB'];
-            user.preferredLocation = user.preferredLocation || 'Remote';
-            user.preferredJobType = user.preferredJobType || 'Internship';
 
             // Ensure password exists (don't constantly rehash)
             if (!user.password) {
@@ -251,6 +240,19 @@ const demoLogin = async (req, res) => {
 
             await user.save();
         }
+
+        await Student.findOneAndUpdate(
+            { user: user._id },
+            {
+                $set: {
+                    user: user._id,
+                    skills: ['React', 'JavaScript', 'Node.js', 'MongoDB'],
+                    preferredLocation: 'Remote',
+                    preferredJobType: 'Internship'
+                }
+            },
+            { upsert: true, returnDocument: 'after' }
+        );
 
         return res.status(200).json({
             message: 'Demo login successful',

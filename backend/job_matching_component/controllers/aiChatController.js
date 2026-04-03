@@ -225,11 +225,44 @@ function buildReply({ message, studentSkills, missingTopics }) {
         : 'Start by listing your current skills so we can map a precise gap plan.';
 
     return [
-        'Great question — here is a practical plan to close your gap for the target job.',
-        baseline,
+        'Here\'s a practical, interview-ready plan you can follow:',
+        '',
+        `Your baseline: ${baseline}`,
         topicText,
-        'Suggested approach: 1) pick one gap to improve this week, 2) build one small portfolio proof, 3) update resume bullets with measurable outcomes, 4) practice interview answers for that skill.'
-    ].join(' ');
+        '',
+        'This week (3 focused sessions):',
+        '1) Pick ONE gap topic and do 60–90 minutes of targeted practice (notes + 10 exercises).',
+        '2) Build a mini proof (small project or feature) that uses that skill end-to-end.',
+        '3) Add 1–2 resume bullets that clearly show impact (what you built + results).',
+        '',
+        'Interview prep (fast wins):',
+        '- Prepare a 60-second explanation: problem → approach → tradeoffs → outcome.',
+        '- Do 2 mock questions that match the chosen topic (plus 1 behavioral story).',
+        '',
+        'Quick questions (optional, for a more precise plan):',
+        '- What role are you targeting (frontend/backend/full-stack)?',
+        '- Do you have a specific job post or requirements list?'
+    ].join('\n');
+}
+
+function toNumber(value) {
+    const num = Number(value);
+    return Number.isFinite(num) ? num : null;
+}
+
+function buildStatsSummary(stats) {
+    const saved = toNumber(stats?.savedJobsCount);
+    const recommended = toNumber(stats?.recommendedJobsCount);
+    const unread = toNumber(stats?.notificationsCount);
+    const applications = toNumber(stats?.totalApplicationsSent);
+
+    const parts = [];
+    if (applications !== null) parts.push(`${applications} applications`);
+    if (saved !== null) parts.push(`${saved} saved`);
+    if (recommended !== null) parts.push(`${recommended} recommended`);
+    if (unread !== null) parts.push(`${unread} unread alerts`);
+
+    return parts.length ? `Current snapshot: ${parts.join(' • ')}.` : '';
 }
 
 /**
@@ -247,6 +280,8 @@ const chatWithCareerAssistant = async (req, res) => {
         }
 
         const studentSkills = toArray(context.studentSkills || req.user?.skills || []);
+        const stats = context?.stats || {};
+        const recentActivities = Array.isArray(context?.recentActivities) ? context.recentActivities : [];
         const requirementText = [
             toArray(context.requirements).join(', '),
             String(context.targetJob || '')
@@ -271,7 +306,21 @@ const chatWithCareerAssistant = async (req, res) => {
             'Schedule one mock interview focused on this role.'
         ];
 
-        const reply = buildReply({ message, studentSkills, missingTopics });
+        const statsSummary = buildStatsSummary(stats);
+        const activitySummary = recentActivities
+            .filter((a) => a && (a.title || a.description))
+            .slice(0, 3)
+            .map((a) => `- ${a.title || 'Activity'}: ${a.description || ''}`.trim())
+            .join('\n');
+
+        const replyBase = buildReply({ message, studentSkills, missingTopics });
+        const reply = [
+            replyBase,
+            statsSummary ? `\n\n${statsSummary}` : '',
+            activitySummary ? `\n\nRecent activity:\n${activitySummary}` : ''
+        ]
+            .filter(Boolean)
+            .join('');
 
         return res.status(200).json({
             reply,

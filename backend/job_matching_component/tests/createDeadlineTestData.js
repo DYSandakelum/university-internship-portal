@@ -23,7 +23,7 @@ const connectDB = async () => {
     }
 };
 
-const Job = require('../models/Job');
+const Job = require('../../models/Job');
 const SavedJob = require('../models/SavedJob');
 const User = require('../../models/User');
 
@@ -49,28 +49,37 @@ async function createTestDataForDeadlineReminders() {
             {
                 title: 'Software Developer Intern - Urgent Deadline',
                 company: 'TechCorp Industries',
+                description: 'Demo job used to test deadline reminders.',
+                requirements: 'JavaScript, React, Node.js',
                 location: 'San Francisco, CA',
                 jobType: 'Internship',
                 requiredSkills: ['JavaScript', 'React', 'Node.js'],
                 salary: 5000,
+                salaryRange: '5000',
                 deadline: new Date(currentTime.getTime() + 23 * 60 * 60 * 1000) // 23 hours from now
             },
             {
                 title: 'Marketing Intern - Last Day to Apply',
                 company: 'Creative Solutions Ltd',
+                description: 'Demo job used to test deadline reminders.',
+                requirements: 'Marketing, Social Media, Content Creation',
                 location: 'New York, NY',
                 jobType: 'Internship',
                 requiredSkills: ['Marketing', 'Social Media', 'Content Creation'],
                 salary: 3500,
+                salaryRange: '3500',
                 deadline: new Date(currentTime.getTime() + 12 * 60 * 60 * 1000) // 12 hours from now
             },
             {
                 title: 'Data Science Intern - Deadline Tomorrow',
                 company: 'Analytics Pro',
+                description: 'Demo job used to test deadline reminders.',
+                requirements: 'Python, Machine Learning, Statistics',
                 location: 'Boston, MA',
                 jobType: 'Internship',
                 requiredSkills: ['Python', 'Machine Learning', 'Statistics'],
                 salary: 6000,
+                salaryRange: '6000',
                 deadline: new Date(currentTime.getTime() + 18 * 60 * 60 * 1000) // 18 hours from now
             }
         ];
@@ -81,7 +90,11 @@ async function createTestDataForDeadlineReminders() {
             // Create or update job
             const job = await Job.findOneAndUpdate(
                 { title: jobData.title, company: jobData.company },
-                jobData,
+                {
+                    ...jobData,
+                    employer: testUser._id,
+                    status: 'Active'
+                },
                 { upsert: true, new: true, runValidators: true }
             );
             
@@ -120,10 +133,15 @@ async function createTestDataForDeadlineReminders() {
             {
                 title: 'UX Designer Intern - Future Deadline',
                 company: 'Design Studio',
+                description: 'Demo job used to test deadline reminders.',
+                requirements: 'UI/UX, Figma, User Research',
                 location: 'Los Angeles, CA',
                 jobType: 'Internship',
                 requiredSkills: ['UI/UX', 'Figma', 'User Research'],
                 salary: 4500,
+                salaryRange: '4500',
+                employer: testUser._id,
+                status: 'Active',
                 deadline: new Date(currentTime.getTime() + 48 * 60 * 60 * 1000) // 48 hours from now
             },
             { upsert: true, new: true, runValidators: true }
