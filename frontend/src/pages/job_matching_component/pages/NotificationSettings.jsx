@@ -3,6 +3,7 @@ import { FiSettings, FiCheck, FiMail, FiBell, FiArrowLeft } from 'react-icons/fi
 import { useNavigate } from 'react-router-dom';
 import api from '../../../services/api';
 import useEnsureDemoAuth from '../hooks/useEnsureDemoAuth';
+import BackToDashboardButton from '../components/BackToDashboardButton';
 
 // Clean Toggle Switch Component
 const ToggleSwitch = ({ on, onToggle, label, description, disabled = false }) => {
@@ -231,6 +232,7 @@ export default function NotificationSettings() {
         return (
             <div className="page">
                 <div className="container">
+                    <BackToDashboardButton />
                     <div style={{
                         padding: '20px',
                         textAlign: 'center',
@@ -250,6 +252,7 @@ export default function NotificationSettings() {
         return (
             <div className="page">
                 <div className="container">
+                    <BackToDashboardButton />
                     <div style={{ 
                         textAlign: 'center', 
                         padding: '40px 20px',
@@ -268,6 +271,7 @@ export default function NotificationSettings() {
     return (
         <div className="page">
             <div className="container">
+                <BackToDashboardButton />
                 {/* Header */}
                 <div style={{
                     display: 'flex',

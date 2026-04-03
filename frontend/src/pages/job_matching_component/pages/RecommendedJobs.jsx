@@ -4,6 +4,7 @@ import { useNavigate } from 'react-router-dom';
 import JobCard from '../components/JobCard';
 import { getRecommendedJobs, getSavedJobs, saveJob } from '../../../services/jobService';
 import useEnsureDemoAuth from '../hooks/useEnsureDemoAuth';
+import BackToDashboardButton from '../components/BackToDashboardButton';
 import '../styles/JobMatchingLayout.css';
 import '../styles/JobMatchingControls.css';
 import './RecommendedJobs.css';
@@ -367,24 +368,7 @@ export default function RecommendedJobs() {
     return (
         <div className="page reco-page">
             <div className="container">
-                <button
-                    onClick={() => navigate('/job-matching/dashboard')}
-                    style={{
-                        display: 'inline-flex',
-                        alignItems: 'center',
-                        gap: '6px',
-                        padding: '8px 12px',
-                        marginBottom: '16px',
-                        background: 'transparent',
-                        border: 'none',
-                        color: 'var(--primary-500)',
-                        fontSize: '14px',
-                        fontWeight: '600',
-                        cursor: 'pointer'
-                    }}
-                >
-                    Back to Dashboard
-                </button>
+                <BackToDashboardButton />
                 <div className="page-header" style={{ marginBottom: '16px' }}>
                     <h1 className="page-title" style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
                         <FiStar /> AI Recommendations

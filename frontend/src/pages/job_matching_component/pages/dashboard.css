@@ -677,6 +677,102 @@
   padding: 10px;
 }
 
+.dashboard-opportunity-cta {
+  padding: 14px;
+}
+
+.dashboard-opportunity-cta-inner {
+  display: grid;
+  grid-template-columns: 1fr auto;
+  gap: 14px;
+  align-items: center;
+}
+
+.dashboard-opportunity-cta-copy {
+  min-width: 0;
+}
+
+.dashboard-opportunity-cta-subtitle {
+  margin: 6px 0 0;
+  font-size: 13px;
+  color: var(--ds-text-soft);
+  font-weight: 650;
+  line-height: 1.45;
+}
+
+.dashboard-opportunity-cta-metrics {
+  margin-top: 12px;
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 10px;
+}
+
+.dashboard-opportunity-cta-metrics > div {
+  border: 1px solid var(--ds-border);
+  background: var(--ds-surface-soft);
+  border-radius: 10px;
+  padding: 10px;
+}
+
+.dashboard-opportunity-cta-metrics span {
+  display: block;
+  font-size: 11px;
+  color: var(--ds-text-muted);
+  font-weight: 800;
+}
+
+.dashboard-opportunity-cta-metrics strong {
+  display: block;
+  margin-top: 4px;
+  font-size: 16px;
+  color: var(--ds-text);
+  font-weight: 900;
+}
+
+.dashboard-opportunity-cta-btn {
+  height: 40px;
+  border: 1px solid var(--color-primary-dark);
+  border-radius: 12px;
+  background: var(--color-primary);
+  color: #ffffff;
+  padding: 0 14px;
+  font-size: 13px;
+  font-weight: 850;
+  font-family: inherit;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  cursor: pointer;
+  white-space: nowrap;
+}
+
+.dashboard-opportunity-cta-btn:hover {
+  background: var(--color-primary-dark);
+  box-shadow: var(--shadow-hover);
+  transform: translateY(-1px);
+}
+
+.dashboard-opportunity-cta-btn:focus {
+  outline: none;
+  box-shadow: 0 0 0 3px var(--color-primary-light-bg);
+}
+
+@media (max-width: 720px) {
+  .dashboard-opportunity-cta-inner {
+    grid-template-columns: 1fr;
+    align-items: stretch;
+  }
+
+  .dashboard-opportunity-cta-btn {
+    width: 100%;
+    justify-content: center;
+  }
+
+  .dashboard-opportunity-cta-metrics {
+    grid-template-columns: 1fr;
+  }
+}
+
 .dashboard-panel-head {
   display: flex;
   align-items: center;

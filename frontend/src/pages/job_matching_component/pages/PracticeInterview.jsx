@@ -2,6 +2,7 @@ import React, { useEffect, useMemo, useState } from 'react';
 import { FiEdit3, FiChevronRight, FiAlertTriangle, FiRotateCw } from 'react-icons/fi';
 import { useNavigate } from 'react-router-dom';
 import useEnsureDemoAuth from '../hooks/useEnsureDemoAuth';
+import BackToDashboardButton from '../components/BackToDashboardButton';
 import '../styles/JobMatchingLayout.css';
 import './practiceInterview.css';
 import { getInterviewPapers, getInterviewRoles, startInterviewAttempt } from '../../../services/interviewService';
@@ -99,6 +100,7 @@ export default function PracticeInterview() {
     return (
         <div className="page practice-page">
             <div className="container">
+                <BackToDashboardButton />
                 <header className="practice-top">
                     <div className="practice-top-title">
                         <h2 className="practice-h2"><FiEdit3 /> Practice Interview Sessions</h2>

@@ -4,6 +4,7 @@ import { useNavigate } from 'react-router-dom';
 import JobCard from '../components/JobCard';
 import { getSavedJobs, removeSavedJob } from '../../../services/jobService';
 import useEnsureDemoAuth from '../hooks/useEnsureDemoAuth';
+import BackToDashboardButton from '../components/BackToDashboardButton';
 import '../styles/JobMatchingLayout.css';
 import '../styles/JobMatchingControls.css';
 import './SavedJobs.css';
@@ -302,24 +303,7 @@ export default function SavedJobs() {
     return (
         <div className="page saved-page">
             <div className="container">
-                <button
-                    onClick={() => navigate('/job-matching/dashboard')}
-                    style={{
-                        display: 'inline-flex',
-                        alignItems: 'center',
-                        gap: '6px',
-                        padding: '8px 12px',
-                        marginBottom: '16px',
-                        background: 'transparent',
-                        border: 'none',
-                        color: 'var(--primary-500)',
-                        fontSize: '14px',
-                        fontWeight: '600',
-                        cursor: 'pointer'
-                    }}
-                >
-                    Back to Dashboard
-                </button>
+                <BackToDashboardButton />
                 <div className="page-header">
                     <h1 className="page-title" style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
                         <FiBookmark /> Saved Jobs

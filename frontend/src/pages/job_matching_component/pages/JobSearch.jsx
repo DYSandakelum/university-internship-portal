@@ -5,6 +5,7 @@ import { useLocation, useNavigate } from 'react-router-dom';
 import AdvancedFiltersModal from '../components/AdvancedFiltersModal';
 import FilterPanel from '../components/FilterPanel';
 import JobCard from '../components/JobCard';
+import BackToDashboardButton from '../components/BackToDashboardButton';
 import { getSavedJobs, saveJob, searchJobs } from '../../../services/jobService';
 import '../styles/JobMatchingLayout.css';
 import '../styles/JobMatchingControls.css';
@@ -240,6 +241,7 @@ export default function JobSearch() {
 
     return (
         <div>
+            <BackToDashboardButton />
             {/* Compact search toolbar */}
             <div className="glass-panel" style={{ padding: 14, marginBottom: 12 }}>
                 <div style={{
@@ -369,14 +371,6 @@ export default function JobSearch() {
                             style={{ display: 'inline-flex', alignItems: 'center', gap: 8 }}
                         >
                             <FiBookmark /> Saved Jobs
-                        </button>
-                        <button
-                            className="btn-secondary"
-                            type="button"
-                            onClick={() => navigate('/job-matching/dashboard')}
-                            style={{ display: 'inline-flex', alignItems: 'center', gap: 8 }}
-                        >
-                            Back to Dashboard
                         </button>
                     </div>
                 </div>

@@ -43,6 +43,23 @@
   box-shadow: var(--shadow-card);
 }
 
+.jm-page-topbar {
+  display: flex;
+  align-items: center;
+  justify-content: flex-start;
+  margin-bottom: 12px;
+}
+
+.jm-back-dashboard-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 10px;
+  border-radius: 999px;
+  font-size: 12px;
+  font-weight: 800;
+}
+
 .modern-grid {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));

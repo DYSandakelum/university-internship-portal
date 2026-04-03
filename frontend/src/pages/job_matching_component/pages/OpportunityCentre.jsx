@@ -1,6 +1,7 @@
 import React, { useEffect, useMemo, useRef, useState } from 'react';
 import { FiAlertCircle, FiArrowLeft, FiArrowRight, FiInfo, FiTarget } from 'react-icons/fi';
 import { jobService } from '../../../services/jobService';
+import BackToDashboardButton from '../components/BackToDashboardButton';
 import ActionQueue from '../components/ActionQueue';
 import DeadlineTimeline from '../components/DeadlineTimeline';
 import MomentumChart from '../components/MomentumChart';
@@ -85,6 +86,7 @@ export default function OpportunityCentre() {
     if (loading && !dashboard) {
         return (
             <div className="opx-page">
+                <BackToDashboardButton />
                 <div className="opx-state">
                     <div className="opx-spinner" />
                     <p>Loading opportunities…</p>
@@ -96,6 +98,7 @@ export default function OpportunityCentre() {
     if (error) {
         return (
             <div className="opx-page">
+                <BackToDashboardButton />
                 <div className="opx-state opx-state-error">
                     <FiAlertCircle className="opx-state-icon" />
                     <p>{error}</p>
@@ -109,6 +112,7 @@ export default function OpportunityCentre() {
 
     return (
         <div className="opx-page">
+            <BackToDashboardButton />
             <header className="opx-header">
                 <h1 className="opx-title">
                     <FiTarget /> Opportunity Mission Board

@@ -2,6 +2,7 @@ import React, { useEffect, useMemo, useRef, useState } from 'react';
 import { FiClock, FiCheckCircle, FiAlertTriangle, FiChevronLeft } from 'react-icons/fi';
 import { useNavigate, useParams } from 'react-router-dom';
 import useEnsureDemoAuth from '../hooks/useEnsureDemoAuth';
+import BackToDashboardButton from '../components/BackToDashboardButton';
 import '../styles/JobMatchingLayout.css';
 import './practiceInterview.css';
 import { getInterviewAttempt, submitInterviewAttempt } from '../../../services/interviewService';
@@ -161,6 +162,7 @@ export default function PracticeInterviewAttempt() {
         return (
             <div className="page">
                 <div className="container">
+                    <BackToDashboardButton />
                     <header className="practice-header glass-panel">
                         <button className="practice-back" onClick={() => navigate('/job-matching/practice-interview')}>
                             <FiChevronLeft /> Back
@@ -229,6 +231,7 @@ export default function PracticeInterviewAttempt() {
     return (
         <div className="page">
             <div className="container">
+                <BackToDashboardButton />
                 <header className="practice-header glass-panel">
                     <button className="practice-back" onClick={() => navigate('/job-matching/practice-interview')}>
                         <FiChevronLeft /> Back

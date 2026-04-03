@@ -4,6 +4,7 @@ import { useNavigate } from 'react-router-dom';
 import NotificationItem from '../components/NotificationItem';
 import { getNotifications } from '../../../services/notificationService';
 import useEnsureDemoAuth from '../hooks/useEnsureDemoAuth';
+import BackToDashboardButton from '../components/BackToDashboardButton';
 
 // Professional Notification Header
 function NotificationHeader({ unreadCount, onMarkAllRead, onSettings }) {
@@ -209,6 +210,7 @@ export default function Notifications() {
         return (
             <div className="page">
                 <div className="container">
+                    <BackToDashboardButton />
                     <div style={{ 
                         textAlign: 'center', 
                         padding: '48px 20px',
@@ -229,24 +231,7 @@ export default function Notifications() {
     return (
         <div className="page">
             <div className="container">
-                <button
-                    onClick={() => navigate('/job-matching')}
-                    style={{
-                        display: 'inline-flex',
-                        alignItems: 'center',
-                        gap: '6px',
-                        padding: '8px 12px',
-                        marginBottom: '16px',
-                        background: 'transparent',
-                        border: 'none',
-                        color: 'var(--primary-500)',
-                        fontSize: '14px',
-                        fontWeight: '600',
-                        cursor: 'pointer'
-                    }}
-                >
-                    Back to Dashboard
-                </button>
+                <BackToDashboardButton />
                 <NotificationHeader 
                     unreadCount={counts.unread}
                     onMarkAllRead={handleMarkAllRead}
