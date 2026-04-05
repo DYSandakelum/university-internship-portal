@@ -49,9 +49,7 @@ const ApplicationFormPage = () => {
             const formData = new FormData();
             formData.append('coverLetter', coverLetter);
             formData.append('resume', resume);
-            await api.post(`/student/apply/${jobId}`, formData, {
-                headers: { 'Content-Type': 'multipart/form-data' }
-            });
+            await api.post(`/student/apply/${jobId}`, formData);
             setSubmitted(true);
         } catch (error) {
             setError(error.response?.data?.message || 'Failed to submit application.');

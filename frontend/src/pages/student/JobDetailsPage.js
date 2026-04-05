@@ -96,9 +96,14 @@ const JobDetailsPage = () => {
                             </div>
                             <div className="card-body">
                                 <ul style={styles.list}>
-                                    {job?.requirements?.map((req, i) => (
-                                        <li key={i} style={styles.listItem}>{req}</li>
-                                    ))}
+                                    {Array.isArray(job?.requirements) 
+                                        ? job.requirements.map((req, i) => (
+                                            <li key={i} style={styles.listItem}>{req}</li>
+                                        ))
+                                        : job?.requirements?.split('\n').map((req, i) => (
+                                            req.trim() && <li key={i} style={styles.listItem}>{req.trim()}</li>
+                                        ))
+                                    }
                                 </ul>
                             </div>
                         </div>
