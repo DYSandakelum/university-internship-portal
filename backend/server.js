@@ -34,6 +34,8 @@ app.use('/api/employer', require('./routes/employerRoutes'));
 app.use('/api/student', require('./routes/studentRoutes'));
 app.use('/api/jobs', require('./routes/jobRoutes'));
 app.use('/api/applications', require('./routes/applicationRoutes'));
+app.use('/api/reviews', require('./routes/reviewRoutes'));
+app.use('/api/admin', require('./routes/adminRoutes'));
 
 // Start server
 const PORT = process.env.PORT || 5000;

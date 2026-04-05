@@ -27,6 +27,22 @@ import MyJobs from './pages/employer/MyJobs';
 import ViewApplications from './pages/employer/ViewApplications';
 import EmployerProfile from './pages/employer/EmployerProfile';
 
+// Admin
+import AdminLoginPage from './pages/admin/AdminLoginPage';
+import AdminDashboard from './pages/admin/AdminDashboard';
+
+// Reviews
+import Home from './Home';
+import EmployerList from './EmployerList';
+import AddEmployer from './AddEmployer';
+import EmployerDetails from './EmployerDetails';
+import AddReview from './AddReview';
+import AddReviews from './AddReviews';
+import ReviewDisplay from './ReviewDisplay';
+import CompanyReviews from './CompanyReviews';
+import AllReviews from './AllReviews';
+import Analytics from './Analytics';
+
 function App() {
     return (
         <Router>
@@ -45,6 +61,17 @@ function App() {
                         </PublicRoute>
                     } />
                     <Route path="/verify-email/:token" element={<VerifyEmailPage />} />
+                    <Route path="/admin/login" element={
+                        <PublicRoute>
+                            <AdminLoginPage />
+                        </PublicRoute>
+                    } />
+                    <Route path="/home" element={<Home />} />
+                    <Route path="/student/home" element={<Home />} />
+                    <Route path="/student/Home" element={<Home />} />
+                    <Route path="/employers" element={<EmployerList />} />
+                    <Route path="/add-employer" element={<AddEmployer />} />
+                    <Route path="/employer/:id" element={<EmployerDetails />} />
 
                     {/* Student Routes */}
                     <Route path="/student/dashboard" element={
@@ -82,8 +109,24 @@ function App() {
                     <Route path="/employer/applications" element={<ViewApplications />} />
                     <Route path="/employer/profile" element={<EmployerProfile />} />
 
+                    {/* Review Routes */}
+                    <Route path="/add-review/:companyId" element={<AddReview />} />
+                    <Route path="/student/AddReviews" element={<AddReviews />} />
+                    <Route path="/student/add-reviews" element={<AddReviews />} />
+                    <Route path="/reviews/:companyId" element={<ReviewDisplay />} />
+                    <Route path="/all-reviews" element={<AllReviews />} />
+                    <Route path="/student/AllReviews" element={<AllReviews />} />
+                    <Route path="/student/all-reviews" element={<AllReviews />} />
+                    <Route path="/company-reviews" element={<CompanyReviews />} />
+                    <Route path="/analytics" element={<Analytics />} />
+                    <Route path="/student/analytics" element={<Analytics />} />
+
                     {/* Admin Routes */}
-                    <Route path="/admin/dashboard" element={<h1>Admin Dashboard</h1>} />
+                    <Route path="/admin/dashboard" element={
+                        <ProtectedRoute allowedRoles={['admin']} redirectTo="/admin/login">
+                            <AdminDashboard />
+                        </ProtectedRoute>
+                    } />
 
 
         

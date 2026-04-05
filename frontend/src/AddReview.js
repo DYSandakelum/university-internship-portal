@@ -1,8 +1,10 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
+import { appTheme } from './styles/theme';
 
 function AddReview() {
   const navigate = useNavigate();
+  const theme = appTheme;
   const [companies, setCompanies] = useState([]);
   const [selectedCompany, setSelectedCompany] = useState('');
   const [selectedCompanyName, setSelectedCompanyName] = useState('');
@@ -132,28 +134,22 @@ function AddReview() {
     }, 500);
   };
 
-  const getRatingStars = (rating) => {
-    return (
-      <span style={{ color: '#f1c40f', fontSize: '2rem' }}>
-        {'★'.repeat(rating)}{'☆'.repeat(5 - rating)}
-      </span>
-    );
-  };
-
   const styles = {
     container: {
       maxWidth: '700px',
       margin: '50px auto',
-      padding: '20px'
+      padding: '20px',
+      background: theme.pageBg
     },
     card: {
       background: 'white',
       borderRadius: '20px',
-      boxShadow: '0 10px 40px rgba(0,0,0,0.1)',
+      border: `1px solid ${theme.border}`,
+      boxShadow: '0 10px 30px rgba(31, 79, 122, 0.12)',
       overflow: 'hidden'
     },
     header: {
-      background: 'linear-gradient(135deg, #f6c23e 0%, #f4a100 100%)',
+      background: `linear-gradient(135deg, ${theme.primary} 0%, ${theme.primaryDark} 100%)`,
       padding: '30px',
       color: 'white',
       textAlign: 'center'
@@ -171,8 +167,8 @@ function AddReview() {
       justifyContent: 'center',
       gap: '30px',
       padding: '20px',
-      background: '#f8f9fc',
-      borderBottom: '1px solid #e0e0e0'
+      background: theme.primarySoft,
+      borderBottom: `1px solid ${theme.border}`
     },
     step: {
       display: 'flex',
@@ -189,7 +185,7 @@ function AddReview() {
       fontWeight: 'bold'
     },
     stepActive: {
-      background: '#f6c23e',
+      background: theme.primary,
       color: 'white'
     },
     stepInactive: {
@@ -215,7 +211,7 @@ function AddReview() {
     select: {
       width: '100%',
       padding: '12px',
-      border: `2px solid ${errors.company ? '#e74a3b' : '#e0e0e0'}`,
+      border: `2px solid ${errors.company ? '#e74a3b' : theme.border}`,
       borderRadius: '10px',
       fontSize: '1rem',
       background: 'white'
@@ -234,7 +230,7 @@ function AddReview() {
     textarea: {
       width: '100%',
       padding: '12px',
-      border: `2px solid ${errors.comment ? '#e74a3b' : '#e0e0e0'}`,
+      border: `2px solid ${errors.comment ? '#e74a3b' : theme.border}`,
       borderRadius: '10px',
       fontSize: '1rem',
       fontFamily: 'inherit',
@@ -244,7 +240,7 @@ function AddReview() {
     input: {
       width: '100%',
       padding: '12px',
-      border: '2px solid #e0e0e0',
+      border: `2px solid ${theme.border}`,
       borderRadius: '10px',
       fontSize: '1rem'
     },
@@ -267,7 +263,7 @@ function AddReview() {
     btnPrimary: {
       flex: 1,
       padding: '14px',
-      background: '#f6c23e',
+      background: theme.primary,
       color: 'white',
       border: 'none',
       borderRadius: '10px',
@@ -278,8 +274,8 @@ function AddReview() {
     btnSecondary: {
       flex: 1,
       padding: '14px',
-      background: '#e0e0e0',
-      color: '#666',
+      background: theme.primarySoft,
+      color: theme.primary,
       border: 'none',
       borderRadius: '10px',
       fontSize: '1rem',
@@ -351,9 +347,9 @@ function AddReview() {
               <label style={styles.label}>Company</label>
               <div style={{
                 padding: '12px',
-                background: '#f8f9fc',
+                background: theme.primarySoft,
                 borderRadius: '10px',
-                border: '1px solid #e0e0e0',
+                border: `1px solid ${theme.border}`,
                 fontWeight: 'bold',
                 color: '#333'
               }}>

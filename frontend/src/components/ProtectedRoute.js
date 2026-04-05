@@ -2,12 +2,12 @@ import React from 'react';
 import { Navigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 
-const ProtectedRoute = ({ children, allowedRoles }) => {
+const ProtectedRoute = ({ children, allowedRoles, redirectTo = '/login' }) => {
     const { user } = useAuth();
 
     // If not logged in redirect to login
     if (!user) {
-        return <Navigate to="/login" />;
+        return <Navigate to={redirectTo} />;
     }
 
     // If role not allowed redirect to their dashboard

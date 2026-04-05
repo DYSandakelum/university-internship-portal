@@ -42,6 +42,7 @@ const Navbar = () => {
                     <>
                         <Link to="/" className="nav-link">Home</Link>
                         <Link to="/login" className="nav-link">Login</Link>
+                        <Link to="/admin/login" className="nav-link">Admin</Link>
                         <Link to="/register" className="btn btn-amber" style={{padding: '8px 20px'}}>
                             Register
                         </Link>

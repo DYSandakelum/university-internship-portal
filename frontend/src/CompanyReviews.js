@@ -1,7 +1,9 @@
 import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
+import { appTheme } from './styles/theme';
 
 function CompanyReviews() {
+  const theme = appTheme;
   const [reviews, setReviews] = useState([]);
   const [companies, setCompanies] = useState([]);
   const [selectedCompany, setSelectedCompany] = useState('');
@@ -13,7 +15,26 @@ function CompanyReviews() {
   }, []);
 
   useEffect(() => {
-    filterAndSortReviews();
+    let filtered = [...reviews];
+
+    if (selectedCompany) {
+      filtered = filtered.filter(r => r.companyId === selectedCompany);
+    }
+
+    filtered.sort((a, b) => {
+      if (sortBy === 'newest') {
+        return new Date(b.createdAt) - new Date(a.createdAt);
+      }
+      if (sortBy === 'highest') {
+        return b.rating - a.rating;
+      }
+      if (sortBy === 'lowest') {
+        return a.rating - b.rating;
+      }
+      return 0;
+    });
+
+    setFilteredReviews(filtered);
   }, [selectedCompany, sortBy, reviews]);
 
   const loadData = () => {
@@ -30,29 +51,6 @@ function CompanyReviews() {
   };
 
   const [filteredReviews, setFilteredReviews] = useState([]);
-
-  const filterAndSortReviews = () => {
-    let filtered = [...reviews];
-    
-    if (selectedCompany) {
-      filtered = filtered.filter(r => r.companyId === selectedCompany);
-    }
-    
-    filtered.sort((a, b) => {
-      if (sortBy === 'newest') {
-        return new Date(b.createdAt) - new Date(a.createdAt);
-      }
-      if (sortBy === 'highest') {
-        return b.rating - a.rating;
-      }
-      if (sortBy === 'lowest') {
-        return a.rating - b.rating;
-      }
-      return 0;
-    });
-    
-    setFilteredReviews(filtered);
-  };
 
   const loadMore = () => {
     setVisibleReviews(prev => prev + 6);
@@ -103,7 +101,7 @@ function CompanyReviews() {
     <div style={{ maxWidth: '1100px', margin: '40px auto', padding: '20px' }}>
       {/* Header */}
       <div style={{
-        background: 'linear-gradient(135deg, #f6c23e 0%, #f4a100 100%)',
+        background: `linear-gradient(135deg, ${theme.primary} 0%, ${theme.primaryDark} 100%)`,
         borderRadius: '20px',
         padding: '40px',
         color: 'white',
@@ -173,9 +171,9 @@ function CompanyReviews() {
           </select>
         </div>
         
-        <Link to="/add-review/select-company" style={{
+        <Link to="/student/AddReviews" style={{
           padding: '10px 24px',
-          background: '#f6c23e',
+          background: theme.primary,
           color: 'white',
           textDecoration: 'none',
           borderRadius: '25px',
@@ -198,10 +196,10 @@ function CompanyReviews() {
           <p style={{ color: '#999', marginBottom: '20px' }}>
             Be the first to share your internship experience!
           </p>
-          <Link to="/add-review/select-company" style={{
+          <Link to="/student/AddReviews" style={{
             display: 'inline-block',
             padding: '12px 30px',
-            background: '#f6c23e',
+            background: theme.primary,
             color: 'white',
             textDecoration: 'none',
             borderRadius: '30px',
@@ -232,7 +230,7 @@ function CompanyReviews() {
                 }}>
                   <div style={{ height: '6px', background: ratingColor, width: '100%' }}></div>
                   <div style={{ padding: '20px' }}>
-                    <Link to={`/employer/${review.companyId}`} style={{
+                    <Link to={`/reviews/${review.companyId}`} style={{
                       fontSize: '1.2rem',
                       fontWeight: 'bold',
                       color: '#333',
@@ -299,8 +297,8 @@ function CompanyReviews() {
                 style={{
                   padding: '12px 40px',
                   background: 'transparent',
-                  border: '2px solid #f6c23e',
-                  color: '#f6c23e',
+                  border: `2px solid ${theme.primary}`,
+                  color: theme.primary,
                   borderRadius: '30px',
                   fontSize: '1rem',
                   fontWeight: 'bold',

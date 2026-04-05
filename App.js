@@ -24,8 +24,12 @@ function App() {
         <Route path="/add-employer" element={<AddEmployer />} />
         <Route path="/employer/:id" element={<EmployerDetails />} />
         <Route path="/add-review/:companyId" element={<AddReview />} />
+        <Route path="/student/AddReviews" element={<AddReview />} />
+        <Route path="/student/add-reviews" element={<AddReview />} />
         <Route path="/reviews/:companyId" element={<ReviewDisplay />} />
         <Route path="/all-reviews" element={<AllReviews />} />
+        <Route path="/student/AllReviews" element={<AllReviews />} />
+        <Route path="/student/all-reviews" element={<AllReviews />} />
         <Route path="/company-reviews" element={<CompanyReviews />} />
         <Route path="/analytics" element={<Analytics />} />
         <Route path="*" element={
