@@ -1,0 +1,108 @@
+/* NotificationItem - Self-contained styling using design system tokens */
+
+.notification-item {
+  display: flex;
+  gap: var(--space-4);
+  align-items: flex-start;
+  padding: var(--space-3);
+  border-radius: var(--radius-lg);
+  border: 1px solid var(--glass-border);
+  background: white;
+  transition: box-shadow var(--transition-base), transform var(--transition-base), border-color var(--transition-base);
+}
+
+.notification-item.clickable {
+  cursor: pointer;
+}
+
+.notification-item.clickable:hover {
+  box-shadow: var(--shadow-hover);
+  transform: translateY(-1px);
+}
+
+.notification-item.unread {
+  background: var(--secondary-50);
+  border-left-width: 4px;
+  border-left-color: var(--primary-600);
+}
+
+.notification-item.read {
+  border-left-width: 4px;
+}
+
+.notification-icon {
+  width: 40px;
+  height: 40px;
+  border-radius: 9999px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.notification-body {
+  flex: 1;
+  min-width: 0;
+}
+
+.notification-top {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: var(--space-2);
+}
+
+.notification-title {
+  font-size: var(--text-sm);
+  font-weight: var(--font-extrabold);
+  color: var(--color-text-dark);
+}
+
+.notification-timestamp {
+  font-size: var(--text-xs);
+  color: var(--color-gray-medium);
+  white-space: nowrap;
+  flex-shrink: 0;
+}
+
+.notification-message {
+  margin-top: var(--space-1);
+  font-size: var(--text-sm);
+  line-height: 1.4;
+  color: var(--color-gray-text);
+}
+
+.notification-message.unread {
+  color: var(--color-gray-dark);
+  font-weight: var(--font-semibold);
+}
+
+.notification-right {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: var(--space-3);
+}
+
+.notification-dot {
+  width: 10px;
+  height: 10px;
+  border-radius: 9999px;
+  background: var(--primary-600);
+}
+
+.notification-markread {
+  border: 0;
+  background: transparent;
+  padding: var(--space-2);
+  border-radius: 9999px;
+  color: var(--color-gray-medium);
+  cursor: pointer;
+  transition: background var(--transition-fast), color var(--transition-fast);
+}
+
+.notification-markread:hover {
+  background: var(--secondary-50);
+  color: var(--primary-600);
+}

@@ -25,6 +25,42 @@ export const AuthProvider = ({ children }) => {
         loadUser();
     }, []);
 
+    // Allow other parts of the app (e.g., demo-login) to trigger a refresh.
+    useEffect(() => {
+        let cancelled = false;
+
+        const refresh = async () => {
+            const token = localStorage.getItem('token');
+            if (!token) {
+                setUser(null);
+                return;
+            }
+
+            try {
+                const res = await api.get('/auth/me');
+                if (!cancelled) setUser(res.data.user);
+            } catch (error) {
+                if (!cancelled) {
+                    localStorage.removeItem('token');
+                    setUser(null);
+                }
+            }
+        };
+
+        const onAuthUpdated = () => {
+            void refresh();
+        };
+
+        window.addEventListener('auth:updated', onAuthUpdated);
+        window.addEventListener('storage', onAuthUpdated);
+
+        return () => {
+            cancelled = true;
+            window.removeEventListener('auth:updated', onAuthUpdated);
+            window.removeEventListener('storage', onAuthUpdated);
+        };
+    }, []);
+
     // Register
     const register = async (userData) => {
         const res = await api.post('/auth/register', userData);

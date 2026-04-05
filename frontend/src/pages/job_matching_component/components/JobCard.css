@@ -1,0 +1,239 @@
+﻿/* JobCard no-Tailwind design follow spec */
+.job-card {
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  position: relative;
+  padding: var(--space-5);
+  border-radius: var(--radius-lg);
+  background: #ffffff;
+  border: 1px solid var(--color-gray-border);
+  box-shadow: var(--shadow-card);
+  transform: translateY(12px);
+  opacity: 0;
+  animation: cardSlideUp 0.35s ease forwards;
+  transition: transform 0.25s ease, box-shadow 0.25s ease;
+}
+
+.job-card:hover {
+  transform: translateY(-4px);
+  box-shadow: var(--shadow-hover);
+}
+
+@keyframes cardSlideUp {
+  from {
+    opacity: 0;
+    transform: translateY(12px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.job-card-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  margin-bottom: var(--space-4);
+  gap: 12px;
+}
+
+.job-title {
+  font-size: 18px;
+  font-weight: 700;
+  color: var(--color-text-dark);
+  margin: 0;
+  line-height: 1.2;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  transition: color 0.2s ease;
+}
+
+.job-title:hover {
+  color: var(--primary-600);
+}
+
+.company-name {
+  font-size: 14px;
+  font-weight: 500;
+  color: var(--color-gray-text);
+  margin: 4px 0 0 0;
+}
+
+.match-score {
+  width: 48px;
+  height: 48px;
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.match-ring {
+  width: 100%;
+  height: 100%;
+  transform: rotate(-90deg);
+}
+
+.match-ring circle {
+  fill: none;
+  stroke-width: 3;
+}
+
+.match-ring .match-bg {
+  stroke: var(--color-gray-light);
+}
+
+.match-ring .match-progress {
+  stroke-linecap: round;
+  stroke-dasharray: 126;
+  stroke-dashoffset: 126;
+  animation: progressFill 1s ease-out forwards;
+}
+
+@keyframes progressFill {
+  from {
+    stroke-dashoffset: 126;
+  }
+  to {
+    stroke-dashoffset: 0;
+  }
+}
+
+.match-value {
+  position: absolute;
+  font-size: 12px;
+  font-weight: 700;
+  color: var(--color-text-dark);
+}
+
+.job-details {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  column-gap: 16px;
+  row-gap: 8px;
+  margin-bottom: var(--space-4);
+  font-size: 14px;
+  color: var(--color-gray-text);
+}
+
+.job-details-item {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.job-details-item svg {
+  width: 16px;
+  height: 16px;
+  color: var(--secondary-400);
+  flex-shrink: 0;
+}
+
+.skills {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-bottom: 24px;
+}
+
+.skill-tag {
+  padding: 4px 10px;
+  font-size: 12px;
+  font-weight: 500;
+  background: var(--secondary-100);
+  color: var(--secondary-600);
+  border-radius: 8px;
+}
+
+.skill-tag.more {
+  background: var(--secondary-50);
+  color: var(--secondary-400);
+}
+
+.job-actions {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding-top: 16px;
+  border-top: 1px solid var(--secondary-200);
+}
+
+.apply-button {
+  flex: 1;
+  border: none;
+  border-radius: 10px;
+  padding: 10px 16px;
+  background: var(--primary-600);
+  color: #ffffff;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background 0.2s ease, transform 0.2s ease;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+}
+
+.apply-button:hover {
+  background: var(--primary-700);
+}
+
+.apply-button:active {
+  transform: scale(0.97);
+}
+
+.apply-button .icon {
+  width: 16px;
+  height: 16px;
+  opacity: 0.7;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.save-button {
+  width: 36px;
+  height: 36px;
+  border-radius: 10px;
+  border: 1px solid var(--glass-border);
+  background: #ffffff;
+  color: var(--secondary-400);
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  transition: color 0.2s ease, border-color 0.2s ease, background 0.2s ease;
+}
+
+.save-button:hover {
+  color: var(--primary-600);
+  border-color: var(--primary-600);
+}
+
+.save-button.saved {
+  background: var(--secondary-50);
+  border-color: var(--primary-600);
+  color: var(--primary-600);
+}
+
+.save-button.saved:hover {
+  background: var(--secondary-100);
+}
+
+.spinner {
+  width: 16px;
+  height: 16px;
+  border: 2px solid currentColor;
+  border-top-color: transparent;
+  border-radius: 50%;
+  animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+  to { transform: rotate(360deg); }
+}

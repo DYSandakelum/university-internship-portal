@@ -32,6 +32,16 @@ const studentSchema = new mongoose.Schema({
         type: String,
         trim: true
     }],
+    preferredLocation: {
+        type: String,
+        trim: true,
+        default: ''
+    },
+    preferredJobType: {
+        type: String,
+        trim: true,
+        default: ''
+    },
     bio: {
         type: String,
         trim: true

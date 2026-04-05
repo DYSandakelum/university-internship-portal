@@ -6,13 +6,32 @@ const Job = require('../models/Job');
 // Post a new job
 router.post('/', protect, async (req, res) => {
     try {
-        const { title, description, requirements, salaryRange, salary, location, deadline, jobType } = req.body;
+        const {
+            title,
+            description,
+            requirements,
+            salaryRange,
+            salary,
+            company,
+            requiredSkills,
+            location,
+            deadline,
+            jobType
+        } = req.body;
+
+        const salaryNumber =
+            salary !== undefined && salary !== null && String(salary).trim() !== ''
+                ? Number(salary)
+                : null;
+
         const job = new Job({
             title,
             description,
             requirements,
-            salaryRange: salary || salaryRange,
-            salary: salary || salaryRange,
+            salaryRange: salaryRange || (salaryNumber !== null && Number.isFinite(salaryNumber) ? String(salaryNumber) : ''),
+            salary: Number.isFinite(salaryNumber) ? salaryNumber : null,
+            company: String(company || req.user.companyName || req.user.name || '').trim(),
+            requiredSkills: Array.isArray(requiredSkills) ? requiredSkills : [],
             location,
             deadline,
             jobType,
@@ -62,15 +81,34 @@ router.get('/:id', protect, async (req, res) => {
 // Edit a job
 router.put('/:id', protect, async (req, res) => {
     try {
-        const { title, description, requirements, salary, salaryRange, location, deadline, jobType } = req.body;
+        const {
+            title,
+            description,
+            requirements,
+            salary,
+            salaryRange,
+            company,
+            requiredSkills,
+            location,
+            deadline,
+            jobType
+        } = req.body;
+
+        const salaryNumber =
+            salary !== undefined && salary !== null && String(salary).trim() !== ''
+                ? Number(salary)
+                : null;
+
         const job = await Job.findByIdAndUpdate(
             req.params.id,
             {
                 title,
                 description,
                 requirements,
-                salaryRange: salary || salaryRange,
-                salary: salary || salaryRange,
+                salaryRange: salaryRange || (salaryNumber !== null && Number.isFinite(salaryNumber) ? String(salaryNumber) : ''),
+                salary: Number.isFinite(salaryNumber) ? salaryNumber : null,
+                company: company !== undefined ? String(company || '').trim() : undefined,
+                requiredSkills: Array.isArray(requiredSkills) ? requiredSkills : undefined,
                 location,
                 deadline,
                 jobType

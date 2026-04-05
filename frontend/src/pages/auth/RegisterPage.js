@@ -8,7 +8,8 @@ const RegisterPage = () => {
         name: '', email: '', password: '', confirmPassword: '', role: 'student'
     });
     const [error, setError] = useState('');
-    const [success, setSuccess] = useState('');
+    const [successMsg, setSuccessMsg] = useState('');
+    const [devVerificationUrl, setDevVerificationUrl] = useState('');
     const [loading, setLoading] = useState(false);
 
     const { register } = useAuth();
@@ -21,7 +22,8 @@ const RegisterPage = () => {
     const handleSubmit = async (e) => {
         e.preventDefault();
         setError('');
-        setSuccess('');
+        setSuccessMsg('');
+        setDevVerificationUrl('');
 
         const universityEmailRegex = /^it\d{8}@my\.sliit\.lk$/;
         if (formData.role === 'student' && !universityEmailRegex.test(formData.email)) {
@@ -39,14 +41,24 @@ const RegisterPage = () => {
 
         setLoading(true);
         try {
-            await register({
+            const response = await register({
                 name: formData.name,
                 email: formData.email,
                 password: formData.password,
                 role: formData.role
             });
-            setSuccess('Registration successful! Please check your email to verify your account.');
-            setTimeout(() => navigate('/login'), 3000);
+
+            // Show appropriate message based on email delivery and available fallback
+            if (response.emailSent) {
+                setSuccessMsg('✅ Registration successful! Check your email to verify your account.');
+                setTimeout(() => navigate('/login'), 3000);
+            } else if (response.devVerificationUrl) {
+                // Email not sent, but show dev verification URL
+                setSuccessMsg('Registration successful! Verification link is ready below.');
+                setDevVerificationUrl(response.devVerificationUrl);
+            } else {
+                setSuccessMsg('Registration successful! Please contact support to verify your email.');
+            }
         } catch (error) {
             setError(error.response?.data?.message || 'Registration failed. Please try again.');
         } finally {
@@ -65,7 +77,29 @@ const RegisterPage = () => {
                     </div>
                     <div className="auth-card-body">
                         {error && <div className="alert alert-error">⚠️ {error}</div>}
-                        {success && <div className="alert alert-success">✅ {success}</div>}
+                        {successMsg && (
+                            <div className="alert alert-success">
+                                ✅ {successMsg}
+                                {devVerificationUrl && (
+                                    <div style={{ marginTop: '12px', paddingTop: '12px', borderTop: '1px solid rgba(255,255,255,0.2)' }}>
+                                        <p style={{ margin: '0 0 8px 0', fontSize: '14px' }}>
+                                            Click the link below to verify your email (expires in 24h):
+                                        </p>
+                                        <a 
+                                            href={devVerificationUrl} 
+                                            style={{ 
+                                                color: '#fff',
+                                                textDecoration: 'underline',
+                                                wordBreak: 'break-all',
+                                                fontSize: '13px'
+                                            }}
+                                        >
+                                            {devVerificationUrl}
+                                        </a>
+                                    </div>
+                                )}
+                            </div>
+                        )}
 
                         <form onSubmit={handleSubmit} style={{display: 'flex', flexDirection: 'column', gap: '16px'}}>
                             <div className="form-group">

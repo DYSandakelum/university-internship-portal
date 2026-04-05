@@ -1,8 +1,16 @@
 const User = require('../models/User');
+const Student = require('../models/Student');
 const bcrypt = require('bcryptjs');
 const generateToken = require('../utils/generateToken');
 const crypto = require('crypto');
 const sendEmail = require('../utils/sendEmail');
+
+const DEMO_USER = {
+    email: 'student.demo@careersync.test',
+    password: 'Password123!',
+    name: 'Demo Student',
+    role: 'student'
+};
 
 // @desc    Register new user
 // @route   POST /api/auth/register
@@ -52,9 +60,12 @@ const registerUser = async (req, res) => {
         });
 
         if (user) {
+            let emailSent = false;
+            let emailErrorMessage = '';
+            const verificationURL = `${process.env.CLIENT_URL}/verify-email/${verificationToken}`;
+
             // Try to send verification email separately
             try {
-                const verificationURL = `${process.env.CLIENT_URL}/verify-email/${verificationToken}`;
                 const html = `
                     <h1>Email Verification</h1>
                     <p>Hi ${user.name},</p>
@@ -75,20 +86,30 @@ const registerUser = async (req, res) => {
                     subject: 'Email Verification - University Internship Portal',
                     html
                 });
+                emailSent = true;
             } catch (emailError) {
                 console.error('Email sending failed:', emailError.message);
+                emailErrorMessage = emailError.message;
             }
 
-            res.status(201).json({
-                message: 'Registration successful! Please check your email to verify your account.',
+            const response = {
+                message: emailSent
+                    ? 'Registration successful! Please check your email to verify your account.'
+                    : 'Registration successful, but verification email could not be sent. Use the verification link below to verify your account.',
                 user: {
                     id: user._id,
                     name: user.name,
                     email: user.email,
                     role: user.role,
                     isVerified: user.isVerified
-                }
-            });
+                },
+                emailSent,
+                // Always provide verification URL in development mode
+                devVerificationUrl: process.env.NODE_ENV === 'development' ? verificationURL : undefined,
+                emailError: process.env.NODE_ENV === 'development' ? emailErrorMessage : undefined
+            };
+
+            res.status(201).json(response);
         }
 
     } catch (error) {
@@ -179,4 +200,71 @@ const getMe = async (req, res) => {
     }
 };
 
-module.exports = { registerUser, verifyEmail, loginUser, getMe };
+// @desc    Demo login (dev / demo environments)
+// @route   POST /api/auth/demo-login
+// @access  Public
+const demoLogin = async (req, res) => {
+    try {
+        const demoEnabled =
+            String(process.env.ENABLE_DEMO_LOGIN || '').toLowerCase() === 'true' ||
+            process.env.NODE_ENV !== 'production';
+
+        if (!demoEnabled) {
+            return res.status(404).json({ message: 'Demo login disabled' });
+        }
+
+        const salt = await bcrypt.genSalt(10);
+        const hashedPassword = await bcrypt.hash(DEMO_USER.password, salt);
+
+        let user = await User.findOne({ email: DEMO_USER.email });
+        if (!user) {
+            user = await User.create({
+                name: DEMO_USER.name,
+                email: DEMO_USER.email,
+                password: hashedPassword,
+                role: DEMO_USER.role,
+                isVerified: true
+            });
+        } else {
+            user.name = DEMO_USER.name;
+            user.role = DEMO_USER.role;
+            user.isVerified = true;
+
+            // Ensure password exists (don't constantly rehash)
+            if (!user.password) {
+                user.password = hashedPassword;
+            }
+
+            await user.save();
+        }
+
+        await Student.findOneAndUpdate(
+            { user: user._id },
+            {
+                $set: {
+                    user: user._id,
+                    skills: ['React', 'JavaScript', 'Node.js', 'MongoDB'],
+                    preferredLocation: 'Remote',
+                    preferredJobType: 'Internship'
+                }
+            },
+            { upsert: true, returnDocument: 'after' }
+        );
+
+        return res.status(200).json({
+            message: 'Demo login successful',
+            token: generateToken(user._id, user.role),
+            user: {
+                id: user._id,
+                name: user.name,
+                email: user.email,
+                role: user.role,
+                isVerified: user.isVerified
+            }
+        });
+    } catch (error) {
+        return res.status(500).json({ message: 'Server error', error: error.message });
+    }
+};
+
+module.exports = { registerUser, verifyEmail, loginUser, getMe, demoLogin };

@@ -1,5 +1,5 @@
 import React from 'react';
-import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
+import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
 import './App.css';
 
 // Auth
@@ -26,7 +26,6 @@ import PostJob from './pages/employer/PostJob';
 import MyJobs from './pages/employer/MyJobs';
 import ViewApplications from './pages/employer/ViewApplications';
 import EmployerProfile from './pages/employer/EmployerProfile';
-
 // Admin
 import AdminLoginPage from './pages/admin/AdminLoginPage';
 import AdminDashboard from './pages/admin/AdminDashboard';
@@ -42,6 +41,18 @@ import ReviewDisplay from './ReviewDisplay';
 import CompanyReviews from './CompanyReviews';
 import AllReviews from './AllReviews';
 import Analytics from './Analytics';
+
+// Job Matching Module
+import Dashboard from './pages/job_matching_component/pages/Dashboard';
+import JobSearch from './pages/job_matching_component/pages/JobSearch';
+import RecommendedJobs from './pages/job_matching_component/pages/RecommendedJobs';
+import SavedJobs from './pages/job_matching_component/pages/SavedJobs';
+import Notifications from './pages/job_matching_component/pages/Notifications';
+import NotificationSettings from './pages/job_matching_component/pages/NotificationSettings';
+import OpportunityCentre from './pages/job_matching_component/pages/OpportunityCentre';
+import PracticeInterview from './pages/job_matching_component/pages/PracticeInterview';
+import PracticeInterviewAttempt from './pages/job_matching_component/pages/PracticeInterviewAttempt';
+import JobMatchingShell from './pages/job_matching_component/components/JobMatchingShell';
 
 function App() {
     return (
@@ -72,6 +83,34 @@ function App() {
                     <Route path="/employers" element={<EmployerList />} />
                     <Route path="/add-employer" element={<AddEmployer />} />
                     <Route path="/employer/:id" element={<EmployerDetails />} />
+
+                    {/* Job Matching Module Routes */}
+                    <Route path="/job-matching" element={<JobMatchingShell />}>
+                        <Route index element={<Navigate to="dashboard" replace />} />
+                        <Route path="dashboard" element={<Dashboard />} />
+                        <Route path="search" element={<JobSearch />} />
+                        <Route path="recommended" element={<RecommendedJobs />} />
+                        <Route path="saved" element={<SavedJobs />} />
+                        <Route path="notifications" element={<Notifications />} />
+                        <Route path="notifications/settings" element={<NotificationSettings />} />
+                        <Route path="opportunity" element={<OpportunityCentre />} />
+                        <Route
+                            path="practice-interview"
+                            element={
+                                <ProtectedRoute allowedRoles={['student']}>
+                                    <PracticeInterview />
+                                </ProtectedRoute>
+                            }
+                        />
+                        <Route
+                            path="practice-interview/attempt/:attemptId"
+                            element={
+                                <ProtectedRoute allowedRoles={['student']}>
+                                    <PracticeInterviewAttempt />
+                                </ProtectedRoute>
+                            }
+                        />
+                    </Route>
 
                     {/* Student Routes */}
                     <Route path="/student/dashboard" element={

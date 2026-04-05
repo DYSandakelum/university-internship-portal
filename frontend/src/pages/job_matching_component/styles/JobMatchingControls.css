@@ -1,0 +1,91 @@
+/* Shared controls: buttons, inputs, chips - using design system tokens */
+
+.btn-primary,
+.btn-secondary {
+  border: 0;
+  border-radius: var(--radius-md);
+  padding: var(--space-2) var(--space-3);
+  font-size: var(--text-sm);
+  font-weight: var(--font-semibold);
+  line-height: 1;
+  cursor: pointer;
+  transition: transform var(--transition-fast), background var(--transition-fast), opacity var(--transition-fast);
+}
+
+.btn-primary {
+  background: var(--color-success);
+  color: white;
+}
+
+.btn-primary:hover {
+  background: var(--color-success);
+}
+
+.btn-secondary {
+  background: white;
+  color: var(--color-gray-dark);
+  border: 1px solid var(--color-gray-light);
+}
+
+.btn-secondary:hover {
+  background: var(--color-gray-50);
+}
+
+.btn-primary:active,
+.btn-secondary:active {
+  transform: translateY(1px);
+}
+
+.btn-primary:disabled,
+.btn-secondary:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.form-group {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-1);
+}
+
+.form-label {
+  font-size: var(--text-xs);
+  font-weight: var(--font-semibold);
+  color: var(--color-gray-dark);
+}
+
+.form-input {
+  height: 40px;
+  border-radius: var(--radius-md);
+  border: 1px solid var(--color-gray-light);
+  background: white;
+  padding: 0 var(--space-3);
+  outline: none;
+  color: var(--color-gray-dark);
+  transition: border-color var(--transition-fast), box-shadow var(--transition-fast);
+  font-family: var(--font-family);
+  font-size: var(--text-sm);
+}
+
+.form-input:focus {
+  border-color: var(--color-success);
+  box-shadow: 0 0 0 3px rgba(16, 185, 129, 0.18);
+}
+
+.btn-icon {
+  width: 40px;
+  height: 40px;
+  border-radius: var(--radius-md);
+  border: 1px solid var(--color-gray-light);
+  background: white;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: background var(--transition-fast), color var(--transition-fast);
+}
+
+.btn-icon:hover {
+  background: var(--color-gray-50);
+  color: var(--color-success);
+}

@@ -8,7 +8,7 @@ const Navbar = () => {
 
     const handleLogout = () => {
         logout();
-        navigate('/login');
+        navigate('/');
     };
 
     return (
@@ -25,6 +25,7 @@ const Navbar = () => {
                                 <Link to="/student/applications" className="nav-link">My Applications</Link>
                                 <Link to="/student/profile" className="nav-link">Profile</Link>
                                 <Link to="/student/cv-generator" className="nav-link">CV Generator</Link>
+                                <Link to="/job-matching/practice-interview" className="nav-link">Practice Interview</Link>
                             </>
                         )}
                         {user.role === 'employer' && (
