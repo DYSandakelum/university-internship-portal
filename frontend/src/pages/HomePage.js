@@ -27,6 +27,9 @@ const HomePage = () => {
                         <Link to="/login" className="btn btn-outline btn-lg">
                             Login →
                         </Link>
+                        <Link to="/home" className="btn btn-outline btn-lg">
+                            Review
+                        </Link>
                     </div>
                 </div>
             </div>

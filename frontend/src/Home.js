@@ -4,422 +4,326 @@ import { Link } from 'react-router-dom';
 function Home() {
   const [companies, setCompanies] = useState([]);
 
-  // Load companies from localStorage
   useEffect(() => {
-    loadCompanies();
-  }, []);
-
-  const loadCompanies = () => {
-    // Load from localStorage
     const savedCompanies = JSON.parse(localStorage.getItem('companies') || '[]');
-    
-    // Default companies if no data
     const defaultCompanies = [
       { "_id": "1", "companyName": "Tech Solutions Lanka", "averageRating": 4.5, "totalReviews": 128, "industry": "Software", "location": "Colombo" },
       { "_id": "2", "companyName": "Eco Farms", "averageRating": 4.2, "totalReviews": 56, "industry": "Agriculture", "location": "Kandy" },
       { "_id": "3", "companyName": "Rapid Travels", "averageRating": 3.8, "totalReviews": 23, "industry": "Travel", "location": "Colombo" },
       { "_id": "4", "companyName": "CodeGen Innovations", "averageRating": 4.8, "totalReviews": 92, "industry": "AI/ML", "location": "Negombo" }
     ];
-    
-    const allCompanies = [...defaultCompanies, ...savedCompanies];
-    setCompanies(allCompanies);
+    setCompanies([...defaultCompanies, ...savedCompanies]);
+  }, []);
+
+  const totalReviews = companies.reduce((sum, c) => sum + (c.totalReviews || 0), 0);
+  const averageRating = (companies.reduce((sum, c) => sum + (c.averageRating || 0), 0) / companies.length || 0).toFixed(1);
+
+  const colors = {
+    purpleStart: '#667eea',
+    purpleEnd: '#764ba2',
+    greenStart: '#4CAF50',
+    greenEnd: '#45a049',
+    blueStart: '#2196F3',
+    blueEnd: '#1976D2',
+    orangeStart: '#FF9800',
+    orangeEnd: '#F57C00',
+    text: '#2d3748',
+    muted: '#718096',
+    border: '#e2e8f0',
+    bg: '#f7f9fc'
   };
 
-  // Styles
   const styles = {
+    page: {
+      background: `radial-gradient(circle at 10% 5%, rgba(102,126,234,0.12), transparent 30%), ${colors.bg}`,
+      minHeight: '100vh',
+      padding: '28px 16px'
+    },
     container: {
       maxWidth: '1200px',
-      margin: '0 auto',
-      padding: '20px'
+      margin: '0 auto'
     },
-    headerCard: {
-      background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
-      borderRadius: '20px',
-      padding: '60px 40px',
-      color: 'white',
-      textAlign: 'center',
-      marginBottom: '40px',
-      boxShadow: '0 10px 30px rgba(0,0,0,0.2)'
+    hero: {
+      background: `linear-gradient(135deg, ${colors.purpleStart} 0%, ${colors.purpleEnd} 100%)`,
+      borderRadius: '22px',
+      padding: '54px 36px',
+      color: '#fff',
+      marginBottom: '34px',
+      boxShadow: '0 18px 40px rgba(89, 104, 213, 0.28)'
     },
-    headerTitle: {
-      fontSize: '3rem',
-      fontWeight: 'bold',
-      marginBottom: '20px',
-      textShadow: '2px 2px 4px rgba(0,0,0,0.3)'
+    heroTitle: {
+      fontSize: '2.7rem',
+      fontWeight: 800,
+      margin: '0 0 10px'
     },
-    headerText: {
-      fontSize: '1.3rem',
-      marginBottom: '30px',
-      opacity: 0.95
+    heroText: {
+      maxWidth: '760px',
+      fontSize: '1.1rem',
+      lineHeight: 1.65,
+      opacity: 0.95,
+      marginBottom: '26px'
     },
-    buttonGroup: {
+    heroButtons: {
       display: 'flex',
-      gap: '20px',
-      justifyContent: 'center',
+      gap: '14px',
       flexWrap: 'wrap'
     },
-    primaryButton: {
-      background: 'white',
-      color: '#667eea',
-      padding: '15px 40px',
-      borderRadius: '50px',
+    cta: {
+      padding: '12px 22px',
+      borderRadius: '999px',
       textDecoration: 'none',
-      fontWeight: 'bold',
-      fontSize: '1.1rem',
-      transition: 'all 0.3s ease',
-      boxShadow: '0 4px 15px rgba(0,0,0,0.2)'
+      fontWeight: 700,
+      fontSize: '0.96rem',
+      border: '1px solid rgba(255,255,255,0.3)',
+      color: '#fff',
+      background: 'rgba(255,255,255,0.14)',
+      backdropFilter: 'blur(2px)'
     },
-    successButton: {
-      background: '#4CAF50',
-      color: 'white',
-      padding: '15px 40px',
-      borderRadius: '50px',
+    ctaSolid: {
+      padding: '12px 22px',
+      borderRadius: '999px',
       textDecoration: 'none',
-      fontWeight: 'bold',
-      fontSize: '1.1rem',
-      transition: 'all 0.3s ease',
-      boxShadow: '0 4px 15px rgba(0,0,0,0.2)'
+      fontWeight: 700,
+      fontSize: '0.96rem',
+      color: colors.purpleStart,
+      background: '#fff',
+      border: '1px solid #fff'
+    },
+    heroStats: {
+      marginTop: '22px',
+      display: 'grid',
+      gridTemplateColumns: 'repeat(auto-fit, minmax(160px, 1fr))',
+      gap: '10px'
+    },
+    heroStatCard: {
+      background: 'rgba(255,255,255,0.12)',
+      border: '1px solid rgba(255,255,255,0.25)',
+      borderRadius: '12px',
+      padding: '12px'
     },
     sectionTitle: {
-      textAlign: 'center',
-      fontSize: '2.5rem',
-      color: '#333',
-      marginBottom: '40px',
-      position: 'relative'
+      margin: '0 0 8px',
+      fontSize: '2rem',
+      color: colors.text,
+      textAlign: 'center'
     },
-    gridContainer: {
+    sectionSubtitle: {
+      margin: '0 0 24px',
+      color: colors.muted,
+      textAlign: 'center'
+    },
+    grid: {
       display: 'grid',
-      gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))',
-      gap: '30px',
-      marginBottom: '50px'
+      gridTemplateColumns: 'repeat(auto-fit, minmax(270px, 1fr))',
+      gap: '20px',
+      marginBottom: '34px'
     },
     card: {
-      background: 'white',
-      borderRadius: '15px',
+      background: '#fff',
+      border: `1px solid ${colors.border}`,
+      borderRadius: '14px',
       overflow: 'hidden',
-      boxShadow: '0 5px 20px rgba(0,0,0,0.1)',
-      transition: 'transform 0.3s ease',
-      cursor: 'pointer'
-    },
-    cardHeader: {
-      background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
-      color: 'white',
-      padding: '25px',
-      textAlign: 'center'
-    },
-    cardHeaderGreen: {
-      background: 'linear-gradient(135deg, #4CAF50 0%, #45a049 100%)',
-      color: 'white',
-      padding: '25px',
-      textAlign: 'center'
-    },
-    cardHeaderBlue: {
-      background: 'linear-gradient(135deg, #2196F3 0%, #1976D2 100%)',
-      color: 'white',
-      padding: '25px',
-      textAlign: 'center'
-    },
-    cardHeaderOrange: {
-      background: 'linear-gradient(135deg, #FF9800 0%, #F57C00 100%)',
-      color: 'white',
-      padding: '25px',
-      textAlign: 'center'
+      boxShadow: '0 8px 24px rgba(15, 23, 42, 0.06)',
+      transition: 'transform 0.25s ease, box-shadow 0.25s ease'
     },
     cardBody: {
-      padding: '25px'
+      padding: '20px'
+    },
+    cardTitle: {
+      margin: '0 0 8px',
+      color: colors.text,
+      fontSize: '1.15rem'
     },
     cardText: {
-      color: '#666',
-      lineHeight: '1.6',
-      marginBottom: '20px',
-      minHeight: '60px'
+      color: colors.muted,
+      lineHeight: 1.6,
+      minHeight: '58px',
+      marginBottom: '14px'
     },
-    cardButton: {
+    cardAction: {
       display: 'inline-block',
       width: '100%',
-      padding: '12px',
-      borderRadius: '8px',
+      textAlign: 'center',
+      color: '#fff',
       textDecoration: 'none',
-      textAlign: 'center',
-      fontWeight: 'bold',
-      transition: 'all 0.3s ease',
-      border: 'none',
-      cursor: 'pointer'
+      borderRadius: '10px',
+      padding: '11px 12px',
+      fontWeight: 700
     },
-    statsContainer: {
+    statsRow: {
       display: 'grid',
-      gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))',
-      gap: '20px',
-      marginTop: '50px'
+      gridTemplateColumns: 'repeat(auto-fit, minmax(180px, 1fr))',
+      gap: '16px'
     },
-    statCard: {
-      background: 'white',
-      padding: '30px',
-      borderRadius: '15px',
+    statTile: {
+      background: '#fff',
+      border: `1px solid ${colors.border}`,
+      borderRadius: '12px',
       textAlign: 'center',
-      boxShadow: '0 5px 15px rgba(0,0,0,0.08)'
-    },
-    statNumber: {
-      fontSize: '2.5rem',
-      fontWeight: 'bold',
-      color: '#667eea',
-      marginBottom: '10px'
-    },
-    statLabel: {
-      color: '#666',
-      fontSize: '1rem'
+      padding: '20px',
+      boxShadow: '0 5px 16px rgba(15, 23, 42, 0.05)'
     }
   };
 
+  const headerStyle = (start, end) => ({
+    background: `linear-gradient(135deg, ${start} 0%, ${end} 100%)`,
+    color: '#fff',
+    padding: '18px 20px'
+  });
+
   return (
-    <div style={styles.container}>
-      {/* Header Section */}
-      <div style={styles.headerCard}>
-        <h1 style={styles.headerTitle}>Company Reviews System</h1>
-        <p style={styles.headerText}>
-          Find and review companies, share your interview experiences!
-        </p>
-        <div style={styles.buttonGroup}>
-          <Link to="/employers" style={styles.primaryButton}>
-            View Companies
-          </Link>
-          <Link to="/add-employer" style={styles.successButton}>
-            Add New Company
-          </Link>
-        </div>
-      </div>
+    <div style={styles.page}>
+      <div style={styles.container}>
+        <section style={styles.hero}>
+          <h1 style={styles.heroTitle}>Company Reviews Hub</h1>
+          <p style={styles.heroText}>
+            Discover companies, read trusted internship experiences, and contribute your own reviews with a clean, structured platform.
+          </p>
 
-      {/* Features Section */}
-      <h2 style={styles.sectionTitle}>Features</h2>
-      <div style={styles.gridContainer}>
-        {/* Browse Companies Card */}
-        <div 
-          style={styles.card}
-          onMouseEnter={(e) => e.currentTarget.style.transform = 'translateY(-10px)'}
-          onMouseLeave={(e) => e.currentTarget.style.transform = 'translateY(0)'}
-        >
-          <div style={styles.cardHeader}>
-            <h3 style={{ fontSize: '1.8rem', margin: 0 }}>📋</h3>
-            <h3 style={{ margin: '10px 0 0 0' }}>Browse Companies</h3>
+          <div style={styles.heroButtons}>
+            <Link to="/employers" style={styles.ctaSolid}>View Companies</Link>
+            <Link to="/student/AddReviews" style={styles.cta}>Write a Review</Link>
+            <Link to="/analytics" style={styles.cta}>Open Analytics</Link>
           </div>
-          <div style={styles.cardBody}>
-            <p style={styles.cardText}>
-              View all companies with their details, ratings, and reviews. Find the best places to work!
-            </p>
-            <Link 
-              to="/employers" 
-              style={{
-                ...styles.cardButton,
-                background: '#667eea',
-                color: 'white'
+
+          <div style={styles.heroStats}>
+            <div style={styles.heroStatCard}>
+              <div style={{ fontSize: '1.5rem', fontWeight: 800 }}>{companies.length}</div>
+              <div style={{ opacity: 0.9 }}>Companies</div>
+            </div>
+            <div style={styles.heroStatCard}>
+              <div style={{ fontSize: '1.5rem', fontWeight: 800 }}>{totalReviews}</div>
+              <div style={{ opacity: 0.9 }}>Total Reviews</div>
+            </div>
+            <div style={styles.heroStatCard}>
+              <div style={{ fontSize: '1.5rem', fontWeight: 800 }}>{averageRating}</div>
+              <div style={{ opacity: 0.9 }}>Average Rating</div>
+            </div>
+          </div>
+        </section>
+
+        <section>
+          <h2 style={styles.sectionTitle}>Core Actions</h2>
+          <p style={styles.sectionSubtitle}>Everything you need in one unified workspace.</p>
+
+          <div style={styles.grid}>
+            <article
+              style={styles.card}
+              onMouseEnter={(e) => {
+                e.currentTarget.style.transform = 'translateY(-6px)';
+                e.currentTarget.style.boxShadow = '0 12px 26px rgba(15, 23, 42, 0.12)';
               }}
-              onMouseEnter={(e) => e.target.style.background = '#5a67d8'}
-              onMouseLeave={(e) => e.target.style.background = '#667eea'}
-            >
-              Browse Companies →
-            </Link>
-          </div>
-        </div>
-
-        {/* Add Reviews Card */}
-        <div 
-          style={styles.card}
-          onMouseEnter={(e) => e.currentTarget.style.transform = 'translateY(-10px)'}
-          onMouseLeave={(e) => e.currentTarget.style.transform = 'translateY(0)'}
-        >
-          <div style={styles.cardHeaderGreen}>
-            <h3 style={{ fontSize: '1.8rem', margin: 0 }}>⭐</h3>
-            <h3 style={{ margin: '10px 0 0 0' }}>Add Reviews</h3>
-          </div>
-          <div style={styles.cardBody}>
-            <p style={styles.cardText}>
-              Share your experience by adding ratings and reviews. Help others make informed decisions!
-            </p>
-            
-            <Link
-              to="/all-reviews"
-              style={{
-                ...styles.cardButton,
-                background: '#4CAF50',
-                color: 'white',
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'center',
-                gap: '10px',
-                fontSize: '1.1rem',
-                padding: '15px'
+              onMouseLeave={(e) => {
+                e.currentTarget.style.transform = 'translateY(0)';
+                e.currentTarget.style.boxShadow = '0 8px 24px rgba(15, 23, 42, 0.06)';
               }}
-              onMouseEnter={(e) => e.target.style.background = '#45a049'}
-              onMouseLeave={(e) => e.target.style.background = '#4CAF50'}
             >
-              <span>✏️</span>
-              Write a Review
-              <span>→</span>
-            </Link>
-
-            <p style={{ textAlign: 'center', marginTop: '15px', color: '#999', fontSize: '0.9rem' }}>
-              {companies.length} companies available for review
-            </p>
-          </div>
-        </div>
-
-        {/* Add Companies Card */}
-        <div 
-          style={styles.card}
-          onMouseEnter={(e) => e.currentTarget.style.transform = 'translateY(-10px)'}
-          onMouseLeave={(e) => e.currentTarget.style.transform = 'translateY(0)'}
-        >
-          <div style={styles.cardHeaderBlue}>
-            <h3 style={{ fontSize: '1.8rem', margin: 0 }}>🏢</h3>
-            <h3 style={{ margin: '10px 0 0 0' }}>Add Companies</h3>
-          </div>
-          <div style={styles.cardBody}>
-            <p style={styles.cardText}>
-              Contribute by adding new companies to the platform. Help build our community!
-            </p>
-            <Link 
-              to="/add-employer" 
-              style={{
-                ...styles.cardButton,
-                background: '#2196F3',
-                color: 'white'
-              }}
-              onMouseEnter={(e) => e.target.style.background = '#1976D2'}
-              onMouseLeave={(e) => e.target.style.background = '#2196F3'}
-            >
-              Add Company →
-            </Link>
-          </div>
-        </div>
-
-        {/* View All Reviews Card */}
-        <div 
-          style={styles.card}
-          onMouseEnter={(e) => e.currentTarget.style.transform = 'translateY(-10px)'}
-          onMouseLeave={(e) => e.currentTarget.style.transform = 'translateY(0)'}
-        >
-          <div style={styles.cardHeaderOrange}>
-            <h3 style={{ fontSize: '1.8rem', margin: 0 }}>📊</h3>
-            <h3 style={{ margin: '10px 0 0 0' }}>All Reviews</h3>
-          </div>
-          <div style={styles.cardBody}>
-            <p style={styles.cardText}>
-              Browse through all reviews. See what people are saying about different companies!
-            </p>
-            
-            <Link 
-              to="/company-reviews" 
-              style={{
-                ...styles.cardButton,
-                background: '#FF9800',
-                color: 'white',
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'center',
-                gap: '10px'
-              }}
-              onMouseEnter={(e) => e.target.style.background = '#F57C00'}
-              onMouseLeave={(e) => e.target.style.background = '#FF9800'}
-            >
-              <span>📊</span>
-              View All Reviews
-              <span>→</span>
-            </Link>
-
-            <p style={{ 
-              textAlign: 'center', 
-              marginTop: '15px', 
-              color: '#999', 
-              fontSize: '0.9rem' 
-            }}>
-              {companies.reduce((sum, c) => sum + (c.totalReviews || 0), 0)} reviews from all companies
-            </p>
-          </div>
-        </div>
-      </div>
-
-      {/* Quick Actions Section */}
-      <h2 style={styles.sectionTitle}>Quick Actions</h2>
-      <div style={styles.gridContainer}>
-        <div style={styles.card}>
-          <div style={styles.cardBody}>
-            <h3 style={{ color: '#667eea', marginBottom: '15px' }}>Popular Companies</h3>
-            {companies.slice(0, 3).map(company => (
-              <div key={company._id} style={{ marginBottom: '10px' }}>
-                <Link 
-                  to={`/employer/${company._id}`}
-                  style={{ 
-                    color: '#333', 
-                    textDecoration: 'none',
-                    display: 'block',
-                    padding: '8px',
-                    borderRadius: '5px',
-                    transition: 'background 0.3s'
-                  }}
-                  onMouseEnter={(e) => e.target.style.background = '#f5f5f5'}
-                  onMouseLeave={(e) => e.target.style.background = 'transparent'}
-                >
-                  <strong>{company.companyName}</strong>
-                  <small style={{ float: 'right', color: '#f1c40f' }}>
-                    ⭐ {company.averageRating?.toFixed(1) || '0.0'}
-                  </small>
-                </Link>
+              <div style={headerStyle(colors.purpleStart, colors.purpleEnd)}>
+                <h3 style={{ margin: 0 }}>Browse Companies</h3>
               </div>
-            ))}
-          </div>
-        </div>
+              <div style={styles.cardBody}>
+                <p style={styles.cardText}>Explore companies with ratings, locations, and review details.</p>
+                <Link to="/employers" style={{ ...styles.cardAction, background: colors.purpleStart }}>Open Company List</Link>
+              </div>
+            </article>
 
-        <div style={styles.card}>
-          <div style={styles.cardBody}>
-            <h3 style={{ color: '#4CAF50', marginBottom: '15px' }}>Need Help?</h3>
-            <p style={{ color: '#666', marginBottom: '20px' }}>
-              Check out our guides on how to write effective reviews and add companies.
-            </p>
-            <Link 
-              to="/employers" 
-              style={{
-                ...styles.cardButton,
-                background: '#4CAF50',
-                color: 'white',
-                width: 'auto',
-                padding: '10px 20px'
+            <article
+              style={styles.card}
+              onMouseEnter={(e) => {
+                e.currentTarget.style.transform = 'translateY(-6px)';
+                e.currentTarget.style.boxShadow = '0 12px 26px rgba(15, 23, 42, 0.12)';
+              }}
+              onMouseLeave={(e) => {
+                e.currentTarget.style.transform = 'translateY(0)';
+                e.currentTarget.style.boxShadow = '0 8px 24px rgba(15, 23, 42, 0.06)';
               }}
             >
-              Learn More →
-            </Link>
-          </div>
-        </div>
+              <div style={headerStyle(colors.greenStart, colors.greenEnd)}>
+                <h3 style={{ margin: 0 }}>Add Review</h3>
+              </div>
+              <div style={styles.cardBody}>
+                <p style={styles.cardText}>Submit structured internship feedback to help future students.</p>
+                <Link to="/student/AddReviews" style={{ ...styles.cardAction, background: colors.greenStart }}>Write Review</Link>
+              </div>
+            </article>
 
-        <div style={styles.card}>
-          <div style={styles.cardBody}>
-            <h3 style={{ color: '#FF9800', marginBottom: '15px' }}>Statistics</h3>
-            <p style={{ color: '#666' }}>
-              Total Companies: {companies.length}<br />
-              Total Reviews: {companies.reduce((sum, c) => sum + (c.totalReviews || 0), 0)}<br />
-              Average Rating: {(companies.reduce((sum, c) => sum + (c.averageRating || 0), 0) / companies.length || 0).toFixed(1)}
-            </p>
-          </div>
-        </div>
-      </div>
+            <article
+              style={styles.card}
+              onMouseEnter={(e) => {
+                e.currentTarget.style.transform = 'translateY(-6px)';
+                e.currentTarget.style.boxShadow = '0 12px 26px rgba(15, 23, 42, 0.12)';
+              }}
+              onMouseLeave={(e) => {
+                e.currentTarget.style.transform = 'translateY(0)';
+                e.currentTarget.style.boxShadow = '0 8px 24px rgba(15, 23, 42, 0.06)';
+              }}
+            >
+              <div style={headerStyle(colors.blueStart, colors.blueEnd)}>
+                <h3 style={{ margin: 0 }}>Add Company</h3>
+              </div>
+              <div style={styles.cardBody}>
+                <p style={styles.cardText}>Contribute new company records and expand the review ecosystem.</p>
+                <Link to="/add-employer" style={{ ...styles.cardAction, background: colors.blueStart }}>Create Company</Link>
+              </div>
+            </article>
 
-      {/* Stats Section */}
-      <div style={styles.statsContainer}>
-        <div style={styles.statCard}>
-          <div style={styles.statNumber}>{companies.length}</div>
-          <div style={styles.statLabel}>Total Companies</div>
-        </div>
-        <div style={styles.statCard}>
-          <div style={styles.statNumber}>
-            {companies.reduce((sum, c) => sum + (c.totalReviews || 0), 0)}
+            <article
+              style={styles.card}
+              onMouseEnter={(e) => {
+                e.currentTarget.style.transform = 'translateY(-6px)';
+                e.currentTarget.style.boxShadow = '0 12px 26px rgba(15, 23, 42, 0.12)';
+              }}
+              onMouseLeave={(e) => {
+                e.currentTarget.style.transform = 'translateY(0)';
+                e.currentTarget.style.boxShadow = '0 8px 24px rgba(15, 23, 42, 0.06)';
+              }}
+            >
+              <div style={headerStyle(colors.orangeStart, colors.orangeEnd)}>
+                <h3 style={{ margin: 0 }}>All Reviews</h3>
+              </div>
+              <div style={styles.cardBody}>
+                <p style={styles.cardText}>Read all reviews, compare experiences, and spot quality trends.</p>
+                <Link to="/student/AllReviews" style={{ ...styles.cardAction, background: colors.orangeStart }}>View Reviews</Link>
+              </div>
+            </article>
           </div>
-          <div style={styles.statLabel}>Total Reviews</div>
-        </div>
-        <div style={styles.statCard}>
-          <div style={styles.statNumber}>
-            {(companies.reduce((sum, c) => sum + (c.averageRating || 0), 0) / companies.length || 0).toFixed(1)}
+        </section>
+
+        <section>
+          <h2 style={styles.sectionTitle}>Performance Snapshot</h2>
+          <p style={styles.sectionSubtitle}>A quick health view of the review platform.</p>
+
+          <div style={styles.statsRow}>
+            <div style={styles.statTile}>
+              <div style={{ fontSize: '2rem', fontWeight: 800, color: colors.purpleStart }}>{companies.length}</div>
+              <div style={{ color: colors.muted }}>Total Companies</div>
+            </div>
+            <div style={styles.statTile}>
+              <div style={{ fontSize: '2rem', fontWeight: 800, color: colors.greenStart }}>{totalReviews}</div>
+              <div style={{ color: colors.muted }}>Total Reviews</div>
+            </div>
+            <div style={styles.statTile}>
+              <div style={{ fontSize: '2rem', fontWeight: 800, color: colors.orangeStart }}>{averageRating}</div>
+              <div style={{ color: colors.muted }}>Average Rating</div>
+            </div>
+            <div style={styles.statTile}>
+              <Link
+                to="/analytics"
+                style={{
+                  ...styles.cardAction,
+                  width: 'auto',
+                  display: 'inline-block',
+                  padding: '10px 16px',
+                  background: colors.purpleStart,
+                  marginBottom: '8px'
+                }}
+              >
+                Open Analytics
+              </Link>
+              <div style={{ color: colors.muted, fontSize: '0.92rem' }}>View detailed charts and trends</div>
+            </div>
           </div>
-          <div style={styles.statLabel}>Average Rating</div>
-        </div>
+        </section>
       </div>
     </div>
   );

@@ -1,12 +1,39 @@
 const express = require('express');
 const router = express.Router();
-const Review = require('../models/review');
+const mongoose = require('mongoose');
+const Review = require('../models/Review');
 const Employer = require('../models/Employer');
+
+// @desc    Get all reviews
+// @route   GET /api/reviews
+router.get('/', async (req, res) => {
+  try {
+    const reviews = await Review.find().sort({ createdAt: -1 });
+
+    res.json({
+      success: true,
+      count: reviews.length,
+      data: reviews
+    });
+  } catch (error) {
+    res.status(500).json({
+      success: false,
+      message: error.message
+    });
+  }
+});
 
 // @desc    Get reviews by company ID
 // @route   GET /api/reviews/company/:companyId
 router.get('/company/:companyId', async (req, res) => {
   try {
+    if (!mongoose.Types.ObjectId.isValid(req.params.companyId)) {
+      return res.status(400).json({
+        success: false,
+        message: 'Invalid companyId format'
+      });
+    }
+
     const reviews = await Review.find({ companyId: req.params.companyId })
       .sort({ createdAt: -1 });
     

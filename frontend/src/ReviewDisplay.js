@@ -1,8 +1,10 @@
 import React, { useState, useEffect } from 'react';
 import { useParams, Link } from 'react-router-dom';
+import { appTheme } from './styles/theme';
 
 function ReviewDisplay() {
   const { companyId } = useParams();
+  const theme = appTheme;
 
   const [reviews, setReviews] = useState([]);
   const [companyName, setCompanyName] = useState('');
@@ -93,7 +95,7 @@ function ReviewDisplay() {
     <div style={{ maxWidth: '1000px', margin: '40px auto', padding: '20px' }}>
       {/* Header Card */}
       <div style={{
-        background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
+        background: `linear-gradient(135deg, ${theme.primary} 0%, ${theme.primaryDark} 100%)`,
         borderRadius: '20px',
         padding: '40px',
         color: 'white',
@@ -125,7 +127,7 @@ function ReviewDisplay() {
             style={{
               marginLeft: 'auto',
               background: 'white',
-              color: '#667eea',
+              color: theme.primary,
               padding: '12px 24px',
               borderRadius: '30px',
               textDecoration: 'none',
@@ -162,7 +164,7 @@ function ReviewDisplay() {
           <option value="highest">Highest Rating</option>
           <option value="lowest">Lowest Rating</option>
         </select>
-        <Link to="/employers" style={{ color: '#667eea', textDecoration: 'none', fontWeight: 'bold' }}>
+        <Link to="/company-reviews" style={{ color: theme.primary, textDecoration: 'none', fontWeight: 'bold' }}>
           ← Back to Companies
         </Link>
       </div>
@@ -185,7 +187,7 @@ function ReviewDisplay() {
             style={{
               display: 'inline-block',
               padding: '12px 30px',
-              background: '#667eea',
+              background: theme.primary,
               color: 'white',
               textDecoration: 'none',
               borderRadius: '30px',
