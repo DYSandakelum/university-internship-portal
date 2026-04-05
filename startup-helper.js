@@ -3,6 +3,7 @@ const { spawn } = require('child_process');
 const path = require('path');
 
 const BACKEND_PORT = Number.parseInt(process.env.BACKEND_PORT, 10) || 5000;
+const BACKEND_HOST = process.env.BACKEND_HOST || '127.0.0.1';
 const FRONTEND_DEFAULT_PORT = 3010;
 
 const RETRY_INTERVAL = 1000; // 1 second
@@ -24,7 +25,8 @@ const backendProcess = spawn('npm', ['--prefix', 'backend', 'run', 'dev'], {
 function checkBackendReady() {
     return new Promise((resolve) => {
         const options = {
-            hostname: 'localhost',
+            hostname: BACKEND_HOST,
+            family: 4,
             port: BACKEND_PORT,
             path: '/',
             method: 'GET',
