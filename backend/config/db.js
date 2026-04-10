@@ -10,7 +10,9 @@ const shouldFallbackToInMemory = (error, mongoUri) => {
     if (enabled) return true;
 
     // Implicit fallback only in development when targeting localhost.
-    if (process.env.NODE_ENV !== 'development') return false;
+    // On some dev setups (especially Windows), NODE_ENV may be unset; treat it as development.
+    const nodeEnv = String(process.env.NODE_ENV || 'development').toLowerCase();
+    if (nodeEnv !== 'development') return false;
 
     const isLocalMongo =
         typeof mongoUri === 'string' &&

@@ -18,7 +18,13 @@ console.log('🚀 Starting CareerSync Backend...');
 const backendProcess = spawn('npm', ['--prefix', 'backend', 'run', 'dev'], {
     stdio: 'inherit',
     shell: true,
-    cwd: __dirname
+    cwd: __dirname,
+    env: {
+        ...process.env,
+        // Ensure dev defaults for the backend when using the workspace dev script.
+        // This enables the in-memory DB fallback in `backend/config/db.js` when local Mongo isn't running.
+        NODE_ENV: process.env.NODE_ENV || 'development'
+    }
 });
 
 // Function to check if backend is ready
@@ -92,7 +98,9 @@ async function startFrontend() {
             cwd: __dirname,
             env: {
                 ...process.env,
-                PORT: String(frontendPort)
+                PORT: String(frontendPort),
+                // CRA respects this env var; default to Chrome per request.
+                BROWSER: process.env.BROWSER || 'chrome'
             }
         });
 
