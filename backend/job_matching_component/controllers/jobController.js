@@ -43,8 +43,9 @@ const searchJobs = async (req, res) => {
             ];
         }
 
-        if (jobType && ['Internship', 'Part-time'].includes(jobType)) {
-            filter.jobType = jobType;
+        const allowedJobTypes = ['Full-time', 'Part-time', 'Remote', 'Internship'];
+        if (jobType && allowedJobTypes.includes(String(jobType))) {
+            filter.jobType = String(jobType);
         }
 
         if (location && String(location).trim()) {

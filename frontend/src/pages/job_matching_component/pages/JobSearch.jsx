@@ -161,7 +161,7 @@ export default function JobSearch() {
             case 'salary-low':
                 return sorted.sort((a, b) => (a.salary || 0) - (b.salary || 0));
             case 'deadline':
-                return sorted.sort((a, b) => new Date(a.applicationDeadline || '9999-12-31') - new Date(b.applicationDeadline || '9999-12-31'));
+                return sorted.sort((a, b) => new Date(a.deadline || a.applicationDeadline || '9999-12-31') - new Date(b.deadline || b.applicationDeadline || '9999-12-31'));
             default:
                 return sorted;
         }
