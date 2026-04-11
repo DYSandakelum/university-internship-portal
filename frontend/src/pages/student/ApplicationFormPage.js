@@ -33,12 +33,8 @@ const ApplicationFormPage = () => {
 
     const handleNext = () => {
         setError('');
-        if (currentStep === 1 && !resume) {
-            return setError('Please upload your resume to continue');
-        }
-        if (currentStep === 2 && coverLetter.length < 100) {
-            return setError(`Cover letter needs ${100 - coverLetter.length} more characters`);
-        }
+        if (currentStep === 1 && !resume) return setError('Please upload your resume to continue');
+        if (currentStep === 2 && coverLetter.length < 100) return setError(`Cover letter needs ${100 - coverLetter.length} more characters`);
         setCurrentStep(prev => prev + 1);
     };
 
@@ -69,7 +65,6 @@ const ApplicationFormPage = () => {
         </div>
     );
 
-    // Success State
     if (submitted) return (
         <div className="page-wrapper">
             <Navbar />
@@ -78,11 +73,10 @@ const ApplicationFormPage = () => {
                     <div style={styles.successIcon}>✓</div>
                     <h2 style={styles.successTitle}>Application Submitted!</h2>
                     <p style={styles.successSubtitle}>
-                        Your application for <strong>{job?.title}</strong> at <strong>{job?.company}</strong> has been submitted successfully.
-                        You'll receive updates via email.
+                        Your application for <strong>{job?.title}</strong> at <strong>{job?.company}</strong> has been submitted successfully. You'll receive updates via email.
                     </p>
                     <button onClick={() => navigate('/student/applications')}
-                        className="btn btn-primary btn-lg">
+                        className="btn btn-amber btn-lg">
                         View My Applications →
                     </button>
                 </div>
@@ -94,15 +88,15 @@ const ApplicationFormPage = () => {
         <div className="page-wrapper">
             <Navbar />
 
-            {/* Page Banner */}
-            <div className="page-banner">
-                <h1 className="page-banner-title">Apply for Internship</h1>
-                <p className="page-banner-subtitle">
-                    {job?.title} at {job?.company}
-                </p>
+            {/* Page Header */}
+            <div style={styles.pageHeader}>
+                <div style={styles.pageHeaderInner}>
+                    <h1 style={styles.pageTitle}>Apply for Internship</h1>
+                    <p style={styles.pageSubtitle}>{job?.title} at {job?.company}</p>
+                </div>
             </div>
 
-            <div style={styles.formWrapper}>
+            <div style={styles.formOuter}>
                 <div style={styles.formCard}>
 
                     {/* Step Indicator */}
@@ -124,15 +118,15 @@ const ApplicationFormPage = () => {
                         ))}
                     </div>
 
-                    <div style={styles.divider}></div>
+                    <div className="divider"></div>
 
-                    {error && <div className="alert alert-error" style={{marginBottom: '16px'}}>⚠️ {error}</div>}
+                    {error && <div className="alert alert-error">⚠️ {error}</div>}
 
                     {/* Step 0 — Job Details */}
                     {currentStep === 0 && job && (
                         <div style={styles.stepContent}>
                             <h3 style={styles.stepTitle}>Confirm Job Details</h3>
-                            <div style={styles.jobDetails}>
+                            <div style={styles.detailsList}>
                                 {[
                                     {label: 'Position', value: job.title},
                                     {label: 'Company', value: job.company},
@@ -140,7 +134,7 @@ const ApplicationFormPage = () => {
                                     {label: 'Type', value: job.type},
                                     {label: 'Deadline', value: new Date(job.deadline).toLocaleDateString()}
                                 ].map((d, i) => (
-                                    <div key={i} style={styles.detailRow}>
+                                    <div key={i} style={styles.detailItem}>
                                         <span style={styles.detailLabel}>{d.label}</span>
                                         <span style={styles.detailValue}>{d.value}</span>
                                     </div>
@@ -160,16 +154,16 @@ const ApplicationFormPage = () => {
                                     style={{display: 'none'}} id="resume" />
                                 <label htmlFor="resume" className="upload-label">
                                     {resume ? (
-                                        <span style={{color: 'var(--success-dark)'}}>✅ {resume.name}</span>
+                                        <span style={{color: '#16a34a'}}>✅ {resume.name}</span>
                                     ) : (
                                         <>
                                             <span style={{fontSize: '32px', display: 'block', marginBottom: '8px'}}>📎</span>
                                             <span>Click to upload your resume</span>
+                                            <p style={{fontSize: '12px', color: '#9CA3AF', marginTop: '4px', fontWeight: '400'}}>PDF, DOC, DOCX — Max 5MB</p>
                                         </>
                                     )}
                                 </label>
                             </div>
-                            <p className="form-hint" style={{marginTop: '8px'}}>Accepted: PDF, DOC, DOCX — Max 5MB</p>
                         </div>
                     )}
 
@@ -179,11 +173,11 @@ const ApplicationFormPage = () => {
                             <h3 style={styles.stepTitle}>Write Your Cover Letter</h3>
                             <p style={styles.stepDesc}>Explain why you're a great fit for this role (min. 100 characters)</p>
                             <textarea value={coverLetter} onChange={(e) => setCoverLetter(e.target.value)}
-                                placeholder="Dear Hiring Manager,&#10;&#10;I am writing to express my strong interest in this internship position..."
+                                placeholder="Dear Hiring Manager,&#10;&#10;I am writing to express my strong interest..."
                                 className="form-textarea" rows={10} style={{marginTop: '16px'}} />
                             <span style={{
-                                fontSize: '12px', fontWeight: '600', marginTop: '6px', display: 'block',
-                                color: coverLetter.length < 100 ? 'var(--danger)' : 'var(--success-dark)'
+                                fontSize: '12px', fontWeight: '600', marginTop: '4px', display: 'block',
+                                color: coverLetter.length < 100 ? '#ef4444' : '#16a34a'
                             }}>
                                 {coverLetter.length} characters
                                 {coverLetter.length < 100 && ` — ${100 - coverLetter.length} more needed`}
@@ -191,38 +185,37 @@ const ApplicationFormPage = () => {
                         </div>
                     )}
 
-                    {/* Step 3 — Review & Submit */}
+                    {/* Step 3 — Review */}
                     {currentStep === 3 && (
                         <div style={styles.stepContent}>
                             <h3 style={styles.stepTitle}>Review & Submit</h3>
                             <p style={styles.stepDesc}>Please review your application before submitting</p>
-                            <div style={styles.reviewItems}>
-                                <div style={styles.reviewItem}>
-                                    <span style={styles.reviewLabel}>Position</span>
-                                    <span style={styles.reviewValue}>{job?.title} at {job?.company}</span>
+                            <div style={styles.detailsList}>
+                                <div style={styles.detailItem}>
+                                    <span style={styles.detailLabel}>Position</span>
+                                    <span style={styles.detailValue}>{job?.title} at {job?.company}</span>
                                 </div>
-                                <div style={styles.reviewItem}>
-                                    <span style={styles.reviewLabel}>Resume</span>
-                                    <span style={{...styles.reviewValue, color: 'var(--success-dark)'}}>✅ {resume?.name}</span>
+                                <div style={styles.detailItem}>
+                                    <span style={styles.detailLabel}>Resume</span>
+                                    <span style={{...styles.detailValue, color: '#16a34a'}}>✅ {resume?.name}</span>
                                 </div>
-                                <div style={styles.reviewItem}>
-                                    <span style={styles.reviewLabel}>Cover Letter</span>
-                                    <span style={{...styles.reviewValue, color: 'var(--success-dark)'}}>✅ {coverLetter.length} characters</span>
+                                <div style={styles.detailItem}>
+                                    <span style={styles.detailLabel}>Cover Letter</span>
+                                    <span style={{...styles.detailValue, color: '#16a34a'}}>✅ {coverLetter.length} characters</span>
                                 </div>
                             </div>
                         </div>
                     )}
 
-                    {/* Navigation Buttons */}
+                    {/* Nav Buttons */}
                     <div style={styles.navButtons}>
-                        <button onClick={() => currentStep === 0 ? navigate(-1) : setCurrentStep(p => p - 1)}
+                        <button
+                            onClick={() => currentStep === 0 ? navigate(-1) : setCurrentStep(p => p - 1)}
                             className="btn btn-gray">
                             {currentStep === 0 ? '← Cancel' : '← Previous'}
                         </button>
                         {currentStep < steps.length - 1 ? (
-                            <button onClick={handleNext} className="btn btn-primary">
-                                Next →
-                            </button>
+                            <button onClick={handleNext} className="btn btn-dark">Next →</button>
                         ) : (
                             <button onClick={handleSubmit}
                                 className={`btn btn-amber ${submitting ? 'btn-disabled' : ''}`}
@@ -238,61 +231,25 @@ const ApplicationFormPage = () => {
 };
 
 const styles = {
-    formWrapper: {
-        flex: 1,
-        display: 'flex',
-        justifyContent: 'center',
-        padding: '40px 24px',
-        backgroundColor: 'var(--bg)'
-    },
-    formCard: {
-        background: '#ffffff',
-        borderRadius: '20px',
-        padding: '40px',
-        width: '100%',
-        maxWidth: '680px',
-        border: '1px solid var(--border)',
-        boxShadow: '0 4px 24px rgba(0,0,0,0.06)',
-        display: 'flex',
-        flexDirection: 'column',
-        gap: '24px'
-    },
-    divider: { height: '1px', background: 'var(--border)' },
+    pageHeader: { background: '#ffffff', borderBottom: '1px solid #E7E2D9', padding: '32px 0' },
+    pageHeaderInner: { maxWidth: '1280px', margin: '0 auto', padding: '0 48px' },
+    pageTitle: { fontSize: '24px', fontWeight: '800', color: '#1C1917', letterSpacing: '-0.3px' },
+    pageSubtitle: { fontSize: '14px', color: '#6B7280', marginTop: '4px' },
+    formOuter: { flex: 1, display: 'flex', justifyContent: 'center', padding: '40px 24px', background: '#F5F0E8' },
+    formCard: { background: '#ffffff', borderRadius: '20px', padding: '40px', width: '100%', maxWidth: '640px', border: '1px solid #E7E2D9', display: 'flex', flexDirection: 'column', gap: '24px' },
     stepContent: { display: 'flex', flexDirection: 'column', gap: '8px' },
-    stepTitle: { fontSize: '18px', fontWeight: '700', color: 'var(--text-primary)' },
-    stepDesc: { fontSize: '14px', color: 'var(--text-secondary)' },
-    jobDetails: { display: 'flex', flexDirection: 'column', gap: '0', marginTop: '8px' },
-    detailRow: {
-        display: 'flex', justifyContent: 'space-between', alignItems: 'center',
-        padding: '12px 0', borderBottom: '1px solid var(--border)'
-    },
-    detailLabel: { fontSize: '13px', color: 'var(--text-light)', fontWeight: '600' },
-    detailValue: { fontSize: '14px', color: 'var(--text-primary)', fontWeight: '500' },
-    reviewItems: { display: 'flex', flexDirection: 'column', gap: '0', marginTop: '8px' },
-    reviewItem: {
-        display: 'flex', justifyContent: 'space-between', alignItems: 'center',
-        padding: '14px 0', borderBottom: '1px solid var(--border)'
-    },
-    reviewLabel: { fontSize: '13px', color: 'var(--text-light)', fontWeight: '600' },
-    reviewValue: { fontSize: '14px', color: 'var(--text-primary)', fontWeight: '500' },
-    navButtons: { display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginTop: '8px' },
-    successWrapper: {
-        flex: 1, display: 'flex', alignItems: 'center',
-        justifyContent: 'center', padding: '40px 24px', backgroundColor: 'var(--bg)'
-    },
-    successCard: {
-        background: '#ffffff', borderRadius: '20px', padding: '56px 48px',
-        textAlign: 'center', boxShadow: '0 8px 32px rgba(0,0,0,0.08)',
-        border: '1px solid var(--border)', width: '100%', maxWidth: '480px',
-        display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '16px'
-    },
-    successIcon: {
-        width: '72px', height: '72px', borderRadius: '50%', background: 'var(--success)',
-        color: '#ffffff', fontSize: '32px', fontWeight: '700',
-        display: 'flex', alignItems: 'center', justifyContent: 'center'
-    },
-    successTitle: { fontSize: '24px', fontWeight: '800', color: 'var(--text-primary)' },
-    successSubtitle: { fontSize: '14px', color: 'var(--text-secondary)', lineHeight: '1.7', maxWidth: '340px' }
+    stepTitle: { fontSize: '18px', fontWeight: '700', color: '#1C1917' },
+    stepDesc: { fontSize: '14px', color: '#6B7280' },
+    detailsList: {},
+    detailItem: { display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '14px 0', borderBottom: '1px solid #E7E2D9' },
+    detailLabel: { fontSize: '13px', color: '#9CA3AF', fontWeight: '600' },
+    detailValue: { fontSize: '14px', color: '#1C1917', fontWeight: '500' },
+    navButtons: { display: 'flex', justifyContent: 'space-between', alignItems: 'center' },
+    successWrapper: { flex: 1, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '40px 24px', background: '#F5F0E8' },
+    successCard: { background: '#ffffff', borderRadius: '20px', padding: '56px 48px', textAlign: 'center', border: '1px solid #E7E2D9', width: '100%', maxWidth: '480px', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '16px' },
+    successIcon: { width: '72px', height: '72px', borderRadius: '50%', background: '#22c55e', color: '#ffffff', fontSize: '32px', fontWeight: '700', display: 'flex', alignItems: 'center', justifyContent: 'center' },
+    successTitle: { fontSize: '24px', fontWeight: '800', color: '#1C1917' },
+    successSubtitle: { fontSize: '14px', color: '#6B7280', lineHeight: '1.7', maxWidth: '340px' }
 };
 
 export default ApplicationFormPage;

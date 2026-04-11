@@ -167,7 +167,7 @@
   border: none;
   border-radius: 10px;
   padding: 10px 16px;
-  background: var(--primary-600);
+  background: #F59E0B;
   color: #ffffff;
   font-size: 14px;
   font-weight: 600;
@@ -180,7 +180,7 @@
 }
 
 .apply-button:hover {
-  background: var(--primary-700);
+  background: #D97706;
 }
 
 .apply-button:active {
