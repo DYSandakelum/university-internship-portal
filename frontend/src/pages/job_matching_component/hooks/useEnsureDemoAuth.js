@@ -15,11 +15,10 @@ export default function useEnsureDemoAuth() {
                 return;
             }
 
-            // Only try demo-login when explicitly enabled (or in local dev).
-            // This prevents the whole dashboard from failing when the endpoint is disabled/removed.
-            const demoEnabled =
-                String(process.env.REACT_APP_ENABLE_DEMO_LOGIN || '').toLowerCase() === 'true' ||
-                (process.env.NODE_ENV !== 'production');
+            // Only try demo-login when explicitly enabled.
+            // Implicit demo-login in development can silently switch accounts and make saved jobs
+            // appear to "disappear" after re-login.
+            const demoEnabled = String(process.env.REACT_APP_ENABLE_DEMO_LOGIN || '').toLowerCase() === 'true';
 
             if (!demoEnabled) {
                 if (!cancelled) setReady(true);

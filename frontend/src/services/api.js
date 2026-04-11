@@ -54,8 +54,7 @@ api.interceptors.response.use(
         // Handle 401 errors
         if (error.response && error.response.status === 401 && config) {
             const isDemoEnabled =
-                String(process.env.REACT_APP_ENABLE_DEMO_LOGIN || '').toLowerCase() === 'true' ||
-                process.env.NODE_ENV !== 'production';
+                String(process.env.REACT_APP_ENABLE_DEMO_LOGIN || '').toLowerCase() === 'true';
 
             const url = String(config.url || '');
             const isAuthRequest = url.includes('/auth/login') || url.includes('/auth/register') || url.includes('/auth/demo-login');
