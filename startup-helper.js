@@ -40,11 +40,9 @@ function checkBackendReady() {
         };
 
         const req = http.request(options, (res) => {
-            if (res.statusCode === 200) {
-                resolve(true);
-            } else {
-                resolve(false);
-            }
+            // Backend is considered "ready" as soon as it can accept HTTP connections.
+            // Don't require a 200 here because many APIs return 404 at '/'.
+            resolve(true);
         });
 
         req.on('error', () => {

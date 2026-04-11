@@ -2,28 +2,69 @@
 
 .jm-shell {
   min-height: 100vh;
-  background: var(--color-primary-light-bg);
-  color: var(--color-text-dark);
+  /* Module palette = Admin + Reviews (SOLID colors only) */
+  --jm-bg: #f3f6fb;              /* Reviews: pageBg */
+  --jm-surface: #ffffff;
+  --jm-primary: #1f4f7a;         /* Reviews: primary */
+  --jm-primary-deep: #173c5d;    /* Reviews: primaryDark */
+  --jm-primary-soft: #e8f0f8;    /* Reviews: primarySoft */
+  --jm-accent: #f3b63f;          /* Reviews: accent */
+  --jm-accent-deep: #d99b2b;     /* Reviews: accentDark */
+  --jm-teal: #0f766e;            /* Admin: teal */
+  --jm-teal-2: #0e7490;          /* Admin: cyan */
+  --jm-border: #d6e1ee;          /* Reviews: border */
+  --jm-text: #0f172a;            /* Admin: heading */
+  --jm-muted: #64748b;           /* Reviews: muted */
+
+  /* Extra requested solid colors */
+  --jm-danger: #db1a1a;
+  --jm-danger-soft: #fff6f6;
+  --jm-mint: #8cc7c4;
+  --jm-accent-alt: #2c687b;
+
+  /* Override design-system tokens within Job Matching only */
+  --color-bg-light: var(--jm-bg);
+  --color-gray-border: var(--jm-border);
+  --color-primary: var(--jm-primary);
+  --color-primary-dark: var(--jm-primary-deep);
+  --color-accent: var(--jm-accent-alt);
+  --color-success: var(--jm-teal);
+  --color-warning: var(--jm-accent);
+  --color-error: var(--jm-danger);
+
+  /* Replace RGBA "light bg" tokens with solid fills */
+  --color-primary-light-bg: var(--jm-primary-soft);
+  --color-success-light-bg: var(--jm-mint);
+  --color-warning-light-bg: var(--jm-primary-soft);
+  --color-error-light-bg: var(--jm-danger-soft);
+
+  /* Replace RGBA-based shadow tokens with solid outlines */
+  --shadow-card: 0 0 0 1px var(--jm-border);
+  --shadow-hover: 0 0 0 2px var(--jm-border);
+  --shadow-glass: 0 0 0 1px var(--jm-border);
+
+  background: var(--jm-bg);
+  color: var(--jm-text);
 
   /* Legacy token shim used by existing Job Matching pages/components */
   --background: var(--color-bg-light);
 
   /* Solid surfaces (no glass/blur) */
-  --glass-bg: #ffffff;
+  --glass-bg: var(--jm-surface);
   --glass-border: var(--color-gray-border);
   --transition-normal: var(--transition-base);
 
-  --primary-50: var(--secondary-50);
-  --primary-100: var(--secondary-100);
-  --primary-200: var(--secondary-200);
-  --primary-300: var(--secondary-300);
-  /* Single accent color for the module (green) */
-  --primary-500: var(--color-success);
-  --primary-600: var(--color-success);
-  --primary-700: var(--color-success);
+  --primary-50: var(--jm-primary-soft);
+  --primary-100: var(--jm-primary-soft);
+  --primary-200: var(--jm-border);
+  --primary-300: var(--jm-border);
+  /* Module primary (reviews navy) */
+  --primary-500: var(--jm-primary);
+  --primary-600: var(--jm-primary);
+  --primary-700: var(--jm-primary-deep);
 
   --secondary-50: var(--color-gray-50);
-  --secondary-100: var(--color-gray-light);
+  --secondary-100: #f1f5f9;
   --secondary-200: var(--color-gray-border);
   --secondary-300: var(--color-gray-border);
   --secondary-400: var(--color-gray-medium);
@@ -33,8 +74,8 @@
   --secondary-800: var(--color-text-dark);
   --secondary-900: var(--color-text-dark);
 
-  --error-50: rgba(239, 68, 68, 0.10);
-  --error-200: rgba(239, 68, 68, 0.25);
+  --error-50: var(--jm-danger-soft);
+  --error-200: #fca5a5;
   --error-500: var(--color-error);
   --error-600: var(--color-error);
   --error-700: var(--color-error);

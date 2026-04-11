@@ -31,8 +31,19 @@ const connectDB = async () => {
         process.exit(1);
     }
 
+    const nodeEnv = String(process.env.NODE_ENV || 'development').toLowerCase();
+    const isLocalMongo =
+        typeof mongoUri === 'string' &&
+        (mongoUri.includes('127.0.0.1') || mongoUri.includes('localhost'));
+
+    const connectOptions = {};
+    // Reduce startup delays when local Mongo isn't running and we will fall back to in-memory.
+    if (nodeEnv === 'development' && isLocalMongo) {
+        connectOptions.serverSelectionTimeoutMS = 3000;
+    }
+
     try {
-        const conn = await mongoose.connect(mongoUri);
+        const conn = await mongoose.connect(mongoUri, connectOptions);
         usingInMemory = false;
         connectDB.usingInMemory = false;
         console.log(`MongoDB Connected: ${conn.connection.host}`);
@@ -47,7 +58,7 @@ const connectDB = async () => {
             const { MongoMemoryServer } = require('mongodb-memory-server');
             inMemoryServer = await MongoMemoryServer.create();
             const memoryUri = inMemoryServer.getUri();
-            const conn = await mongoose.connect(memoryUri);
+            const conn = await mongoose.connect(memoryUri, { serverSelectionTimeoutMS: 3000 });
             usingInMemory = true;
             connectDB.usingInMemory = true;
             console.log('MongoDB Connected: in-memory server (development)');

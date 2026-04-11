@@ -75,6 +75,16 @@ export const AuthProvider = ({ children }) => {
         return res.data;
     };
 
+    // Demo Login (dev convenience)
+    const demoLogin = async () => {
+        const res = await api.post('/auth/demo-login');
+        localStorage.setItem('token', res.data.token);
+        setUser(res.data.user);
+        // Keep other tabs / listeners in sync
+        window.dispatchEvent(new Event('auth:updated'));
+        return res.data;
+    };
+
     // Logout
     const logout = () => {
         localStorage.removeItem('token');
@@ -87,6 +97,7 @@ export const AuthProvider = ({ children }) => {
             loading,
             register,
             login,
+            demoLogin,
             logout
         }}>
             {!loading && children}

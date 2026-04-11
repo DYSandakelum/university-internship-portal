@@ -137,7 +137,7 @@
 .ai-chat-input:focus {
     outline: none;
     border-color: var(--primary-500);
-    box-shadow: 0 0 0 3px rgba(16, 185, 129, 0.18);
+    box-shadow: 0 0 0 3px var(--color-primary-light-bg);
 }
 
 .ai-chat-send {

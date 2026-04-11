@@ -10,9 +10,9 @@ function ScoreGauge({ opportunity }) {
 
     // Determine color based on score
     const getScoreColor = (s) => {
-        if (s >= 75) return '#10b981'; // success green
-        if (s >= 50) return '#f59e0b'; // warning orange
-        return '#ef4444'; // error red
+        if (s >= 75) return 'var(--color-success)';
+        if (s >= 50) return 'var(--color-warning)';
+        return 'var(--color-error)';
     };
 
     const getScoreLabel = (s) => {
