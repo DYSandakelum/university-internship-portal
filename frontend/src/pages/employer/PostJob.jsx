@@ -6,13 +6,8 @@ const PostJob = () => {
     const { id } = useParams();
     const isEditing = Boolean(id);
     const [formData, setFormData] = useState({
-        title: '',
-        description: '',
-        requirements: '',
-        salary: '',
-        location: '',
-        deadline: '',
-        jobType: 'Full-time'
+        title: '', description: '', requirements: '',
+        salary: '', location: '', deadline: '', jobType: 'Full-time'
     });
     const [loading, setLoading] = useState(false);
     const [message, setMessage] = useState({ type: '', text: '' });
@@ -29,64 +24,20 @@ const PostJob = () => {
         'bentota', 'kosgoda', 'ambalangoda', 'hikkaduwa', 'unawatuna',
         'koggala', 'ahangama', 'weligama', 'mirissa', 'dikwella',
         'tangalle', 'pasikudah', 'kalkudah', 'arugam bay', 'pottuvil',
-        'point pedro', 'valvettithurai', 'chavakachcheri', 'kankesanthurai',
-        'kayts', 'nainativu', 'thalaimannar', 'pesalai', 'silavathurai',
-        'sigiriya', 'dambulla', 'mihintale', 'ritigala', 'yapahuwa',
-        'kataragama', 'kitulgala', 'sri pada', 'kalpitiya',
-        'manipay', 'tellippalai', 'kopay', 'vaddukoddai',
-        'paranthan', 'pallai', 'elephant pass', 'murunkan',
-        'akkaraipattu', 'sammanthurai', 'kattankudy', 'eravur',
-        'chenkalady', 'valaichenai', 'nilaveli', 'uppuveli', 'kuchchaveli',
-        'muttur', 'kinniya', 'seruwila',
-        'chilaw', 'kuliyapitiya', 'narammala', 'mawathagama',
-        'wariyapola', 'pannala', 'dankotuwa', 'marawila',
-        'nawagattegama', 'hettipola', 'bingiriya', 'katupotha', 'anamaduwa',
-        'maho', 'giribawa', 'igalpotha',
-        'medirigiriya', 'habarana', 'kekirawa', 'thambuttegama',
-        'horowpathana', 'galenbindunuwewa', 'padaviya', 'medawachchiya',
-        'nochchiyagama', 'hingurakgoda', 'minneriya', 'giritale',
-        'akurana', 'katugastota', 'kundasale', 'wattegama',
-        'galewela', 'rattota', 'naula', 'wilgamuwa',
-        'wellawaya', 'passara', 'bibile', 'soranatota',
-        'hali ela', 'lunugala', 'thanamalvila', 'buttala', 'okkampitiya',
-        'balangoda', 'embilipitiya', 'warakapola', 'dehiowita',
-        'deraniyagala', 'kalawana', 'ayagama', 'kuruwita',
-        'mawanella', 'ruwanwella', 'yatiyantota',
+        'sigiriya', 'dambulla', 'mihintale', 'kataragama', 'kitulgala',
         'moratuwa', 'ja ela', 'wattala', 'maharagama', 'nugegoda',
-        'ratmalana', 'homagama', 'avissawella', 'padukka', 'hanwella',
-        'biyagama', 'kirindiwela', 'minuwangoda', 'divulapitiya', 'mirigama',
-        'attanagalla', 'dompe', 'horana', 'mathugama', 'agalawatta',
-        'bandaragama', 'bulathsinhala', 'piliyandala', 'boralesgamuwa',
-        'kaduwela', 'kolonnawa', 'kottawa', 'battaramulla', 'rajagiriya',
-        'nawala', 'malabe', 'kadawatha', 'peliyagoda', 'kandana',
-        'seeduwa', 'katana', 'nittambuwa', 'ganemulla',
-        'deniyaya', 'akurassa', 'beliatta', 'baddegama', 'elpitiya',
-        'hakmana', 'kamburupitiya', 'kirinda', 'ambalantota', 'tissamaharama',
-        'peradeniya', 'kadugannawa', 'gampola', 'nawalapitiya',
-        'talawakele', 'dickoya', 'maskeliya', 'walapane',
-        'ginigathena', 'bogawantalawa', 'agrapatana', 'kandapola',
-        'ambewela', 'pattipola', 'tholangamuwa', 'malwathuhiripitiya',
-        'welikanda', 'girandurukotte', 'kawudulla',
-        'wellawatte', 'bambalapitiya', 'kollupitiya', 'borella',
-        'maradana', 'pettah', 'fort', 'grandpass', 'kotahena',
-        'wennappuwa', 'kochchikade', 'nattandiya', 'mundel',
-        'kalutara north', 'mount lavinia', 'dehiwala',
-        'yala national park', 'wilpattu national park', 'udawalawe national park',
-        'minneriya national park', 'bundala national park',
-        'knuckles mountain range', 'meemure', 'riverston',
-        'bambarakanda falls', 'diyaluma falls', 'ravana ella falls',
-        'dunhinda falls', 'bopath ella falls',
-        'kelaniya', 'bellanwila', 'munneswaram', 'nallur',
-        'koneswaram', 'nagadeepa', 'kathirkamam',
+        'ratmalana', 'homagama', 'avissawella', 'malabe', 'kadawatha',
+        'peliyagoda', 'kandana', 'seeduwa', 'nittambuwa', 'ganemulla',
+        'kelaniya', 'battaramulla', 'rajagiriya', 'nawala', 'kaduwela',
+        'peradeniya', 'gampola', 'nawalapitiya', 'wellawatte', 'bambalapitiya',
+        'kollupitiya', 'borella', 'maradana', 'pettah', 'fort',
         'remote', 'work from home'
     ];
 
     useEffect(() => {
         const token = localStorage.getItem('token');
         if (!token) { navigate('/login'); return; }
-        if (isEditing) {
-            fetchJobDetails(id, token);
-        }
+        if (isEditing) fetchJobDetails(id, token);
     }, [navigate, id, isEditing]);
 
     const fetchJobDetails = async (jobId, token) => {
@@ -98,10 +49,8 @@ const PostJob = () => {
             if (res.ok) {
                 const job = data.job || data;
                 setFormData({
-                    title: job.title || '',
-                    description: job.description || '',
-                    requirements: job.requirements || '',
-                    salary: job.salary || job.salaryRange || '',
+                    title: job.title || '', description: job.description || '',
+                    requirements: job.requirements || '', salary: job.salary || job.salaryRange || '',
                     location: job.location || '',
                     deadline: job.deadline ? new Date(job.deadline).toISOString().split('T')[0] : '',
                     jobType: job.jobType || 'Full-time'
@@ -129,9 +78,7 @@ const PostJob = () => {
         if (normalized.length < 2) return false;
         return sriLankaPlaces.some(place => {
             const p = place.toLowerCase();
-            return normalized === p ||
-                normalized.includes(p) ||
-                p.includes(normalized);
+            return normalized === p || normalized.includes(p) || p.includes(normalized);
         });
     };
 
@@ -140,19 +87,10 @@ const PostJob = () => {
         if (!formData.title.trim()) newErrors.title = 'Job title is required';
         if (!formData.description.trim()) newErrors.description = 'Description is required';
         if (!formData.requirements.trim()) newErrors.requirements = 'Requirements are required';
-
-        if (!formData.salary.trim()) {
-            newErrors.salary = 'Salary is required';
-        } else if (!validateSalary(formData.salary)) {
-            newErrors.salary = 'Must start with LKR or $ (e.g. LKR 50,000 or $ 500)';
-        }
-
-        if (!formData.location.trim()) {
-            newErrors.location = 'Location is required';
-        } else if (!validateLocation(formData.location)) {
-            newErrors.location = 'Enter a real place in Sri Lanka (e.g. Colombo, Kegalle)';
-        }
-
+        if (!formData.salary.trim()) { newErrors.salary = 'Salary is required'; }
+        else if (!validateSalary(formData.salary)) { newErrors.salary = 'Must start with LKR or $ (e.g. LKR 50,000)'; }
+        if (!formData.location.trim()) { newErrors.location = 'Location is required'; }
+        else if (!validateLocation(formData.location)) { newErrors.location = 'Enter a real place in Sri Lanka'; }
         if (!formData.deadline) newErrors.deadline = 'Deadline is required';
         return newErrors;
     };
@@ -160,29 +98,17 @@ const PostJob = () => {
     const handleSubmit = async (e) => {
         e.preventDefault();
         setMessage({ type: '', text: '' });
-
         const newErrors = validate();
-        if (Object.keys(newErrors).length > 0) {
-            setErrors(newErrors);
-            return;
-        }
-
+        if (Object.keys(newErrors).length > 0) { setErrors(newErrors); return; }
         const token = localStorage.getItem('token');
         if (!token) { navigate('/login'); return; }
-
         setLoading(true);
         try {
-            const url = isEditing
-                ? `http://localhost:5000/api/jobs/${id}`
-                : 'http://localhost:5000/api/jobs';
+            const url = isEditing ? `http://localhost:5000/api/jobs/${id}` : 'http://localhost:5000/api/jobs';
             const method = isEditing ? 'PUT' : 'POST';
-
             const response = await fetch(url, {
                 method,
-                headers: {
-                    'Content-Type': 'application/json',
-                    Authorization: `Bearer ${token}`
-                },
+                headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` },
                 body: JSON.stringify({ ...formData, salaryRange: formData.salary })
             });
             const data = await response.json();
@@ -199,91 +125,108 @@ const PostJob = () => {
     return (
         <div className="page-wrapper">
             <nav className="navbar">
-                <div className="navbar-brand">🎓 Internship Portal</div>
+                <Link to="/" className="navbar-brand">
+                    <div className="navbar-brand-icon">🎓</div>
+                    InternHub
+                </Link>
                 <div className="navbar-links">
                     <Link to="/employer/dashboard" className="nav-link">Dashboard</Link>
                     <Link to="/employer/my-jobs" className="nav-link">My Jobs</Link>
                     <Link to="/employer/profile" className="nav-link">Profile</Link>
                 </div>
             </nav>
-            <div className="main-content" style={{ maxWidth: '900px' }}>
-                <button className="back-btn" onClick={() => navigate('/employer/my-jobs')}>← Back to My Jobs</button>
-                <div className="card">
-                    <div className="card-header" style={{ background: 'linear-gradient(135deg, #7C3AED 0%, #6366f1 100%)' }}>
-                        <h2 className="card-title">{isEditing ? '✏️ Edit Job' : '✍️ Post a New Job'}</h2>
+
+            {/* Page Header */}
+            <div style={styles.pageHeader}>
+                <div style={styles.pageHeaderInner}>
+                    <button className="back-btn" onClick={() => navigate('/employer/my-jobs')}>← Back to My Jobs</button>
+                    <h1 style={styles.pageTitle}>{isEditing ? '✏️ Edit Job' : '✍️ Post a New Job'}</h1>
+                    <p style={styles.pageSubtitle}>{isEditing ? 'Update your internship listing' : 'Create a new internship opportunity'}</p>
+                </div>
+            </div>
+
+            <div className="main-content" style={{ maxWidth: '800px' }}>
+
+                {message.text && (
+                    <div className={`alert ${message.type === 'success' ? 'alert-success' : 'alert-error'}`}>
+                        {message.type === 'success' ? '✅' : '⚠️'} {message.text}
                     </div>
-                    <div className="card-body">
-                        {message.text && (
-                            <div className={`alert ${message.type === 'success' ? 'alert-success' : 'alert-error'}`} style={{ marginBottom: '16px' }}>
-                                {message.type === 'success' ? '✅' : '⚠️'} {message.text}
-                            </div>
-                        )}
-                        <form onSubmit={handleSubmit} style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
+                )}
+
+                <div style={styles.formCard}>
+                    <form onSubmit={handleSubmit} style={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
+
+                        <div className="form-group">
+                            <label className="form-label">Job Title</label>
+                            <input type="text" name="title" value={formData.title} onChange={handleChange}
+                                className="form-input" placeholder="e.g. Software Engineer Intern" />
+                            {errors.title && <p style={styles.fieldError}>⚠️ {errors.title}</p>}
+                        </div>
+
+                        <div className="form-group">
+                            <label className="form-label">Job Description</label>
+                            <textarea name="description" value={formData.description} onChange={handleChange}
+                                className="form-textarea" rows="4" placeholder="Describe the job role..." />
+                            {errors.description && <p style={styles.fieldError}>⚠️ {errors.description}</p>}
+                        </div>
+
+                        <div className="form-group">
+                            <label className="form-label">Requirements</label>
+                            <textarea name="requirements" value={formData.requirements} onChange={handleChange}
+                                className="form-textarea" rows="4" placeholder="List required skills and qualifications..." />
+                            {errors.requirements && <p style={styles.fieldError}>⚠️ {errors.requirements}</p>}
+                        </div>
+
+                        <div className="grid-2" style={{ gap: '16px' }}>
                             <div className="form-group">
-                                <label className="form-label">Job Title</label>
-                                <input type="text" name="title" value={formData.title} onChange={handleChange} className="form-input" placeholder="e.g. Software Engineer Intern" />
-                                {errors.title && <p style={{ color: 'red', fontSize: '13px', margin: '4px 0 0' }}>⚠️ {errors.title}</p>}
+                                <label className="form-label">Salary</label>
+                                <input type="text" name="salary" value={formData.salary} onChange={handleChange}
+                                    className="form-input" placeholder="e.g. LKR 50,000" />
+                                {errors.salary && <p style={styles.fieldError}>⚠️ {errors.salary}</p>}
+                                <p className="form-hint">Must start with LKR or $</p>
                             </div>
                             <div className="form-group">
-                                <label className="form-label">Job Description</label>
-                                <textarea name="description" value={formData.description} onChange={handleChange} className="form-textarea" rows="4" placeholder="Describe the job role..." />
-                                {errors.description && <p style={{ color: 'red', fontSize: '13px', margin: '4px 0 0' }}>⚠️ {errors.description}</p>}
+                                <label className="form-label">Location</label>
+                                <input type="text" name="location" value={formData.location} onChange={handleChange}
+                                    className="form-input" placeholder="e.g. Colombo" />
+                                {errors.location && <p style={styles.fieldError}>⚠️ {errors.location}</p>}
+                                <p className="form-hint">Must be a real place in Sri Lanka</p>
                             </div>
                             <div className="form-group">
-                                <label className="form-label">Requirements</label>
-                                <textarea name="requirements" value={formData.requirements} onChange={handleChange} className="form-textarea" rows="4" placeholder="List required skills and qualifications..." />
-                                {errors.requirements && <p style={{ color: 'red', fontSize: '13px', margin: '4px 0 0' }}>⚠️ {errors.requirements}</p>}
+                                <label className="form-label">Deadline</label>
+                                <input type="date" name="deadline" value={formData.deadline}
+                                    onChange={handleChange} className="form-input" />
+                                {errors.deadline && <p style={styles.fieldError}>⚠️ {errors.deadline}</p>}
                             </div>
-                            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(240px, 1fr))', gap: '16px' }}>
-                                <div className="form-group">
-                                    <label className="form-label">Salary</label>
-                                    <input type="text" name="salary" value={formData.salary} onChange={handleChange} className="form-input" placeholder="e.g. LKR 50,000 or $ 500" />
-                                    {errors.salary && <p style={{ color: 'red', fontSize: '13px', margin: '4px 0 0' }}>⚠️ {errors.salary}</p>}
-                                    <p style={{ color: '#6b7280', fontSize: '12px', margin: '4px 0 0' }}>Must start with LKR or $</p>
-                                </div>
-                                <div className="form-group">
-                                    <label className="form-label">Location</label>
-                                    <input type="text" name="location" value={formData.location} onChange={handleChange} className="form-input" placeholder="e.g. Colombo, Kegalle" />
-                                    {errors.location && <p style={{ color: 'red', fontSize: '13px', margin: '4px 0 0' }}>⚠️ {errors.location}</p>}
-                                    <p style={{ color: '#6b7280', fontSize: '12px', margin: '4px 0 0' }}>Must be a real place in Sri Lanka</p>
-                                </div>
-                                <div className="form-group">
-                                    <label className="form-label">Deadline</label>
-                                    <input type="date" name="deadline" value={formData.deadline} onChange={handleChange} className="form-input" />
-                                    {errors.deadline && <p style={{ color: 'red', fontSize: '13px', margin: '4px 0 0' }}>⚠️ {errors.deadline}</p>}
-                                </div>
-                                <div className="form-group">
-                                    <label className="form-label">Job Type</label>
-                                    <select name="jobType" value={formData.jobType} onChange={handleChange} className="form-input">
-                                        <option value="Full-time">Full-time</option>
-                                        <option value="Part-time">Part-time</option>
-                                        <option value="Remote">Remote</option>
-                                        <option value="Internship">Internship</option>
-                                    </select>
-                                </div>
+                            <div className="form-group">
+                                <label className="form-label">Job Type</label>
+                                <select name="jobType" value={formData.jobType} onChange={handleChange} className="form-input">
+                                    <option value="Full-time">Full-time</option>
+                                    <option value="Part-time">Part-time</option>
+                                    <option value="Remote">Remote</option>
+                                    <option value="Internship">Internship</option>
+                                </select>
                             </div>
-                            <button
-                                type="submit"
-                                disabled={loading}
-                                style={{
-                                    background: loading ? '#9ca3af' : 'linear-gradient(135deg, #7C3AED 0%, #6366f1 100%)',
-                                    color: 'white',
-                                    border: 'none',
-                                    padding: '14px',
-                                    borderRadius: '8px',
-                                    fontSize: '16px',
-                                    fontWeight: '600',
-                                    cursor: loading ? 'not-allowed' : 'pointer'
-                                }}
-                            >
-                                {loading ? 'Saving...' : isEditing ? '✏️ Update Job' : '✍️ Submit Job'}
-                            </button>
-                        </form>
-                    </div>
+                        </div>
+
+                        <button type="submit" disabled={loading}
+                            className={`btn btn-full btn-lg ${loading ? 'btn-disabled' : 'btn-amber'}`}>
+                            {loading ? 'Saving...' : isEditing ? '✏️ Update Job' : '✍️ Post Job'}
+                        </button>
+                    </form>
                 </div>
             </div>
         </div>
     );
+};
+
+const styles = {
+    pageHeader: { background: '#ffffff', borderBottom: '1px solid #E7E2D9', padding: '24px 0 32px' },
+    pageHeaderInner: { maxWidth: '1280px', margin: '0 auto', padding: '0 48px', display: 'flex', flexDirection: 'column', gap: '8px' },
+    pageTitle: { fontSize: '24px', fontWeight: '800', color: '#1C1917', letterSpacing: '-0.3px', margin: 0 },
+    pageSubtitle: { fontSize: '14px', color: '#6B7280' },
+    formCard: { background: '#ffffff', border: '1px solid #E7E2D9', borderRadius: '16px', padding: '32px' },
+    fieldError: { color: '#ef4444', fontSize: '13px', margin: '4px 0 0' }
 };
 
 export default PostJob;

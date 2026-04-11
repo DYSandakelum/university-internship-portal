@@ -19,10 +19,7 @@ const EmployerDashboard = () => {
 
     useEffect(() => {
         const token = localStorage.getItem('token');
-        if (!token) {
-            navigate('/login');
-            return;
-        }
+        if (!token) { navigate('/login'); return; }
 
         const fetchStats = async () => {
             try {
@@ -34,17 +31,10 @@ const EmployerDashboard = () => {
                         headers: { Authorization: `Bearer ${token}` }
                     })
                 ]);
-
                 const jobsData = jobsRes.ok ? await jobsRes.json() : [];
                 const applicationsData = applicationsRes.ok ? await applicationsRes.json() : [];
-
-                const jobs = Array.isArray(jobsData)
-                    ? jobsData
-                    : (jobsData.jobs || []);
-                const applications = Array.isArray(applicationsData)
-                    ? applicationsData
-                    : (applicationsData.applications || []);
-
+                const jobs = Array.isArray(jobsData) ? jobsData : (jobsData.jobs || []);
+                const applications = Array.isArray(applicationsData) ? applicationsData : (applicationsData.applications || []);
                 setStats({
                     totalJobs: jobs.length,
                     totalApplications: applications.length,
@@ -54,7 +44,6 @@ const EmployerDashboard = () => {
                 setStats({ totalJobs: 0, totalApplications: 0, pendingReviews: 0 });
             }
         };
-
         fetchStats();
     }, [navigate]);
 
@@ -66,24 +55,9 @@ const EmployerDashboard = () => {
     const companyName = employerData.companyName || employerData.name || 'Employer';
 
     const statCards = [
-        {
-            title: 'Total Jobs Posted',
-            value: stats.totalJobs,
-            icon: '💼',
-            headerBg: 'linear-gradient(135deg, #6366f1 0%, #7c3aed 100%)'
-        },
-        {
-            title: 'Total Applications Received',
-            value: stats.totalApplications,
-            icon: '📄',
-            headerBg: 'linear-gradient(135deg, #3b82f6 0%, #2563eb 100%)'
-        },
-        {
-            title: 'Pending Reviews',
-            value: stats.pendingReviews,
-            icon: '⏳',
-            headerBg: 'linear-gradient(135deg, #f59e0b 0%, #ea580c 100%)'
-        }
+        { title: 'Total Jobs Posted', value: stats.totalJobs, icon: '💼' },
+        { title: 'Total Applications', value: stats.totalApplications, icon: '📄' },
+        { title: 'Pending Reviews', value: stats.pendingReviews, icon: '⏳' }
     ];
 
     const navCards = [
@@ -96,63 +70,82 @@ const EmployerDashboard = () => {
     return (
         <div className="page-wrapper">
             <nav className="navbar">
-                <div className="navbar-brand">🎓 Internship Portal</div>
-                <div className="navbar-links" style={{ gap: '10px' }}>
-                    <Link to="/employer/dashboard" className="nav-link nav-link-active">Dashboard</Link>
+                <Link to="/" className="navbar-brand">
+                    <div className="navbar-brand-icon">🎓</div>
+                    InternHub
+                </Link>
+                <div className="navbar-links">
+                    <Link to="/employer/dashboard" className="nav-link">Dashboard</Link>
+                    <Link to="/employer/my-jobs" className="nav-link">My Jobs</Link>
+                    <Link to="/employer/applications" className="nav-link">Applications</Link>
                     <Link to="/employer/profile" className="nav-link">Profile</Link>
-                    <button onClick={handleLogout} className="btn btn-sm" style={{ background: 'linear-gradient(135deg, #7C3AED 0%, #6366f1 100%)', color: 'white' }}>
-                        Logout
-                    </button>
+                    <button onClick={handleLogout} className="nav-logout-btn">Sign Out</button>
                 </div>
             </nav>
 
-            <div className="main-content" style={{ maxWidth: '1240px' }}>
-                <div className="hero-card" style={{ background: 'linear-gradient(135deg, #7C3AED 0%, #6366f1 100%)', padding: '32px', borderRadius: '12px', marginBottom: '24px' }}>
-                    <h1 style={{ color: 'white', margin: 0, fontSize: '28px' }}>
-                        Welcome back, {companyName}! 👋
-                    </h1>
-                    <p style={{ color: '#e0d7ff', margin: '8px 0 0' }}>
-                        Manage jobs, applications, and your company profile from one place.
-                    </p>
+            {/* Page Header */}
+            <div style={styles.pageHeader}>
+                <div style={styles.pageHeaderInner}>
+                    <div>
+                        <h1 style={styles.pageTitle}>Welcome back, {companyName}! 👋</h1>
+                        <p style={styles.pageSubtitle}>Manage jobs, applications, and your company profile from one place.</p>
+                    </div>
+                    <Link to="/employer/post-job" className="btn btn-amber">
+                        ✍️ Post a Job
+                    </Link>
                 </div>
+            </div>
 
-                <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(220px, 1fr))', gap: '16px', marginBottom: '24px' }}>
+            <div className="main-content">
+
+                {/* Stats */}
+                <div className="grid-3">
                     {statCards.map((card) => (
-                        <div key={card.title} className="card" style={{ overflow: 'hidden' }}>
-                            <div style={{ background: card.headerBg, padding: '16px', display: 'flex', alignItems: 'center', gap: '10px' }}>
-                                <span style={{ fontSize: '20px' }}>{card.icon}</span>
-                                <span style={{ color: 'white', fontWeight: '500', fontSize: '14px' }}>{card.title}</span>
-                            </div>
-                            <div style={{ padding: '20px', textAlign: 'center' }}>
-                                <div style={{ fontSize: '36px', fontWeight: '700', color: '#1e1b4b' }}>{card.value}</div>
-                            </div>
+                        <div key={card.title} style={styles.statCard}>
+                            <div style={styles.statIcon}>{card.icon}</div>
+                            <div style={styles.statValue}>{card.value}</div>
+                            <div style={styles.statLabel}>{card.title}</div>
                         </div>
                     ))}
                 </div>
 
-                <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(250px, 1fr))', gap: '16px' }}>
-                    {navCards.map((item) => (
-                        <div key={item.path} className="card">
-                            <div className="card-body" style={{ display: 'flex', flexDirection: 'column', gap: '14px' }}>
-                                <h3 style={{ margin: 0, fontSize: '17px', color: '#1e1b4b' }}>
-                                    <span style={{ marginRight: '8px' }}>{item.icon}</span>
-                                    {item.title}
-                                </h3>
-                                <p style={{ margin: 0, color: '#6b7280', fontSize: '14px' }}>{item.description}</p>
-                                <Link
-                                    to={item.path}
-                                    className="btn btn-primary"
-                                    style={{ width: 'fit-content', background: 'linear-gradient(135deg, #7C3AED 0%, #6366f1 100%)' }}
-                                >
-                                    Go
+                {/* Nav Cards */}
+                <div>
+                    <h2 style={styles.sectionTitle}>Quick Actions</h2>
+                    <div className="grid-4" style={{ gap: '16px', marginTop: '16px' }}>
+                        {navCards.map((item) => (
+                            <div key={item.path} style={styles.actionCard}>
+                                <div style={styles.actionIconBox}>{item.icon}</div>
+                                <div>
+                                    <p style={styles.actionTitle}>{item.title}</p>
+                                    <p style={styles.actionDesc}>{item.description}</p>
+                                </div>
+                                <Link to={item.path} className="btn btn-amber btn-sm" style={{ marginTop: '8px', alignSelf: 'flex-start' }}>
+                                    Go →
                                 </Link>
                             </div>
-                        </div>
-                    ))}
+                        ))}
+                    </div>
                 </div>
             </div>
         </div>
     );
+};
+
+const styles = {
+    pageHeader: { background: '#ffffff', borderBottom: '1px solid #E7E2D9', padding: '32px 0' },
+    pageHeaderInner: { maxWidth: '1280px', margin: '0 auto', padding: '0 48px', display: 'flex', justifyContent: 'space-between', alignItems: 'center' },
+    pageTitle: { fontSize: '28px', fontWeight: '800', color: '#1C1917', letterSpacing: '-0.5px', margin: 0 },
+    pageSubtitle: { fontSize: '14px', color: '#6B7280', marginTop: '4px' },
+    statCard: { background: '#ffffff', border: '1px solid #E7E2D9', borderRadius: '16px', padding: '24px', display: 'flex', flexDirection: 'column', gap: '8px' },
+    statIcon: { fontSize: '24px', color: '#F59E0B' },
+    statValue: { fontSize: '36px', fontWeight: '800', color: '#1C1917', letterSpacing: '-1px', lineHeight: '1' },
+    statLabel: { fontSize: '13px', color: '#6B7280', fontWeight: '500' },
+    sectionTitle: { fontSize: '18px', fontWeight: '700', color: '#1C1917' },
+    actionCard: { background: '#ffffff', border: '1px solid #E7E2D9', borderRadius: '16px', padding: '20px', display: 'flex', flexDirection: 'column', gap: '10px' },
+    actionIconBox: { width: '40px', height: '40px', background: '#FEF3C7', borderRadius: '10px', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '20px' },
+    actionTitle: { fontSize: '14px', fontWeight: '700', color: '#1C1917', margin: 0 },
+    actionDesc: { fontSize: '12px', color: '#6B7280', margin: 0 }
 };
 
 export default EmployerDashboard;
