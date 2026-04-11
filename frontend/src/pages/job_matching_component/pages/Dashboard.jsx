@@ -300,7 +300,7 @@ function RecentActivityFeed({ activities, onActivityClick, formatRelativeTime })
                             }
                         }}
                     >
-                        <div className="dashboard-activity-icon" style={{ background: activity.color || 'var(--jm-primary)' }}>{activity.icon}</div>
+                        <div className="dashboard-activity-icon" style={{ background: activity.color || '#0F4C81' }}>{activity.icon}</div>
                         <div className="dashboard-activity-body">
                             <h4>{activity.title}</h4>
                             <p>{activity.description}</p>
@@ -420,7 +420,7 @@ export default function Dashboard() {
                         time: formatRelativeTime(timestamp),
                         timestamp,
                         sortAt: new Date(timestamp).getTime(),
-                        color: 'var(--jm-teal)',
+                        color: '#166534',
                         path: '/job-matching/saved'
                     });
                 });
@@ -435,7 +435,7 @@ export default function Dashboard() {
                         time: formatRelativeTime(createdAt),
                         timestamp: createdAt,
                         sortAt: new Date(createdAt).getTime(),
-                        color: 'var(--jm-accent-deep)',
+                        color: '#b45309',
                         path: '/job-matching/notifications'
                     });
                 });
@@ -451,7 +451,7 @@ export default function Dashboard() {
                     time: formatRelativeTime(latestRecommendedAt),
                     timestamp: latestRecommendedAt,
                     sortAt: latestRecommendedAt,
-                    color: 'var(--jm-teal-2)',
+                    color: '#5b21b6',
                     path: '/job-matching/recommended'
                 });
             }

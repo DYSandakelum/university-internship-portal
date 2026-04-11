@@ -59,7 +59,7 @@ const ToggleSwitch = ({ on, onToggle, label, description, disabled = false }) =>
                         top: '2px',
                         left: on ? '22px' : '2px',
                         transition: 'all 0.2s ease',
-                        boxShadow: '0 0 0 1px var(--secondary-200)'
+                        boxShadow: '0 1px 3px rgba(0,0,0,0.1)'
                     }}
                 />
             </div>
