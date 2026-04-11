@@ -15,13 +15,15 @@ import {
     FiClock,
     FiCheckCircle,
     FiArrowRight,
-    FiAward
+    FiAward,
+    FiX
 } from 'react-icons/fi';
 import { useNavigate } from 'react-router-dom';
 import { getRecommendedJobs, getSavedJobs } from '../../../services/jobService';
 import { getNotifications } from '../../../services/notificationService';
 import useEnsureDemoAuth from '../hooks/useEnsureDemoAuth';
 import AiCareerChat from '../components/AiCareerChat';
+import JobCard from '../components/JobCard';
 import AdvancedFiltersModal from '../components/AdvancedFiltersModal';
 import PracticeInterviewModal from '../components/PracticeInterviewModal';
 import FilterPanel from '../components/FilterPanel';
@@ -396,6 +398,7 @@ export default function Dashboard() {
     const [notifications, setNotifications] = useState([]);
     const [showRecommendationsRow, setShowRecommendationsRow] = useState(false);
     const [isPracticeModalOpen, setIsPracticeModalOpen] = useState(false);
+    const [selectedRecoJob, setSelectedRecoJob] = useState(null);
 
     const profileCompletion = Math.min(100, Math.max(45, (Array.isArray(user?.skills) ? user.skills.length * 9 : 0) + 42));
 
@@ -517,6 +520,24 @@ export default function Dashboard() {
             document.removeEventListener('visibilitychange', refreshOnFocus);
         };
     }, [ready, loadDashboardData]);
+
+    useEffect(() => {
+        if (!selectedRecoJob) return;
+        const onKeyDown = (event) => {
+            if (event.key === 'Escape') setSelectedRecoJob(null);
+        };
+        document.addEventListener('keydown', onKeyDown);
+        return () => document.removeEventListener('keydown', onKeyDown);
+    }, [selectedRecoJob]);
+
+    const handleOpenRecoJob = (job) => {
+        if (!job) return;
+        setSelectedRecoJob(job);
+    };
+
+    const handleCloseRecoJob = () => {
+        setSelectedRecoJob(null);
+    };
 
     const handleActionClick = (path) => {
         if (path) navigate(path);
@@ -669,14 +690,21 @@ export default function Dashboard() {
                                 {Array.isArray(recommendedJobs) && recommendedJobs.length > 0 ? (
                                     <div className="dashboard-reco-row" role="list">
                                         {recommendedJobs.slice(0, 5).map((job) => (
-                                            <article key={job._id} className="dashboard-reco-card" role="listitem">
+                                            <button
+                                                key={job._id}
+                                                type="button"
+                                                className={`dashboard-reco-card ${selectedRecoJob && String(selectedRecoJob._id) === String(job._id) ? 'is-selected' : ''}`}
+                                                role="listitem"
+                                                onClick={() => handleOpenRecoJob(job)}
+                                                aria-label={`Open job card: ${job?.title || 'Job'}`}
+                                            >
                                                 <div className="dashboard-reco-card-top">
                                                     <div className="dashboard-reco-card-title" title={job.title}>{job.title}</div>
                                                     <div className="dashboard-reco-badge">{typeof job.matchPercentage === 'number' ? `${job.matchPercentage}%` : '--'}</div>
                                                 </div>
                                                 <div className="dashboard-reco-card-sub">{job.company || 'Company'} • {job.location || 'Location'}</div>
                                                 <div className="dashboard-reco-card-meta">{job.jobType || 'Role'} • {job.salary ? `$${job.salary}` : 'Salary n/a'}</div>
-                                            </article>
+                                            </button>
                                         ))}
                                     </div>
                                 ) : (
@@ -686,6 +714,40 @@ export default function Dashboard() {
                                 )}
                             </section>
                         )}
+
+                        {selectedRecoJob ? (
+                            <div
+                                className="dashboard-spotlight-backdrop"
+                                role="dialog"
+                                aria-modal="true"
+                                aria-label="Job card"
+                                onMouseDown={(event) => {
+                                    if (event.target === event.currentTarget) handleCloseRecoJob();
+                                }}
+                            >
+                                <div className="dashboard-spotlight-modal" onMouseDown={(event) => event.stopPropagation()}>
+                                    <div className="dashboard-spotlight-modal-head">
+                                        <div className="dashboard-spotlight-modal-title"><FiStar /> Job card</div>
+                                        <button
+                                            type="button"
+                                            className="dashboard-spotlight-close"
+                                            onClick={handleCloseRecoJob}
+                                            aria-label="Close job card"
+                                        >
+                                            <FiX />
+                                        </button>
+                                    </div>
+
+                                    <div className="dashboard-spotlight-modal-body">
+                                        <JobCard
+                                            job={selectedRecoJob}
+                                            matchPercentage={typeof selectedRecoJob.matchPercentage === 'number' ? selectedRecoJob.matchPercentage : null}
+                                            hideActions={true}
+                                        />
+                                    </div>
+                                </div>
+                            </div>
+                        ) : null}
 
                         <section className="dashboard-metrics-grid">
                             <MetricCard

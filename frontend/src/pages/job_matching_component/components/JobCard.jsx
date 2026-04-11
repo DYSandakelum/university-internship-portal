@@ -69,7 +69,7 @@ function SkillTags({ skills }) {
   );
 }
 
-export default function JobCard({ job = {}, matchPercentage = null, onApply, onSave, onRemove, isSaved, showRemove }) {
+export default function JobCard({ job = {}, matchPercentage = null, onApply, onSave, onRemove, isSaved, showRemove, hideActions = false }) {
   const [isApplying, setIsApplying] = useState(false);
   const [isSaving, setIsSaving] = useState(false);
 
@@ -110,26 +110,28 @@ export default function JobCard({ job = {}, matchPercentage = null, onApply, onS
 
       <SkillTags skills={job.requiredSkills || []} />
 
-      <footer className="job-actions">
-        <button className="apply-button" onClick={handleApply} disabled={isApplying}>
-          {isApplying ? <span className="spinner" /> : <FiSend className="icon" />}
-          {isApplying ? 'Applying...' : 'Apply'}
-        </button>
+      {hideActions ? null : (
+        <footer className="job-actions">
+          <button className="apply-button" onClick={handleApply} disabled={isApplying}>
+            {isApplying ? <span className="spinner" /> : <FiSend className="icon" />}
+            {isApplying ? 'Applying...' : 'Apply'}
+          </button>
 
-        {showRemove ? (
-          <button className="save-button" onClick={() => onRemove?.(job)}>
-            <FiTrash2 className="icon" />
-          </button>
-        ) : (
-          <button
-            className={`save-button ${isSaved ? 'saved' : ''}`}
-            onClick={handleSave}
-            disabled={isSaving || isSaved}
-          >
-            {isSaving ? <span className="spinner" /> : isSaved ? <FiCheck className="icon" /> : <FiBookmark className="icon" />}
-          </button>
-        )}
-      </footer>
+          {showRemove ? (
+            <button className="save-button" onClick={() => onRemove?.(job)}>
+              <FiTrash2 className="icon" />
+            </button>
+          ) : (
+            <button
+              className={`save-button ${isSaved ? 'saved' : ''}`}
+              onClick={handleSave}
+              disabled={isSaving || isSaved}
+            >
+              {isSaving ? <span className="spinner" /> : isSaved ? <FiCheck className="icon" /> : <FiBookmark className="icon" />}
+            </button>
+          )}
+        </footer>
+      )}
     </article>
   );
 }
