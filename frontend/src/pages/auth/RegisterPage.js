@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { useAuth } from '../../context/AuthContext';
+import Navbar from '../../components/Navbar';
 
 const RegisterPage = () => {
     const [formData, setFormData] = useState({
@@ -20,7 +21,9 @@ const RegisterPage = () => {
 
     const handleSubmit = async (e) => {
         e.preventDefault();
-        setError(''); setSuccessMsg(''); setDevVerificationUrl('');
+        setError('');
+        setSuccessMsg('');
+        setDevVerificationUrl('');
 
         const universityEmailRegex = /^it\d{8}@my\.sliit\.lk$/;
         if (formData.role === 'student' && !universityEmailRegex.test(formData.email)) {
@@ -44,10 +47,13 @@ const RegisterPage = () => {
                 password: formData.password,
                 role: formData.role
             });
+
+            // Show appropriate message based on email delivery and available fallback
             if (response.emailSent) {
-                setSuccessMsg('Registration successful! Check your email to verify your account.');
+                setSuccessMsg('✅ Registration successful! Check your email to verify your account.');
                 setTimeout(() => navigate('/login'), 3000);
             } else if (response.devVerificationUrl) {
+                // Email not sent, but show dev verification URL
                 setSuccessMsg('Registration successful! Verification link is ready below.');
                 setDevVerificationUrl(response.devVerificationUrl);
             } else {
@@ -62,30 +68,32 @@ const RegisterPage = () => {
 
     return (
         <div className="auth-container">
-            <div className="auth-wrapper">
+            <Navbar />
+            <div className="main-content-sm">
                 <div className="auth-card">
-                    <div className="auth-card-inner">
-                        {/* Logo */}
-                        <div className="auth-logo">
-                            <div className="auth-logo-icon">🎓</div>
-                            <span className="auth-logo-text">InternHub</span>
-                        </div>
-
-                        <div>
-                            <h1 className="auth-card-title">Create your account</h1>
-                            <p className="auth-card-subtitle">Start discovering internship opportunities</p>
-                        </div>
-
+                    <div className="auth-card-header">
+                        <h1 className="auth-card-title">Create Account</h1>
+                        <p className="auth-card-subtitle">Join the University Internship Portal</p>
+                    </div>
+                    <div className="auth-card-body">
                         {error && <div className="alert alert-error">⚠️ {error}</div>}
                         {successMsg && (
                             <div className="alert alert-success">
                                 ✅ {successMsg}
                                 {devVerificationUrl && (
-                                    <div style={{marginTop: '12px', paddingTop: '12px', borderTop: '1px solid #bbf7d0'}}>
-                                        <p style={{margin: '0 0 8px 0', fontSize: '13px'}}>
-                                            Click to verify your email:
+                                    <div style={{ marginTop: '12px', paddingTop: '12px', borderTop: '1px solid rgba(255,255,255,0.2)' }}>
+                                        <p style={{ margin: '0 0 8px 0', fontSize: '14px' }}>
+                                            Click the link below to verify your email (expires in 24h):
                                         </p>
-                                        <a href={devVerificationUrl} style={{color: '#16a34a', fontSize: '12px', wordBreak: 'break-all'}}>
+                                        <a 
+                                            href={devVerificationUrl} 
+                                            style={{ 
+                                                color: '#fff',
+                                                textDecoration: 'underline',
+                                                wordBreak: 'break-all',
+                                                fontSize: '13px'
+                                            }}
+                                        >
                                             {devVerificationUrl}
                                         </a>
                                     </div>
@@ -93,11 +101,11 @@ const RegisterPage = () => {
                             </div>
                         )}
 
-                        <form onSubmit={handleSubmit} style={{display: 'flex', flexDirection: 'column', gap: '14px'}}>
+                        <form onSubmit={handleSubmit} style={{display: 'flex', flexDirection: 'column', gap: '16px'}}>
                             <div className="form-group">
                                 <label className="form-label">Full Name</label>
                                 <input type="text" name="name" value={formData.name}
-                                    onChange={handleChange} placeholder="Jane Doe"
+                                    onChange={handleChange} placeholder="Enter your full name"
                                     className="form-input" required />
                             </div>
                             <div className="form-group">
@@ -109,37 +117,34 @@ const RegisterPage = () => {
                                 </select>
                             </div>
                             <div className="form-group">
-                                <label className="form-label">
-                                    {formData.role === 'student' ? 'University Email' : 'Company Email'}
-                                </label>
+                                <label className="form-label">Email Address</label>
                                 <input type="email" name="email" value={formData.email}
                                     onChange={handleChange}
-                                    placeholder={formData.role === 'student' ? 'it12345678@my.sliit.lk' : 'you@company.com'}
+                                    placeholder={formData.role === 'student' ? 'it12345678@my.sliit.lk' : 'Enter your company email'}
                                     className="form-input" required />
                             </div>
                             <div className="form-group">
                                 <label className="form-label">Password</label>
                                 <input type="password" name="password" value={formData.password}
-                                    onChange={handleChange} placeholder="••••••••"
+                                    onChange={handleChange} placeholder="Minimum 6 characters"
                                     className="form-input" required />
                             </div>
                             <div className="form-group">
                                 <label className="form-label">Confirm Password</label>
                                 <input type="password" name="confirmPassword" value={formData.confirmPassword}
-                                    onChange={handleChange} placeholder="••••••••"
+                                    onChange={handleChange} placeholder="Re-enter your password"
                                     className="form-input" required />
                             </div>
                             <button type="submit"
-                                className={`btn btn-full btn-lg ${loading ? 'btn-disabled' : 'btn-amber'}`}
-                                style={{marginTop: '4px'}}
+                                className={`btn btn-full btn-lg ${loading ? 'btn-disabled' : 'btn-primary'}`}
                                 disabled={loading}>
-                                {loading ? 'Creating Account...' : 'Create Account'}
+                                {loading ? 'Creating Account...' : 'Create Account →'}
                             </button>
                         </form>
 
                         <p className="auth-footer">
                             Already have an account?{' '}
-                            <Link to="/login" className="auth-link">Sign in</Link>
+                            <Link to="/login" className="auth-link">Login here</Link>
                         </p>
                     </div>
                 </div>
