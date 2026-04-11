@@ -4,7 +4,7 @@ const path = require('path');
 
 const BACKEND_PORT = Number.parseInt(process.env.BACKEND_PORT, 10) || 5000;
 const BACKEND_HOST = process.env.BACKEND_HOST || '127.0.0.1';
-const FRONTEND_DEFAULT_PORT = 3010;
+const FRONTEND_DEFAULT_PORT = 3000;
 
 const RETRY_INTERVAL = 1000; // 1 second
 const BACKEND_STARTUP_TIMEOUT_MS =
@@ -85,7 +85,7 @@ async function waitForBackend() {
 async function startFrontend() {
     const isReady = await waitForBackend();
     if (isReady) {
-        const preferredPort = Number.parseInt(process.env.PORT, 10);
+        const preferredPort = Number.parseInt(process.env.FRONTEND_PORT, 10);
         const basePort = Number.isFinite(preferredPort) ? preferredPort : FRONTEND_DEFAULT_PORT;
         const frontendPort = await findAvailablePort(basePort, basePort + 50);
 
