@@ -729,22 +729,8 @@ export default function Dashboard() {
                                 <div className="dashboard-opportunity-cta-copy">
                                     <h3 className="dashboard-panel-title"><FiTarget /> Opportunity Centre</h3>
                                     <p className="dashboard-opportunity-cta-subtitle">
-                                        Turn your shortlist into a clear plan: see job-fit scoring, skill gaps, deadlines, and next actions in one place.
+                                        Turn your shortlist into a clear plan. See job-fit scoring, skill gaps, deadlines, and next actions in one place.
                                     </p>
-                                    <div className="dashboard-opportunity-cta-metrics">
-                                        <div>
-                                            <span>Saved roles</span>
-                                            <strong>{stats.savedJobsCount}</strong>
-                                        </div>
-                                        <div>
-                                            <span>Recommendations</span>
-                                            <strong>{stats.recommendedJobsCount}</strong>
-                                        </div>
-                                        <div>
-                                            <span>Unread alerts</span>
-                                            <strong>{stats.notificationsCount}</strong>
-                                        </div>
-                                    </div>
                                 </div>
 
                                 <button
