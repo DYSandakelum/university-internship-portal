@@ -1,8 +1,16 @@
-import React from 'react';
+import React, { useMemo } from 'react';
 import { FiClock, FiAlertTriangle, FiCheckCircle, FiInfo } from 'react-icons/fi';
+import { useNavigate } from 'react-router-dom';
 import './DeadlineTimeline.css';
 
 function DeadlineTimeline({ opportunity }) {
+    const navigate = useNavigate();
+
+    const jobId = useMemo(() => {
+        const raw = opportunity?.jobId?._id ?? opportunity?.jobId ?? opportunity?.job?._id ?? opportunity?.job;
+        return raw ? String(raw) : '';
+    }, [opportunity]);
+
     if (!opportunity) return null;
 
     const deadline = new Date(opportunity.deadlineDate);
@@ -96,7 +104,18 @@ function DeadlineTimeline({ opportunity }) {
                             Deadline is {daysRemaining <= 0 ? 'PAST' : `in ${daysRemaining} days`}. 
                             Apply immediately if you haven't already!
                         </p>
-                        <button className="rec-button critical">Apply Now</button>
+                        <button
+                            type="button"
+                            className="rec-button critical"
+                            disabled={!jobId}
+                            onClick={() => {
+                                if (!jobId) return;
+                                navigate(`/student/apply/${jobId}`);
+                            }}
+                            title={jobId ? 'Open application form' : 'Job is missing (cannot open application form)'}
+                        >
+                            Apply Now
+                        </button>
                     </>
                 )}
                 {opportunity.deadlineStatus === 'warning' && (

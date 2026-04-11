@@ -76,21 +76,22 @@ const PORT = process.env.PORT || 5000;
 let server;
 
 const bootstrapDevUser = async () => {
-    if (!connectDB.usingInMemory) return;
+    const devBootstrapDisabled = String(process.env.DEV_BOOTSTRAP_DISABLED || '').toLowerCase() === 'true';
+    if (process.env.NODE_ENV === 'production' || devBootstrapDisabled) return;
 
-    const email = process.env.DEV_BOOTSTRAP_EMAIL || 'it23716346@my.sliit.lk';
-    const password = process.env.DEV_BOOTSTRAP_PASSWORD || '000000';
+    const email = String(process.env.DEV_BOOTSTRAP_EMAIL || 'it23716346@my.sliit.lk')
+        .trim()
+        .toLowerCase();
+    const password = String(process.env.DEV_BOOTSTRAP_PASSWORD || '000000');
     const name = process.env.DEV_BOOTSTRAP_NAME || 'Dev Student';
-
-    const salt = await bcrypt.genSalt(10);
-    const hashedPassword = await bcrypt.hash(password, salt);
 
     const existing = await User.findOne({ email });
     if (!existing) {
         const created = await User.create({
             name,
             email,
-            password: hashedPassword,
+            // Set plain password; model pre-save will hash once.
+            password,
             role: 'student',
             isVerified: true
         });
@@ -100,7 +101,8 @@ const bootstrapDevUser = async () => {
         existing.name = existing.name || name;
         existing.role = existing.role || 'student';
         existing.isVerified = true;
-        existing.password = hashedPassword;
+        // Force-reset to the known dev password so the documented login always works.
+        existing.password = password;
         await existing.save();
 
         return existing;

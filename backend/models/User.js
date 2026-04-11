@@ -60,6 +60,12 @@ const userSchema = new mongoose.Schema({
 userSchema.pre('save', async function () {
     if (!this.isModified('password')) return;
 
+    // Avoid double-hashing when upstream code already provided a bcrypt hash.
+    // Bcrypt hashes typically start with $2a$, $2b$, or $2y$.
+    if (typeof this.password === 'string' && /^\$2[aby]\$/.test(this.password)) {
+        return;
+    }
+
     const salt = await bcrypt.genSalt(10);
     this.password = await bcrypt.hash(this.password, salt);
 });
