@@ -343,7 +343,116 @@
   flex: 0 0 auto;
   margin-top: 1px;
   color: var(--opx-primary);
-}.opx-state {
+}
+
+.opx-cal {
+  display: grid;
+  gap: 10px;
+}
+
+.opx-cal-surface {
+  border: 1px solid var(--opx-border);
+  border-radius: 12px;
+  background: var(--opx-surface);
+  padding: 10px;
+}
+
+.opx-cal-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  margin-bottom: 10px;
+}
+
+.opx-cal-title {
+  font-size: 13px;
+  font-weight: 800;
+  color: var(--opx-text);
+}
+
+.opx-cal-nav {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.opx-cal-navbtn {
+  width: 34px;
+  padding: 0;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.opx-cal-grid {
+  display: grid;
+  grid-template-columns: repeat(7, minmax(0, 1fr));
+  gap: 6px;
+}
+
+.opx-cal-dow {
+  font-size: 11px;
+  font-weight: 800;
+  color: var(--opx-text-soft);
+  text-align: center;
+  padding: 2px 0;
+}
+
+.opx-cal-day {
+  height: 34px;
+  border: 1px solid var(--opx-border);
+  border-radius: 10px;
+  background: var(--opx-soft);
+  display: grid;
+  place-items: center;
+  font-size: 12px;
+  font-weight: 850;
+  color: var(--opx-text);
+}
+
+.opx-cal-day.is-empty {
+  border-color: transparent;
+  background: transparent;
+}
+
+.opx-cal-day.is-deadline {
+  border-color: var(--color-warning);
+  background: var(--color-warning-light-bg);
+  color: var(--color-text-dark);
+}
+
+.opx-cal-actions {
+  margin-top: 10px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+}
+
+.opx-cal-add {
+  border-color: var(--color-warning);
+  background: var(--color-warning);
+  color: var(--color-text-dark);
+  font-weight: 850;
+}
+
+.opx-cal-add:hover:enabled {
+  filter: brightness(0.95);
+}
+
+.opx-cal-add:disabled {
+  opacity: 0.65;
+  cursor: not-allowed;
+}
+
+.opx-cal-note {
+  font-size: 12px;
+  color: var(--opx-text-soft);
+  font-weight: 650;
+}
+
+.opx-state {
   border: 1px solid var(--opx-border);
   border-radius: 12px;
   background: var(--opx-surface);
