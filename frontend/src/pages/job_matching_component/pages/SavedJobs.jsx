@@ -296,8 +296,10 @@ export default function SavedJobs() {
         }
     };
 
-    const handleApply = () => {
-        // Apply flow handled elsewhere.
+    const handleApply = (job) => {
+        if (job && job._id) {
+            navigate(`/student/jobs/${job._id}`);
+        }
     };
 
     return (
