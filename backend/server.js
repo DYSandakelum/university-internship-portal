@@ -11,6 +11,12 @@ const User = require('./models/User');
 // Load environment variables
 dotenv.config({ path: path.resolve(__dirname, '../.env') });
 
+// Ensure local `npm run dev` behaves as development even if NODE_ENV isn't set.
+// This is important for the DB layer's in-memory Mongo fallback.
+if (!process.env.NODE_ENV && process.env.npm_lifecycle_event === 'dev') {
+    process.env.NODE_ENV = 'development';
+}
+
 // Initialize Express app
 const app = express();
 

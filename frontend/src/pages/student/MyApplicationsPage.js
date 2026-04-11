@@ -36,59 +36,53 @@ const MyApplicationsPage = () => {
         }
     };
 
-    const getStatusClass = (status) => {
-        switch (status) {
-            case 'Pending': return 'badge badge-warning';
-            case 'Reviewed': return 'badge badge-info';
-            case 'Interview': return 'badge badge-success';
-            case 'Offered': return 'badge badge-purple';
-            case 'Rejected': return 'badge badge-danger';
-            default: return 'badge';
-        }
+    const getStatusBadge = (status) => {
+        const map = {
+            'Pending': 'badge badge-warning',
+            'Reviewed': 'badge badge-info',
+            'Interview': 'badge badge-success',
+            'Offered': 'badge badge-purple',
+            'Rejected': 'badge badge-danger'
+        };
+        return map[status] || 'badge';
     };
 
     const statuses = ['Pending', 'Reviewed', 'Interview', 'Offered', 'Rejected'];
-    const statColors = {
-        Pending: 'var(--warning)', Reviewed: 'var(--info)',
-        Interview: 'var(--success)', Offered: 'var(--secondary)', Rejected: 'var(--danger)'
-    };
 
     return (
         <div className="page-wrapper">
             <Navbar />
 
-            {/* Page Banner */}
-            <div className="page-banner">
-                <h1 className="page-banner-title">📋 My Applications</h1>
-                <p className="page-banner-subtitle">Track and manage all your internship applications</p>
+            {/* Page Header */}
+            <div style={styles.pageHeader}>
+                <div style={styles.pageHeaderInner}>
+                    <div>
+                        <h1 style={styles.pageTitle}>My Applications</h1>
+                        <p style={styles.pageSubtitle}>Track and manage all your internship applications</p>
+                    </div>
+                    <div style={styles.totalPill}>{applications.length} total</div>
+                </div>
             </div>
 
             <div className="main-content">
                 {error && <div className="alert alert-error">⚠️ {error}</div>}
 
-                {/* Stats Row */}
+                {/* Stats */}
                 <div style={styles.statsGrid}>
                     {statuses.map((status) => (
-                        <div key={status} className="stat-card">
-                            <div className="stat-card-header" style={{backgroundColor: statColors[status]}}>
-                                <span className="stat-label">{status}</span>
+                        <div key={status} style={styles.statCard}>
+                            <div style={styles.statValue}>
+                                {applications.filter(a => a.status === status).length}
                             </div>
-                            <div className="stat-card-body">
-                                <span className="stat-value">
-                                    {applications.filter(a => a.status === status).length}
-                                </span>
-                            </div>
+                            <div style={styles.statLabel}>{status}</div>
                         </div>
                     ))}
                 </div>
 
                 {/* Applications List */}
-                <div className="card">
-                    <div className="card-header">
-                        <h2 className="card-title">All Applications</h2>
-                        <span style={styles.totalBadge}>{applications.length} total</span>
-                    </div>
-                    <div style={{padding: 0}}>
+                <div>
+                    <h2 style={styles.sectionTitle}>All Applications</h2>
+                    <div style={styles.listCard}>
                         {loading ? (
                             <div className="loading-wrapper">
                                 <div className="spinner"></div>
@@ -100,23 +94,28 @@ const MyApplicationsPage = () => {
                                 <p className="empty-title">No applications yet</p>
                                 <p className="empty-subtitle">Browse internships and start applying!</p>
                                 <button onClick={() => navigate('/student/dashboard')}
-                                    className="btn btn-primary" style={{marginTop: '8px'}}>
+                                    className="btn btn-amber" style={{marginTop: '8px'}}>
                                     Go to Dashboard
                                 </button>
                             </div>
                         ) : (
                             applications.map((app) => (
                                 <div key={app._id} className="application-card">
+                                    <div style={styles.companyAvatar}>
+                                        {app.job?.company?.[0] || '?'}
+                                    </div>
                                     <div style={styles.appLeft}>
                                         <h3 style={styles.appTitle}>{app.job?.title}</h3>
                                         <div style={styles.appMeta}>
-                                            <span>🏢 {app.job?.company}</span>
-                                            <span>📍 {app.job?.location}</span>
-                                            <span>📅 {new Date(app.appliedAt).toLocaleDateString()}</span>
+                                            <span>{app.job?.company}</span>
+                                            <span>·</span>
+                                            <span>{app.job?.location}</span>
+                                            <span>·</span>
+                                            <span>{new Date(app.appliedAt).toLocaleDateString()}</span>
                                         </div>
                                     </div>
                                     <div style={styles.appRight}>
-                                        <span className={getStatusClass(app.status)}>{app.status}</span>
+                                        <span className={getStatusBadge(app.status)}>{app.status}</span>
                                         <div style={styles.appActions}>
                                             <button onClick={() => navigate(`/student/jobs/${app.job?._id}`)}
                                                 className="btn btn-ghost btn-sm">View Job</button>
@@ -140,15 +139,22 @@ const MyApplicationsPage = () => {
 };
 
 const styles = {
+    pageHeader: { background: '#ffffff', borderBottom: '1px solid #E7E2D9', padding: '32px 0' },
+    pageHeaderInner: { maxWidth: '1280px', margin: '0 auto', padding: '0 48px', display: 'flex', justifyContent: 'space-between', alignItems: 'center' },
+    pageTitle: { fontSize: '28px', fontWeight: '800', color: '#1C1917', letterSpacing: '-0.5px' },
+    pageSubtitle: { fontSize: '14px', color: '#6B7280', marginTop: '4px' },
+    totalPill: { background: '#FEF3C7', color: '#D97706', padding: '6px 16px', borderRadius: '9999px', fontSize: '13px', fontWeight: '600' },
     statsGrid: { display: 'grid', gridTemplateColumns: 'repeat(5, 1fr)', gap: '16px' },
-    totalBadge: {
-        backgroundColor: 'rgba(255,255,255,0.2)', color: '#ffffff',
-        padding: '3px 12px', borderRadius: 'var(--radius-full)', fontSize: '13px', fontWeight: '600'
-    },
-    appLeft: { display: 'flex', flexDirection: 'column', gap: '6px' },
-    appTitle: { fontSize: '15px', fontWeight: '700', color: 'var(--text-primary)', margin: 0 },
-    appMeta: { display: 'flex', gap: '16px', fontSize: '13px', color: 'var(--text-secondary)' },
-    appRight: { display: 'flex', flexDirection: 'column', alignItems: 'flex-end', gap: '10px' },
+    statCard: { background: '#ffffff', border: '1px solid #E7E2D9', borderRadius: '16px', padding: '20px', textAlign: 'center' },
+    statValue: { fontSize: '32px', fontWeight: '800', color: '#1C1917', letterSpacing: '-1px' },
+    statLabel: { fontSize: '12px', color: '#6B7280', fontWeight: '500', marginTop: '4px' },
+    sectionTitle: { fontSize: '18px', fontWeight: '700', color: '#1C1917', marginBottom: '16px' },
+    listCard: { background: '#ffffff', border: '1px solid #E7E2D9', borderRadius: '16px', overflow: 'hidden' },
+    companyAvatar: { width: '40px', height: '40px', background: '#FEF3C7', borderRadius: '10px', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '16px', fontWeight: '800', color: '#D97706', flexShrink: 0 },
+    appLeft: { flex: 1 },
+    appTitle: { fontSize: '14px', fontWeight: '700', color: '#1C1917', margin: 0 },
+    appMeta: { display: 'flex', gap: '8px', fontSize: '12px', color: '#6B7280', marginTop: '2px' },
+    appRight: { display: 'flex', flexDirection: 'column', alignItems: 'flex-end', gap: '8px' },
     appActions: { display: 'flex', gap: '8px' }
 };
 

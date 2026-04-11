@@ -76,30 +76,30 @@ const StudentProfilePage = () => {
         <div className="page-wrapper">
             <Navbar />
 
-            {/* Page Banner */}
-            <div className="page-banner" style={{display: 'flex', alignItems: 'center', justifyContent: 'space-between', textAlign: 'left', padding: '40px 64px'}}>
-                <div>
-                    <h1 className="page-banner-title">👤 My Profile</h1>
-                    <p className="page-banner-subtitle">Keep your profile updated for better internship matches</p>
+            {/* Page Header */}
+            <div style={styles.pageHeader}>
+                <div style={styles.pageHeaderInner}>
+                    <div>
+                        <h1 style={styles.pageTitle}>My Profile</h1>
+                        <p style={styles.pageSubtitle}>Keep your profile updated for better internship matches</p>
+                    </div>
+                    {profile && <div style={styles.completeBadge}>✅ Profile Complete</div>}
                 </div>
-                {profile && (
-                    <span style={styles.completeBadge}>✅ Profile Complete</span>
-                )}
             </div>
 
             <div className="main-content">
                 {error && <div className="alert alert-error">⚠️ {error}</div>}
                 {success && <div className="alert alert-success">✅ {success}</div>}
 
-                <form onSubmit={handleSubmit} className="grid-2" style={{alignItems: 'start'}}>
+                <form onSubmit={handleSubmit} className="grid-2" style={{alignItems: 'start', gap: '24px'}}>
 
                     {/* Left Column */}
                     <div style={styles.col}>
-                        <div className="card">
-                            <div className="card-header">
-                                <h2 className="card-title">👤 Personal Information</h2>
-                            </div>
-                            <div className="card-body" style={styles.cardForm}>
+
+                        {/* Personal Info */}
+                        <div style={styles.section}>
+                            <h2 style={styles.sectionTitle}>Personal Information</h2>
+                            <div style={styles.sectionBody}>
                                 <div className="form-group">
                                     <label className="form-label">Full Name</label>
                                     <input type="text" value={user?.name} className="form-input" disabled />
@@ -124,11 +124,10 @@ const StudentProfilePage = () => {
                             </div>
                         </div>
 
-                        <div className="card">
-                            <div className="card-header card-header-info">
-                                <h2 className="card-title">🎓 Academic Information</h2>
-                            </div>
-                            <div className="card-body" style={styles.cardForm}>
+                        {/* Academic Info */}
+                        <div style={styles.section}>
+                            <h2 style={styles.sectionTitle}>Academic Information</h2>
+                            <div style={styles.sectionBody}>
                                 <div className="form-group">
                                     <label className="form-label">Faculty</label>
                                     <input type="text" name="faculty" value={formData.faculty}
@@ -166,11 +165,11 @@ const StudentProfilePage = () => {
 
                     {/* Right Column */}
                     <div style={styles.col}>
-                        <div className="card">
-                            <div className="card-header card-header-success">
-                                <h2 className="card-title">⚡ Skills & Availability</h2>
-                            </div>
-                            <div className="card-body" style={styles.cardForm}>
+
+                        {/* Skills */}
+                        <div style={styles.section}>
+                            <h2 style={styles.sectionTitle}>Skills & Availability</h2>
+                            <div style={styles.sectionBody}>
                                 <div className="form-group">
                                     <label className="form-label">Skills</label>
                                     <p className="form-hint">Separate with commas</p>
@@ -200,11 +199,10 @@ const StudentProfilePage = () => {
                             </div>
                         </div>
 
-                        <div className="card">
-                            <div className="card-header card-header-warning">
-                                <h2 className="card-title">🔗 Links</h2>
-                            </div>
-                            <div className="card-body" style={styles.cardForm}>
+                        {/* Links */}
+                        <div style={styles.section}>
+                            <h2 style={styles.sectionTitle}>Links</h2>
+                            <div style={styles.sectionBody}>
                                 <div className="form-group">
                                     <label className="form-label">LinkedIn Profile</label>
                                     <input type="url" name="linkedIn" value={formData.linkedIn}
@@ -222,11 +220,10 @@ const StudentProfilePage = () => {
                             </div>
                         </div>
 
-                        <div className="card">
-                            <div className="card-header card-header-purple">
-                                <h2 className="card-title">📄 CV Upload</h2>
-                            </div>
-                            <div className="card-body" style={styles.cardForm}>
+                        {/* CV Upload */}
+                        <div style={styles.section}>
+                            <h2 style={styles.sectionTitle}>CV Upload</h2>
+                            <div style={styles.sectionBody}>
                                 {profile?.cv && (
                                     <div style={styles.currentCV}>📄 Current CV: {profile.cv}</div>
                                 )}
@@ -236,7 +233,7 @@ const StudentProfilePage = () => {
                                         style={{display: 'none'}} id="cv" />
                                     <label htmlFor="cv" className="upload-label">
                                         {cv ? (
-                                            <span style={{color: 'var(--success-dark)'}}>✅ {cv.name}</span>
+                                            <span style={{color: '#16a34a'}}>✅ {cv.name}</span>
                                         ) : (
                                             <span>📎 Click to upload your CV</span>
                                         )}
@@ -249,7 +246,7 @@ const StudentProfilePage = () => {
                         <button type="submit"
                             className={`btn btn-full btn-lg ${submitting ? 'btn-disabled' : 'btn-amber'}`}
                             disabled={submitting}>
-                            {submitting ? 'Saving...' : '💾 Save Profile'}
+                            {submitting ? 'Saving...' : 'Save Profile'}
                         </button>
                     </div>
                 </form>
@@ -259,18 +256,17 @@ const StudentProfilePage = () => {
 };
 
 const styles = {
-    completeBadge: {
-        backgroundColor: 'rgba(255,255,255,0.2)', color: '#ffffff',
-        padding: '8px 20px', borderRadius: 'var(--radius-full)', fontSize: '14px', fontWeight: '600'
-    },
+    pageHeader: { background: '#ffffff', borderBottom: '1px solid #E7E2D9', padding: '32px 0' },
+    pageHeaderInner: { maxWidth: '1280px', margin: '0 auto', padding: '0 48px', display: 'flex', justifyContent: 'space-between', alignItems: 'center' },
+    pageTitle: { fontSize: '28px', fontWeight: '800', color: '#1C1917', letterSpacing: '-0.5px' },
+    pageSubtitle: { fontSize: '14px', color: '#6B7280', marginTop: '4px' },
+    completeBadge: { background: '#FEF3C7', color: '#D97706', padding: '8px 20px', borderRadius: '9999px', fontSize: '13px', fontWeight: '600' },
     col: { display: 'flex', flexDirection: 'column', gap: '24px' },
-    cardForm: { display: 'flex', flexDirection: 'column', gap: '16px' },
+    section: { background: '#ffffff', border: '1px solid #E7E2D9', borderRadius: '16px', overflow: 'hidden' },
+    sectionTitle: { fontSize: '15px', fontWeight: '700', color: '#1C1917', padding: '16px 24px', borderBottom: '1px solid #E7E2D9', margin: 0 },
+    sectionBody: { padding: '20px 24px', display: 'flex', flexDirection: 'column', gap: '16px' },
     skillsRow: { display: 'flex', flexWrap: 'wrap', gap: '8px' },
-    currentCV: {
-        backgroundColor: '#f0fdf4', color: 'var(--success-dark)',
-        padding: '10px 14px', borderRadius: 'var(--radius-sm)',
-        fontSize: '13px', fontWeight: '600', border: '1px solid #bbf7d0'
-    }
+    currentCV: { background: '#f0fdf4', color: '#16a34a', padding: '10px 14px', borderRadius: '8px', fontSize: '13px', fontWeight: '600', border: '1px solid #bbf7d0' }
 };
 
 export default StudentProfilePage;

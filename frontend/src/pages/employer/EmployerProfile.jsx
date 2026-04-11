@@ -5,10 +5,7 @@ const EmployerProfile = () => {
     const navigate = useNavigate();
     const [profile, setProfile] = useState(null);
     const [formData, setFormData] = useState({
-        companyName: '',
-        email: '',
-        companyAddress: '',
-        companyDescription: ''
+        companyName: '', email: '', companyAddress: '', companyDescription: ''
     });
     const [loading, setLoading] = useState(true);
     const [editing, setEditing] = useState(false);
@@ -54,39 +51,28 @@ const EmployerProfile = () => {
 
     const validateProfile = () => {
         const newErrors = {};
-        if (!formData.companyName.trim()) {
-            newErrors.companyName = 'Company name is required';
-        }
-        if (!formData.companyAddress.trim()) {
-            newErrors.companyAddress = 'Company address is required';
-        }
-        if (!formData.companyDescription.trim()) {
-            newErrors.companyDescription = 'Company description is required';
-        }
+        if (!formData.companyName.trim()) newErrors.companyName = 'Company name is required';
+        if (!formData.companyAddress.trim()) newErrors.companyAddress = 'Company address is required';
+        if (!formData.companyDescription.trim()) newErrors.companyDescription = 'Company description is required';
         return newErrors;
     };
 
     const handleSave = async () => {
         const token = localStorage.getItem('token');
         if (!token) { navigate('/login'); return; }
-
         const newErrors = validateProfile();
         if (Object.keys(newErrors).length > 0) {
             setFieldErrors(newErrors);
             setMessage({ type: 'error', text: 'Please fill all required fields!' });
             return;
         }
-
         setFieldErrors({});
         setSaving(true);
         setMessage({ type: '', text: '' });
         try {
             const response = await fetch('http://localhost:5000/api/employer/profile', {
                 method: 'PUT',
-                headers: {
-                    'Content-Type': 'application/json',
-                    Authorization: `Bearer ${token}`
-                },
+                headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` },
                 body: JSON.stringify(formData)
             });
             const data = await response.json();
@@ -117,23 +103,28 @@ const EmployerProfile = () => {
 
     const isVerified = Boolean(profile?.isVerified);
 
-    if (loading) {
-        return (
-            <div className="page-wrapper">
-                <nav className="navbar">
-                    <div className="navbar-brand">🎓 Internship Portal</div>
-                </nav>
-                <div style={{ textAlign: 'center', padding: '80px' }}>
-                    <p style={{ fontSize: '18px', color: '#7C3AED' }}>Loading profile...</p>
-                </div>
+    if (loading) return (
+        <div className="page-wrapper">
+            <nav className="navbar">
+                <Link to="/" className="navbar-brand">
+                    <div className="navbar-brand-icon">🎓</div>
+                    InternHub
+                </Link>
+            </nav>
+            <div className="loading-wrapper">
+                <div className="spinner"></div>
+                <p>Loading profile...</p>
             </div>
-        );
-    }
+        </div>
+    );
 
     return (
         <div className="page-wrapper">
             <nav className="navbar">
-                <div className="navbar-brand">🎓 Internship Portal</div>
+                <Link to="/" className="navbar-brand">
+                    <div className="navbar-brand-icon">🎓</div>
+                    InternHub
+                </Link>
                 <div className="navbar-links">
                     <Link to="/employer/dashboard" className="nav-link">Dashboard</Link>
                     <Link to="/employer/my-jobs" className="nav-link">My Jobs</Link>
@@ -141,233 +132,125 @@ const EmployerProfile = () => {
                 </div>
             </nav>
 
-            <div className="main-content" style={{ maxWidth: '800px' }}>
-
-                {/* Profile Header Card */}
-                <div style={{
-                    background: 'linear-gradient(135deg, #7C3AED 0%, #6366f1 100%)',
-                    borderRadius: '16px',
-                    padding: '32px',
-                    marginBottom: '24px',
-                    display: 'flex',
-                    alignItems: 'center',
-                    gap: '24px'
-                }}>
-                    <div style={{
-                        width: '80px',
-                        height: '80px',
-                        borderRadius: '50%',
-                        background: 'rgba(255,255,255,0.2)',
-                        display: 'flex',
-                        alignItems: 'center',
-                        justifyContent: 'center',
-                        fontSize: '36px',
-                        flexShrink: 0
-                    }}>
-                        🏢
+            {/* Page Header */}
+            <div style={styles.pageHeader}>
+                <div style={styles.pageHeaderInner}>
+                    <div style={styles.companyAvatar}>
+                        {formData.companyName?.[0] || '🏢'}
                     </div>
                     <div style={{ flex: 1 }}>
-                        <h1 style={{ color: 'white', margin: 0, fontSize: '24px', fontWeight: '700' }}>
-                            {formData.companyName || profile?.name || 'Your Company'}
-                        </h1>
-                        <p style={{ color: '#e0d7ff', margin: '4px 0 0', fontSize: '14px' }}>
-                            {formData.email}
-                        </p>
-                        <p style={{ color: '#e0d7ff', margin: '4px 0 0', fontSize: '14px' }}>
-                            📍 {formData.companyAddress || 'No address added'}
-                        </p>
+                        <h1 style={styles.pageTitle}>{formData.companyName || 'Your Company'}</h1>
+                        <p style={styles.pageSubtitle}>{formData.email}</p>
+                        <p style={styles.pageSubtitle}>📍 {formData.companyAddress || 'No address added'}</p>
                     </div>
                     <div style={{
-                        background: isVerified ? '#10b981' : '#f59e0b',
-                        color: 'white',
+                        background: isVerified ? '#f0fdf4' : '#FEF3C7',
+                        color: isVerified ? '#16a34a' : '#D97706',
+                        border: `1px solid ${isVerified ? '#bbf7d0' : '#FCD34D'}`,
                         padding: '6px 16px',
-                        borderRadius: '20px',
+                        borderRadius: '9999px',
                         fontSize: '13px',
-                        fontWeight: '600',
-                        flexShrink: 0
+                        fontWeight: '600'
                     }}>
                         {isVerified ? '✅ Verified' : '⏳ Pending Approval'}
                     </div>
                 </div>
+            </div>
 
-                {/* Messages */}
+            <div className="main-content" style={{ maxWidth: '800px' }}>
+
                 {message.text && (
-                    <div style={{
-                        padding: '12px 16px',
-                        borderRadius: '8px',
-                        marginBottom: '16px',
-                        background: message.type === 'success' ? '#d1fae5' : '#fee2e2',
-                        color: message.type === 'success' ? '#065f46' : '#991b1b',
-                        fontSize: '14px'
-                    }}>
+                    <div className={`alert ${message.type === 'success' ? 'alert-success' : 'alert-error'}`}>
                         {message.type === 'success' ? '✅' : '⚠️'} {message.text}
                     </div>
                 )}
 
-                {/* Details Card */}
-                <div style={{
-                    background: 'white',
-                    borderRadius: '16px',
-                    padding: '24px',
-                    boxShadow: '0 1px 3px rgba(0,0,0,0.1)'
-                }}>
-                    <h2 style={{ color: '#1e1b4b', fontSize: '18px', marginBottom: '20px', marginTop: 0 }}>
-                        Company Details
-                    </h2>
+                <div style={styles.section}>
+                    <h2 style={styles.sectionTitle}>Company Details</h2>
+                    <div style={styles.sectionBody}>
 
-                    {/* Company Name */}
-                    <div style={{ marginBottom: '16px' }}>
-                        <label style={{ fontSize: '13px', fontWeight: '600', color: '#7C3AED', display: 'block', marginBottom: '6px' }}>
-                            🏢 COMPANY NAME <span style={{ color: 'red' }}>*</span>
-                        </label>
-                        {editing ? (
-                            <>
-                                <input
-                                    className="form-input"
-                                    name="companyName"
-                                    value={formData.companyName}
-                                    onChange={handleChange}
-                                    placeholder="Enter company name"
-                                    style={{ borderColor: fieldErrors.companyName ? 'red' : '' }}
-                                />
-                                {fieldErrors.companyName && (
-                                    <p style={{ color: 'red', fontSize: '13px', margin: '4px 0 0' }}>
-                                        ⚠️ {fieldErrors.companyName}
-                                    </p>
-                                )}
-                            </>
-                        ) : (
-                            <p style={{ margin: 0, fontSize: '16px', color: '#1e1b4b', padding: '10px', background: '#f9fafb', borderRadius: '8px' }}>
-                                {formData.companyName || 'Not provided'}
-                            </p>
-                        )}
-                    </div>
+                        <div className="form-group">
+                            <label className="form-label">🏢 Company Name <span style={{ color: '#ef4444' }}>*</span></label>
+                            {editing ? (
+                                <>
+                                    <input className="form-input" name="companyName" value={formData.companyName}
+                                        onChange={handleChange} placeholder="Enter company name"
+                                        style={{ borderColor: fieldErrors.companyName ? '#ef4444' : '' }} />
+                                    {fieldErrors.companyName && <p style={styles.fieldError}>⚠️ {fieldErrors.companyName}</p>}
+                                </>
+                            ) : (
+                                <p style={styles.readValue}>{formData.companyName || 'Not provided'}</p>
+                            )}
+                        </div>
 
-                    {/* Email */}
-                    <div style={{ marginBottom: '16px' }}>
-                        <label style={{ fontSize: '13px', fontWeight: '600', color: '#7C3AED', display: 'block', marginBottom: '6px' }}>
-                            ✉️ EMAIL ADDRESS
-                        </label>
-                        <p style={{ margin: 0, fontSize: '16px', color: '#1e1b4b', padding: '10px', background: '#f9fafb', borderRadius: '8px' }}>
-                            {formData.email || 'Not provided'}
-                        </p>
-                    </div>
+                        <div className="form-group">
+                            <label className="form-label">✉️ Email Address</label>
+                            <p style={styles.readValue}>{formData.email || 'Not provided'}</p>
+                        </div>
 
-                    {/* Address */}
-                    <div style={{ marginBottom: '16px' }}>
-                        <label style={{ fontSize: '13px', fontWeight: '600', color: '#7C3AED', display: 'block', marginBottom: '6px' }}>
-                            📍 COMPANY ADDRESS <span style={{ color: 'red' }}>*</span>
-                        </label>
-                        {editing ? (
-                            <>
-                                <input
-                                    className="form-input"
-                                    name="companyAddress"
-                                    value={formData.companyAddress}
-                                    onChange={handleChange}
-                                    placeholder="Enter company address"
-                                    style={{ borderColor: fieldErrors.companyAddress ? 'red' : '' }}
-                                />
-                                {fieldErrors.companyAddress && (
-                                    <p style={{ color: 'red', fontSize: '13px', margin: '4px 0 0' }}>
-                                        ⚠️ {fieldErrors.companyAddress}
-                                    </p>
-                                )}
-                            </>
-                        ) : (
-                            <p style={{ margin: 0, fontSize: '16px', color: '#1e1b4b', padding: '10px', background: '#f9fafb', borderRadius: '8px' }}>
-                                {formData.companyAddress || 'Not provided'}
-                            </p>
-                        )}
-                    </div>
+                        <div className="form-group">
+                            <label className="form-label">📍 Company Address <span style={{ color: '#ef4444' }}>*</span></label>
+                            {editing ? (
+                                <>
+                                    <input className="form-input" name="companyAddress" value={formData.companyAddress}
+                                        onChange={handleChange} placeholder="Enter company address"
+                                        style={{ borderColor: fieldErrors.companyAddress ? '#ef4444' : '' }} />
+                                    {fieldErrors.companyAddress && <p style={styles.fieldError}>⚠️ {fieldErrors.companyAddress}</p>}
+                                </>
+                            ) : (
+                                <p style={styles.readValue}>{formData.companyAddress || 'Not provided'}</p>
+                            )}
+                        </div>
 
-                    {/* Description */}
-                    <div style={{ marginBottom: '24px' }}>
-                        <label style={{ fontSize: '13px', fontWeight: '600', color: '#7C3AED', display: 'block', marginBottom: '6px' }}>
-                            📝 COMPANY DESCRIPTION <span style={{ color: 'red' }}>*</span>
-                        </label>
-                        {editing ? (
-                            <>
-                                <textarea
-                                    className="form-textarea"
-                                    name="companyDescription"
-                                    value={formData.companyDescription}
-                                    onChange={handleChange}
-                                    rows="4"
-                                    placeholder="Describe your company..."
-                                    style={{ borderColor: fieldErrors.companyDescription ? 'red' : '' }}
-                                />
-                                {fieldErrors.companyDescription && (
-                                    <p style={{ color: 'red', fontSize: '13px', margin: '4px 0 0' }}>
-                                        ⚠️ {fieldErrors.companyDescription}
-                                    </p>
-                                )}
-                            </>
-                        ) : (
-                            <p style={{ margin: 0, fontSize: '16px', color: '#1e1b4b', padding: '10px', background: '#f9fafb', borderRadius: '8px', lineHeight: '1.6' }}>
-                                {formData.companyDescription || 'No description added'}
-                            </p>
-                        )}
-                    </div>
+                        <div className="form-group">
+                            <label className="form-label">📝 Company Description <span style={{ color: '#ef4444' }}>*</span></label>
+                            {editing ? (
+                                <>
+                                    <textarea className="form-textarea" name="companyDescription" value={formData.companyDescription}
+                                        onChange={handleChange} rows="4" placeholder="Describe your company..."
+                                        style={{ borderColor: fieldErrors.companyDescription ? '#ef4444' : '' }} />
+                                    {fieldErrors.companyDescription && <p style={styles.fieldError}>⚠️ {fieldErrors.companyDescription}</p>}
+                                </>
+                            ) : (
+                                <p style={{ ...styles.readValue, lineHeight: '1.6' }}>{formData.companyDescription || 'No description added'}</p>
+                            )}
+                        </div>
 
-                    {/* Buttons */}
-                    <div style={{ display: 'flex', gap: '12px' }}>
-                        {!editing ? (
-                            <button
-                                onClick={() => setEditing(true)}
-                                style={{
-                                    background: 'linear-gradient(135deg, #7C3AED 0%, #6366f1 100%)',
-                                    color: 'white',
-                                    border: 'none',
-                                    padding: '10px 24px',
-                                    borderRadius: '8px',
-                                    cursor: 'pointer',
-                                    fontSize: '15px',
-                                    fontWeight: '600'
-                                }}
-                            >
-                                ✏️ Edit Profile
-                            </button>
-                        ) : (
-                            <>
-                                <button
-                                    onClick={handleSave}
-                                    disabled={saving}
-                                    style={{
-                                        background: saving ? '#9ca3af' : 'linear-gradient(135deg, #7C3AED 0%, #6366f1 100%)',
-                                        color: 'white',
-                                        border: 'none',
-                                        padding: '10px 24px',
-                                        borderRadius: '8px',
-                                        cursor: saving ? 'not-allowed' : 'pointer',
-                                        fontSize: '15px',
-                                        fontWeight: '600'
-                                    }}
-                                >
-                                    {saving ? 'Saving...' : '💾 Save Changes'}
+                        <div style={{ display: 'flex', gap: '12px' }}>
+                            {!editing ? (
+                                <button onClick={() => setEditing(true)} className="btn btn-amber">
+                                    ✏️ Edit Profile
                                 </button>
-                                <button
-                                    onClick={handleCancelEdit}
-                                    style={{
-                                        background: '#f3f4f6',
-                                        color: '#374151',
-                                        border: 'none',
-                                        padding: '10px 24px',
-                                        borderRadius: '8px',
-                                        cursor: 'pointer',
-                                        fontSize: '15px',
-                                        fontWeight: '600'
-                                    }}
-                                >
-                                    Cancel
-                                </button>
-                            </>
-                        )}
+                            ) : (
+                                <>
+                                    <button onClick={handleSave} disabled={saving}
+                                        className={`btn ${saving ? 'btn-disabled' : 'btn-amber'}`}>
+                                        {saving ? 'Saving...' : '💾 Save Changes'}
+                                    </button>
+                                    <button onClick={handleCancelEdit} className="btn btn-gray">
+                                        Cancel
+                                    </button>
+                                </>
+                            )}
+                        </div>
                     </div>
                 </div>
             </div>
         </div>
     );
+};
+
+const styles = {
+    pageHeader: { background: '#ffffff', borderBottom: '1px solid #E7E2D9', padding: '32px 0' },
+    pageHeaderInner: { maxWidth: '1280px', margin: '0 auto', padding: '0 48px', display: 'flex', alignItems: 'center', gap: '20px' },
+    companyAvatar: { width: '64px', height: '64px', background: '#FEF3C7', borderRadius: '14px', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '28px', fontWeight: '800', color: '#D97706', flexShrink: 0 },
+    pageTitle: { fontSize: '24px', fontWeight: '800', color: '#1C1917', letterSpacing: '-0.3px', margin: 0 },
+    pageSubtitle: { fontSize: '14px', color: '#6B7280', marginTop: '2px' },
+    section: { background: '#ffffff', border: '1px solid #E7E2D9', borderRadius: '16px', overflow: 'hidden' },
+    sectionTitle: { fontSize: '15px', fontWeight: '700', color: '#1C1917', padding: '16px 24px', borderBottom: '1px solid #E7E2D9', margin: 0 },
+    sectionBody: { padding: '20px 24px', display: 'flex', flexDirection: 'column', gap: '16px' },
+    readValue: { margin: 0, fontSize: '14px', color: '#1C1917', padding: '10px 14px', background: '#F5F0E8', borderRadius: '8px', border: '1px solid #E7E2D9' },
+    fieldError: { color: '#ef4444', fontSize: '13px', margin: '4px 0 0' }
 };
 
 export default EmployerProfile;

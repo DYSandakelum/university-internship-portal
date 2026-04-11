@@ -1,7 +1,7 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
 import Navbar from '../components/Navbar';
-import { FaSearch, FaClipboardList, FaBell, FaFileAlt, FaStar, FaCheckCircle, FaBuilding, FaUserGraduate, FaBriefcase } from 'react-icons/fa';
+import { FaSearch, FaClipboardList, FaBell, FaFileAlt, FaStar, FaCheckCircle, FaBuilding, FaUserGraduate, FaBriefcase, FaArrowRight } from 'react-icons/fa';
 
 const HomePage = () => {
     return (
@@ -10,427 +10,295 @@ const HomePage = () => {
 
             {/* Hero Section */}
             <div style={styles.hero}>
-                <div style={styles.heroContent}>
-                    <h1 style={styles.heroTitle}>
-                        Find Your Perfect<br />
-                        <span style={styles.heroTitleAccent}>Internship.</span>
-                    </h1>
-                    <p style={styles.heroSubtitle}>
-                        Connect with top companies, build your career, and gain
-                        real-world experience while still at university.
-                        Join 1,000+ students who found their dream internship.
-                    </p>
-                    <div style={styles.heroButtons}>
-                        <Link to="/register" className="btn btn-amber btn-lg">
-                            Get Started Free
-                        </Link>
-                        <Link to="/login" className="btn btn-outline btn-lg">
-                            Login →
-                        </Link>
-                        <Link to="/home" className="btn btn-outline btn-lg">
-                            Review
-                        </Link>
+                <div style={styles.heroInner}>
+                    <div style={styles.heroContent}>
+                        <div style={styles.heroBadge}>
+                            <span style={styles.heroBadgeDot}></span>
+                            2,400+ internships posted this month
+                        </div>
+                        <h1 style={styles.heroTitle}>
+                            Your next career<br />
+                            <span style={styles.heroAccent}>starts here.</span>
+                        </h1>
+                        <p style={styles.heroSubtitle}>
+                            Connect with top employers, discover internships that match
+                            your skills, and launch your professional journey — all in one place.
+                        </p>
+                        <div style={styles.heroButtons}>
+                            <Link to="/register" className="btn btn-amber btn-lg">
+                                <FaSearch style={{fontSize: '14px'}} />
+                                Find Internships
+                            </Link>
+                            <Link to="/register" className="btn btn-outline-dark btn-lg">
+                                Post a Position <FaArrowRight style={{fontSize: '12px'}} />
+                            </Link>
+                            <Link to="/home" className="btn btn-outline-dark btn-lg">
+                                Reviews
+                            </Link>
+                        </div>
+                        <div style={styles.heroStats}>
+                            {heroStats.map((s, i) => (
+                                <React.Fragment key={i}>
+                                    <div style={styles.heroStat}>
+                                        <span style={styles.heroStatValue}>{s.value}</span>
+                                        <span style={styles.heroStatLabel}>{s.label}</span>
+                                    </div>
+                                    {i < heroStats.length - 1 && <div style={styles.heroStatDivider}></div>}
+                                </React.Fragment>
+                            ))}
+                        </div>
+                    </div>
+                    <div style={styles.heroIllustration}>
+                        <img
+                            src={require('../assets/hero-bg.jpg')}
+                            alt="Internship"
+                            style={styles.heroImage}
+                        />
                     </div>
                 </div>
-            </div>
-
-            {/* Stats Section */}
-            <div style={styles.statsSection}>
-                {stats.map((stat, index) => (
-                    <div key={index} style={styles.statItem}>
-                        <span style={styles.statIcon}>{stat.icon}</span>
-                        <span style={styles.statValue}>{stat.value}</span>
-                        <span style={styles.statLabel}>{stat.label}</span>
-                    </div>
-                ))}
             </div>
 
             {/* Features Section */}
-            <div style={styles.section}>
-                <div style={styles.sectionHeader}>
-                    <h2 style={styles.sectionTitle}>Everything You Need</h2>
-                    <p style={styles.sectionSubtitle}>
-                        A complete platform built for SLIIT students and employers
-                    </p>
+            <div style={styles.featuresSection}>
+                <div style={styles.sectionInner}>
+                    <div style={styles.sectionHeader}>
+                        <h2 style={styles.sectionTitle}>
+                            Everything you need to land your<br />dream internship
+                        </h2>
+                        <p style={styles.sectionSubtitle}>
+                            Built for SLIIT students, trusted by universities and employers alike.
+                        </p>
+                    </div>
+                    <div className="grid-4" style={{gap: '20px'}}>
+                        {features.map((f, i) => (
+                            <div key={i} style={styles.featureCard}>
+                                <div style={styles.featureIcon}>
+                                    {f.icon}
+                                </div>
+                                <h3 style={styles.featureTitle}>{f.title}</h3>
+                                <p style={styles.featureDesc}>{f.description}</p>
+                            </div>
+                        ))}
+                    </div>
                 </div>
-                <div className="grid-3">
-                    {features.map((feature, index) => (
-                        <div key={index} className="card" style={{cursor: 'default'}}>
-                            <div className="card-header" style={{background: feature.color}}>
-                                <span style={{fontSize: '20px'}}>{feature.icon}</span>
-                                <h3 className="card-title">{feature.title}</h3>
-                            </div>
-                            <div className="card-body">
-                                <p style={styles.featureDesc}>{feature.description}</p>
-                            </div>
+            </div>
+
+            {/* Featured Jobs Section */}
+            <div style={styles.jobsSection}>
+                <div style={styles.sectionInner}>
+                    <div style={styles.jobsHeader}>
+                        <div>
+                            <h2 style={styles.sectionTitle}>Featured Internships</h2>
+                            <p style={styles.sectionSubtitle}>Handpicked opportunities from top employers</p>
                         </div>
-                    ))}
+                        <Link to="/job-matching/search" className="btn btn-outline-dark btn-sm">
+                            View All →
+                        </Link>
+                    </div>
+                    <div style={styles.jobsList}>
+                        {sampleJobs.map((job, i) => (
+                            <div key={i} className="job-row">
+                                <div className="job-company-avatar">{job.initial}</div>
+                                <div style={styles.jobInfo}>
+                                    <h3 style={styles.jobTitle}>{job.title}</h3>
+                                    <p style={styles.jobCompany}>{job.company}</p>
+                                </div>
+                                <div style={styles.jobMeta}>
+                                    <span style={styles.jobMetaItem}>📍 {job.location}</span>
+                                    <span style={styles.jobMetaItem}>⏰ {job.type}</span>
+                                    <span style={styles.jobMetaItem}>💰 {job.salary}</span>
+                                </div>
+                                <div style={styles.jobTags}>
+                                    {job.tags.map((tag, j) => (
+                                        <span key={j} style={styles.jobTag}>{tag}</span>
+                                    ))}
+                                </div>
+                                <Link to="/register" className="btn btn-amber btn-sm">
+                                    Apply Now
+                                </Link>
+                            </div>
+                        ))}
+                    </div>
                 </div>
             </div>
 
             {/* How It Works */}
-            <div style={styles.howSection}>
-                <div style={styles.sectionHeader}>
-                    <h2 style={styles.sectionTitle}>How It Works</h2>
-                    <p style={styles.sectionSubtitle}>Get started in 3 simple steps</p>
-                </div>
-                <div className="grid-3">
-                    {steps.map((step, index) => (
-                        <div key={index} style={styles.stepCard}>
-                            <div style={styles.stepNumber}>{step.number}</div>
-                            <h3 style={styles.stepTitle}>{step.title}</h3>
-                            <p style={styles.stepDesc}>{step.description}</p>
-                        </div>
-                    ))}
+            <div style={styles.stepsSection}>
+                <div style={styles.sectionInner}>
+                    <div style={styles.sectionHeader}>
+                        <h2 style={styles.sectionTitle}>How It Works</h2>
+                        <p style={styles.sectionSubtitle}>Get started in 3 simple steps</p>
+                    </div>
+                    <div className="grid-3" style={{gap: '32px'}}>
+                        {steps.map((step, i) => (
+                            <div key={i} style={styles.stepCard}>
+                                <div style={styles.stepNumber}>{step.number}</div>
+                                <h3 style={styles.stepTitle}>{step.title}</h3>
+                                <p style={styles.stepDesc}>{step.description}</p>
+                            </div>
+                        ))}
+                    </div>
                 </div>
             </div>
 
             {/* CTA Section */}
-            <div style={styles.cta}>
-                <h2 style={styles.ctaTitle}>Ready to Start Your Journey?</h2>
-                <p style={styles.ctaSubtitle}>
-                    Join thousands of SLIIT students who found their dream internship
-                </p>
-                <div style={styles.ctaButtons}>
-                    <Link to="/register" className="btn btn-amber btn-lg">
-                        <FaUserGraduate style={{ marginRight: '8px' }} /> Register as Student
-                    </Link>
-                    <Link to="/register" className="btn btn-outline btn-lg">
-                        <FaBuilding style={{ marginRight: '8px' }} /> Register as Employer
+            <div style={styles.ctaOuter}>
+                <div style={styles.ctaSection}>
+                    <h2 style={styles.ctaTitle}>Ready to kickstart your career?</h2>
+                    <p style={styles.ctaSubtitle}>
+                        Join thousands of SLIIT students who found their perfect internship.
+                    </p>
+                    <Link to="/register" className="btn btn-white btn-lg">
+                        Create Free Account <FaArrowRight style={{fontSize: '13px'}} />
                     </Link>
                 </div>
             </div>
 
             {/* Footer */}
             <footer style={styles.footer}>
-                <div style={styles.footerGrid}>
-                    <div>
+                <div style={styles.footerInner}>
+                    <div style={styles.footerBrandCol}>
                         <div style={styles.footerBrand}>
-                            <FaUserGraduate style={{ marginRight: '8px', fontSize: '16px' }} /> Internship Portal
+                            <div style={styles.footerBrandIcon}>🎓</div>
+                            <span>InternHub</span>
                         </div>
                         <p style={styles.footerDesc}>
-                            The official internship portal for SLIIT students and employers.
+                            Bridging the gap between SLIIT students and employers since 2024.
                         </p>
-                    </div>
-                    <div>
-                        <p style={styles.footerHeading}>Quick Links</p>
-                        <div style={styles.footerLinks}>
-                            <Link to="/register" style={styles.footerLink}>Register</Link>
-                            <Link to="/login" style={styles.footerLink}>Login</Link>
-                        </div>
                     </div>
                     <div>
                         <p style={styles.footerHeading}>For Students</p>
                         <div style={styles.footerLinks}>
-                            <span style={styles.footerLink}>Browse Internships</span>
-                            <span style={styles.footerLink}>CV Generator</span>
-                            <span style={styles.footerLink}>My Applications</span>
+                            <Link to="/job-matching/search" style={styles.footerLink}>Browse Internships</Link>
+                            <Link to="/student/cv-generator" style={styles.footerLink}>CV Generator</Link>
+                            <Link to="/student/applications" style={styles.footerLink}>My Applications</Link>
                         </div>
                     </div>
                     <div>
-                        <p style={styles.footerHeading}>Contact</p>
+                        <p style={styles.footerHeading}>For Employers</p>
                         <div style={styles.footerLinks}>
+                            <Link to="/employer/post-job" style={styles.footerLink}>Post Internship</Link>
+                            <Link to="/employer/dashboard" style={styles.footerLink}>Employer Dashboard</Link>
+                        </div>
+                    </div>
+                    <div>
+                        <p style={styles.footerHeading}>Company</p>
+                        <div style={styles.footerLinks}>
+                            <Link to="/home" style={styles.footerLink}>Reviews</Link>
                             <span style={styles.footerLink}>SLIIT, Malabe</span>
                             <span style={styles.footerLink}>info@sliit.lk</span>
                         </div>
                     </div>
                 </div>
                 <div style={styles.footerBottom}>
-                    <p style={styles.footerCopy}>
-                        © 2026 University Internship Portal. Built for SLIIT students.
-                    </p>
+                    <p style={styles.footerCopy}>© 2026 InternHub. All rights reserved.</p>
                 </div>
             </footer>
         </div>
     );
 };
 
-const stats = [
-    { icon: <FaBriefcase size={28} />, value: '500+', label: 'Internships Posted' },
-    { icon: <FaBuilding size={28} />, value: '200+', label: 'Partner Companies' },
-    { icon: <FaUserGraduate size={28} />, value: '1,000+', label: 'Students Registered' },
-    { icon: <FaStar size={28} />, value: '95%', label: 'Placement Rate' }
+const heroStats = [
+    { value: '500+', label: 'Partner Companies' },
+    { value: '12K+', label: 'Students Placed' },
+    { value: '95%', label: 'Satisfaction Rate' }
 ];
 
 const features = [
-    {
-        icon: <FaSearch size={24} />,
-        title: 'Smart Search',
-        description: 'Find internships matching your skills, faculty, and availability with our advanced search.',
-        color: 'var(--primary)'
-    },
-    {
-        icon: <FaClipboardList size={24} />,
-        title: 'Easy Applications',
-        description: 'Apply to multiple internships with a few clicks and track all your applications in one place.',
-        color: 'var(--success)'
-    },
-    {
-        icon: <FaBell size={24} />,
-        title: 'Notifications',
-        description: 'Get instant updates when employers review your application or schedule an interview.',
-        color: 'var(--warning)'
-    },
-    {
-        icon: <FaFileAlt size={24} />,
-        title: 'CV Generator',
-        description: 'Create a professional CV instantly using our built-in generator with beautiful templates.',
-        color: 'var(--info)'
-    },
-    {
-        icon: <FaStar size={24} />,
-        title: 'Company Reviews',
-        description: 'Read honest reviews from students who have interned at companies before you apply.',
-        color: 'var(--secondary)'
-    },
-    {
-        icon: <FaCheckCircle size={24} />,
-        title: 'Verified Employers',
-        description: 'All employers are verified by our admin team so you can apply with full confidence.',
-        color: 'var(--amber)'
-    }
+    { icon: <FaBriefcase />, title: 'Curated Listings', description: 'Browse internships vetted by your university\'s career center.' },
+    { icon: <FaBuilding />, title: 'Employer Connections', description: 'Direct access to hiring managers and recruiters.' },
+    { icon: <FaStar />, title: 'Skill Matching', description: 'AI-powered recommendations based on your coursework and interests.' },
+    { icon: <FaCheckCircle />, title: 'Verified Employers', description: 'Every company is verified to ensure safe, quality internships.' },
+    { icon: <FaFileAlt />, title: 'CV Generator', description: 'Create a professional CV instantly with our built-in generator.' },
+    { icon: <FaBell />, title: 'Smart Notifications', description: 'Get instant updates on application status and new matches.' },
+    { icon: <FaClipboardList />, title: 'Easy Applications', description: 'Apply to multiple internships with just a few clicks.' },
+    { icon: <FaSearch />, title: 'Advanced Search', description: 'Filter by faculty, location, salary, and more.' }
+];
+
+const sampleJobs = [
+    { initial: 'S', title: 'Software Engineering Intern', company: 'Stripe', location: 'Colombo', type: 'Full-time', salary: 'LKR 35K/mo', tags: ['React', 'TypeScript'] },
+    { initial: 'F', title: 'Product Design Intern', company: 'Figma', location: 'Remote', type: 'Full-time', salary: 'LKR 30K/mo', tags: ['UI/UX', 'Figma'] },
+    { initial: 'N', title: 'Data Science Intern', company: 'Notion', location: 'Colombo', type: 'Part-time', salary: 'LKR 25K/mo', tags: ['Python', 'SQL'] }
 ];
 
 const steps = [
-    {
-        number: '01',
-        title: 'Create Your Profile',
-        description: 'Sign up with your SLIIT email, complete your profile and upload your CV.'
-    },
-    {
-        number: '02',
-        title: 'Browse & Apply',
-        description: 'Search for internships matching your skills and apply with one click.'
-    },
-    {
-        number: '03',
-        title: 'Get Hired',
-        description: 'Track your applications, attend interviews and land your dream internship.'
-    }
+    { number: '01', title: 'Create Your Profile', description: 'Sign up with your SLIIT email, complete your profile and upload your CV.' },
+    { number: '02', title: 'Browse & Apply', description: 'Search for internships matching your skills and apply with one click.' },
+    { number: '03', title: 'Get Hired', description: 'Track your applications, attend interviews and land your dream internship.' }
 ];
 
 const styles = {
-    pageWrapper: {
-        minHeight: '100vh',
-        backgroundColor: 'var(--bg)',
-        display: 'flex',
-        flexDirection: 'column'
-    },
+    pageWrapper: { minHeight: '100vh', backgroundColor: '#ffffff', display: 'flex', flexDirection: 'column' },
+
     // Hero
-    hero: {
-        background: 'var(--primary)',
-        backgroundImage: `linear-gradient(135deg, rgba(91,91,214,0.88) 0%, rgba(139,92,246,0.88) 100%), url(${require('../assets/hero-bg.jpg')})`,
-        backgroundSize: 'cover',
-        backgroundPosition: 'center',
-        padding: '100px 64px',
-        minHeight: '480px',
-        display: 'flex',
-        alignItems: 'center'
-    },
-    heroContent: {
-        maxWidth: '580px',
-        display: 'flex',
-        flexDirection: 'column',
-        gap: '24px'
-    },
-    heroTitle: {
-        color: '#ffffff',
-        fontSize: '56px',
-        fontWeight: '800',
-        lineHeight: '1.1',
-        letterSpacing: '-1.5px'
-    },
-    heroTitleAccent: {
-        color: '#FDE68A'
-    },
-    heroSubtitle: {
-        color: 'rgba(255,255,255,0.85)',
-        fontSize: '17px',
-        lineHeight: '1.7'
-    },
-    heroButtons: {
-        display: 'flex',
-        gap: '12px',
-        flexWrap: 'wrap',
-        marginTop: '8px'
-    },
-    // Stats
-    statsSection: {
-        backgroundColor: '#ffffff',
-        padding: '40px 64px',
-        display: 'grid',
-        gridTemplateColumns: 'repeat(4, 1fr)',
-        gap: '0',
-        borderBottom: '1px solid var(--border)'
-    },
-    statItem: {
-        display: 'flex',
-        flexDirection: 'column',
-        alignItems: 'center',
-        gap: '4px',
-        padding: '0 24px',
-        borderRight: '1px solid var(--border)'
-    },
-    statIcon: {
-        fontSize: '24px',
-        marginBottom: '4px'
-    },
-    statValue: {
-        fontSize: '28px',
-        fontWeight: '800',
-        color: 'var(--primary)',
-        letterSpacing: '-0.5px'
-    },
-    statLabel: {
-        fontSize: '13px',
-        color: 'var(--text-secondary)',
-        fontWeight: '500'
-    },
+    hero: { backgroundColor: '#F5F0E8', borderBottom: '1px solid #E7E2D9' },
+    heroInner: { maxWidth: '1280px', margin: '0 auto', padding: '80px 48px', display: 'flex', alignItems: 'center', gap: '64px' },
+    heroContent: { flex: 1, display: 'flex', flexDirection: 'column', gap: '24px' },
+    heroBadge: { display: 'inline-flex', alignItems: 'center', gap: '8px', background: '#ffffff', border: '1px solid #E7E2D9', borderRadius: '9999px', padding: '6px 14px', fontSize: '13px', color: '#6B7280', fontWeight: '500', width: 'fit-content' },
+    heroBadgeDot: { width: '8px', height: '8px', borderRadius: '50%', background: '#F59E0B', display: 'inline-block' },
+    heroTitle: { fontSize: '52px', fontWeight: '800', color: '#1C1917', lineHeight: '1.1', letterSpacing: '-1.5px' },
+    heroAccent: { color: '#F59E0B' },
+    heroSubtitle: { fontSize: '17px', color: '#6B7280', lineHeight: '1.7', maxWidth: '480px' },
+    heroButtons: { display: 'flex', gap: '12px', flexWrap: 'wrap' },
+    heroStats: { display: 'flex', alignItems: 'center', gap: '24px', paddingTop: '8px' },
+    heroStat: { display: 'flex', flexDirection: 'column', gap: '2px' },
+    heroStatValue: { fontSize: '22px', fontWeight: '800', color: '#1C1917', letterSpacing: '-0.5px' },
+    heroStatLabel: { fontSize: '12px', color: '#6B7280', fontWeight: '500' },
+    heroStatDivider: { width: '1px', height: '32px', background: '#E7E2D9' },
+    heroIllustration: { flex: 1, display: 'flex', justifyContent: 'flex-end' },
+    heroImage: { width: '100%', maxWidth: '480px', borderRadius: '16px', objectFit: 'cover', height: '360px', boxShadow: '0 8px 32px rgba(0,0,0,0.1)' },
+
     // Sections
-    section: {
-        padding: '72px 64px',
-        backgroundColor: 'var(--bg)',
-        maxWidth: '1200px',
-        margin: '0 auto',
-        width: '100%'
-    },
-    howSection: {
-        padding: '72px 64px',
-        backgroundColor: '#ffffff',
-        width: '100%'
-    },
-    sectionHeader: {
-        textAlign: 'center',
-        marginBottom: '48px'
-    },
-    sectionTitle: {
-        fontSize: '32px',
-        fontWeight: '800',
-        color: 'var(--text-primary)',
-        marginBottom: '10px',
-        letterSpacing: '-0.5px'
-    },
-    sectionSubtitle: {
-        fontSize: '15px',
-        color: 'var(--text-secondary)',
-        maxWidth: '400px',
-        margin: '0 auto'
-    },
-    featureDesc: {
-        fontSize: '14px',
-        color: 'var(--text-secondary)',
-        lineHeight: '1.7'
-    },
+    sectionInner: { maxWidth: '1280px', margin: '0 auto', padding: '0 48px' },
+    sectionHeader: { textAlign: 'center', marginBottom: '48px' },
+    sectionTitle: { fontSize: '32px', fontWeight: '800', color: '#1C1917', marginBottom: '10px', letterSpacing: '-0.5px', lineHeight: '1.2' },
+    sectionSubtitle: { fontSize: '15px', color: '#6B7280', maxWidth: '480px', margin: '0 auto' },
+
+    // Features
+    featuresSection: { padding: '80px 0', backgroundColor: '#F5F0E8' },
+    featureCard: { background: '#ffffff', border: '1px solid #E7E2D9', borderRadius: '16px', padding: '28px', display: 'flex', flexDirection: 'column', gap: '12px', transition: 'all 0.2s ease' },
+    featureIcon: { width: '44px', height: '44px', background: '#FEF3C7', borderRadius: '10px', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#F59E0B', fontSize: '18px' },
+    featureTitle: { fontSize: '15px', fontWeight: '700', color: '#1C1917' },
+    featureDesc: { fontSize: '13px', color: '#6B7280', lineHeight: '1.6' },
+
+    // Jobs
+    jobsSection: { padding: '80px 0', backgroundColor: '#ffffff' },
+    jobsHeader: { display: 'flex', justifyContent: 'space-between', alignItems: 'flex-end', marginBottom: '24px' },
+    jobsList: { display: 'flex', flexDirection: 'column', gap: '12px' },
+    jobInfo: { flex: 1 },
+    jobTitle: { fontSize: '15px', fontWeight: '700', color: '#1C1917', margin: 0 },
+    jobCompany: { fontSize: '13px', color: '#6B7280', margin: 0 },
+    jobMeta: { display: 'flex', gap: '16px' },
+    jobMetaItem: { fontSize: '13px', color: '#6B7280' },
+    jobTags: { display: 'flex', gap: '8px' },
+    jobTag: { background: '#F5F0E8', color: '#6B7280', padding: '4px 10px', borderRadius: '6px', fontSize: '12px', fontWeight: '500', border: '1px solid #E7E2D9' },
+
     // Steps
-    stepCard: {
-        textAlign: 'center',
-        padding: '32px 24px',
-        display: 'flex',
-        flexDirection: 'column',
-        alignItems: 'center',
-        gap: '14px'
-    },
-    stepNumber: {
-        width: '56px',
-        height: '56px',
-        borderRadius: '50%',
-        background: 'var(--primary)',
-        color: '#ffffff',
-        fontSize: '18px',
-        fontWeight: '800',
-        display: 'flex',
-        alignItems: 'center',
-        justifyContent: 'center',
-        boxShadow: '0 4px 16px rgba(91,91,214,0.3)'
-    },
-    stepTitle: {
-        fontSize: '17px',
-        fontWeight: '700',
-        color: 'var(--text-primary)'
-    },
-    stepDesc: {
-        fontSize: '14px',
-        color: 'var(--text-secondary)',
-        lineHeight: '1.7',
-        maxWidth: '260px'
-    },
+    stepsSection: { padding: '80px 0', backgroundColor: '#F5F0E8' },
+    stepCard: { textAlign: 'center', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '14px' },
+    stepNumber: { width: '56px', height: '56px', borderRadius: '50%', background: '#F59E0B', color: '#ffffff', fontSize: '18px', fontWeight: '800', display: 'flex', alignItems: 'center', justifyContent: 'center' },
+    stepTitle: { fontSize: '17px', fontWeight: '700', color: '#1C1917' },
+    stepDesc: { fontSize: '14px', color: '#6B7280', lineHeight: '1.7', maxWidth: '260px' },
+
     // CTA
-    cta: {
-        background: 'var(--primary)',
-        padding: '80px 64px',
-        textAlign: 'center',
-        display: 'flex',
-        flexDirection: 'column',
-        alignItems: 'center',
-        gap: '16px'
-    },
-    ctaTitle: {
-        color: '#ffffff',
-        fontSize: '32px',
-        fontWeight: '800',
-        letterSpacing: '-0.5px'
-    },
-    ctaSubtitle: {
-        color: 'rgba(255,255,255,0.8)',
-        fontSize: '15px',
-        maxWidth: '400px'
-    },
-    ctaButtons: {
-        display: 'flex',
-        gap: '12px',
-        flexWrap: 'wrap',
-        justifyContent: 'center',
-        marginTop: '8px'
-    },
+    ctaOuter: { padding: '80px 48px', backgroundColor: '#ffffff' },
+    ctaSection: { maxWidth: '1280px', margin: '0 auto', background: '#F59E0B', borderRadius: '20px', padding: '64px', textAlign: 'center', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '16px' },
+    ctaTitle: { color: '#ffffff', fontSize: '32px', fontWeight: '800', letterSpacing: '-0.5px' },
+    ctaSubtitle: { color: 'rgba(255,255,255,0.85)', fontSize: '15px', maxWidth: '400px' },
+
     // Footer
-    footer: {
-        backgroundColor: '#1C1C2E',
-        padding: '56px 64px 0'
-    },
-    footerGrid: {
-        display: 'grid',
-        gridTemplateColumns: '2fr 1fr 1fr 1fr',
-        gap: '48px',
-        paddingBottom: '48px',
-        borderBottom: '1px solid rgba(255,255,255,0.1)'
-    },
-    footerBrand: {
-        color: '#ffffff',
-        fontSize: '18px',
-        fontWeight: '700',
-        marginBottom: '12px'
-    },
-    footerDesc: {
-        color: 'rgba(255,255,255,0.5)',
-        fontSize: '13px',
-        lineHeight: '1.7'
-    },
-    footerHeading: {
-        color: '#ffffff',
-        fontSize: '14px',
-        fontWeight: '700',
-        marginBottom: '16px'
-    },
-    footerLinks: {
-        display: 'flex',
-        flexDirection: 'column',
-        gap: '10px'
-    },
-    footerLink: {
-        color: 'rgba(255,255,255,0.5)',
-        fontSize: '13px',
-        textDecoration: 'none',
-        transition: 'var(--transition)',
-        cursor: 'pointer'
-    },
-    footerBottom: {
-        padding: '24px 0',
-        textAlign: 'center'
-    },
-    footerCopy: {
-        color: 'rgba(255,255,255,0.35)',
-        fontSize: '13px'
-    }
+    footer: { backgroundColor: '#ffffff', borderTop: '1px solid #E7E2D9' },
+    footerInner: { maxWidth: '1280px', margin: '0 auto', padding: '56px 48px', display: 'grid', gridTemplateColumns: '2fr 1fr 1fr 1fr', gap: '48px' },
+    footerBrandCol: {},
+    footerBrand: { display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '12px' },
+    footerBrandIcon: { width: '28px', height: '28px', background: '#F59E0B', borderRadius: '6px', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '14px' },
+    footerBrandText: { fontSize: '16px', fontWeight: '700', color: '#1C1917' },
+    footerDesc: { color: '#6B7280', fontSize: '13px', lineHeight: '1.7' },
+    footerHeading: { color: '#1C1917', fontSize: '13px', fontWeight: '700', marginBottom: '16px', textTransform: 'uppercase', letterSpacing: '0.5px' },
+    footerLinks: { display: 'flex', flexDirection: 'column', gap: '10px' },
+    footerLink: { color: '#6B7280', fontSize: '13px', textDecoration: 'none', cursor: 'pointer', transition: 'color 0.2s' },
+    footerBottom: { borderTop: '1px solid #E7E2D9', padding: '24px 48px', maxWidth: '1280px', margin: '0 auto' },
+    footerCopy: { color: '#9CA3AF', fontSize: '13px' }
 };
 
 export default HomePage;
