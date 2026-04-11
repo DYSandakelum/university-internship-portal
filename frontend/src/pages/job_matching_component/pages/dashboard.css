@@ -4,6 +4,7 @@
   --ds-primary: var(--primary-600);
   --ds-primary-deep: var(--primary-700);
   --ds-teal: var(--color-success);
+  --jm-teal-2: #14532d;
   --ds-violet: var(--color-accent);
   --ds-amber: var(--color-warning);
   --ds-success: var(--color-success);
@@ -501,6 +502,7 @@
 
 .dashboard-hero-secondary-btn:hover {
   background: var(--jm-teal-2);
+  border-color: var(--jm-teal-2);
 }
 
 .dashboard-hero-notification-btn {

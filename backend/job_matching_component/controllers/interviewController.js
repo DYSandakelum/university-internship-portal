@@ -159,7 +159,7 @@ const getAttempt = async (req, res) => {
                 selectedOptionIndex,
                 correctOptionIndex: q.correctOptionIndex,
                 isCorrect,
-                explanation: isCorrect ? null : q.explanation
+                explanation: q.explanation
             };
         });
 
@@ -253,7 +253,7 @@ const submitAttempt = async (req, res) => {
                 selectedOptionIndex: a?.selectedOptionIndex ?? null,
                 correctOptionIndex: q.correctOptionIndex,
                 isCorrect,
-                explanation: isCorrect ? null : q.explanation
+                explanation: q.explanation
             };
         });
 
