@@ -127,7 +127,31 @@ function WeeklyActivityChart({ weeklyData, maxValue }) {
         return { ...item, x, y };
     });
 
-    const linePoints = points.map((p) => `${p.x},${p.y}`).join(' ');
+    const buildSmoothPath = (pts) => {
+        if (!Array.isArray(pts) || pts.length < 2) return '';
+
+        // Catmull–Rom to Bezier conversion for a smooth curve
+        const tension = 1;
+        const d = [`M ${pts[0].x} ${pts[0].y}`];
+
+        for (let i = 0; i < pts.length - 1; i++) {
+            const p0 = i > 0 ? pts[i - 1] : pts[i];
+            const p1 = pts[i];
+            const p2 = pts[i + 1];
+            const p3 = i + 2 < pts.length ? pts[i + 2] : p2;
+
+            const c1x = p1.x + ((p2.x - p0.x) / 6) * tension;
+            const c1y = p1.y + ((p2.y - p0.y) / 6) * tension;
+            const c2x = p2.x - ((p3.x - p1.x) / 6) * tension;
+            const c2y = p2.y - ((p3.y - p1.y) / 6) * tension;
+
+            d.push(`C ${c1x} ${c1y}, ${c2x} ${c2y}, ${p2.x} ${p2.y}`);
+        }
+
+        return d.join(' ');
+    };
+
+    const linePath = buildSmoothPath(points);
 
     return (
         <section className="dashboard-panel dashboard-chart-panel-full dashboard-slide-up" style={{ animationDelay: '140ms' }}>
@@ -138,11 +162,25 @@ function WeeklyActivityChart({ weeklyData, maxValue }) {
             <div className="dashboard-line-chart-wrap">
                 <svg className="dashboard-line-chart-svg" viewBox={`0 0 ${chartWidth} ${chartHeight}`} role="img" aria-label="Weekly activity line chart">
                     <line className="dashboard-line-axis" x1={leftPad} y1={topPad + usableHeight} x2={chartWidth - rightPad} y2={topPad + usableHeight} />
-                    <polyline className="dashboard-line-path" points={linePoints} />
-                    {points.map((point) => (
+                    {linePath ? <path className="dashboard-line-path" d={linePath} pathLength="1" /> : null}
+                    {points.map((point, idx) => (
                         <g key={point.day}>
-                            <circle className="dashboard-line-point" cx={point.x} cy={point.y} r="4" />
-                            <text className="dashboard-line-value" x={point.x} y={point.y - 10} textAnchor="middle">{point.value}</text>
+                            <circle
+                                className="dashboard-line-point"
+                                cx={point.x}
+                                cy={point.y}
+                                r="4"
+                                style={{ animationDelay: `${220 + 70 * idx}ms` }}
+                            />
+                            <text
+                                className="dashboard-line-value"
+                                x={point.x}
+                                y={point.y - 10}
+                                textAnchor="middle"
+                                style={{ animationDelay: `${260 + 70 * idx}ms` }}
+                            >
+                                {point.value}
+                            </text>
                             <text className="dashboard-line-day" x={point.x} y={topPad + usableHeight + 24} textAnchor="middle">{point.day}</text>
                         </g>
                     ))}

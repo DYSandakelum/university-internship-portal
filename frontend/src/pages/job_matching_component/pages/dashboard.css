@@ -787,13 +787,14 @@
   width: 100%;
   border: 1px solid var(--ds-border);
   border-radius: 10px;
-  background: var(--ds-surface-soft);
-  padding: 8px;
+  background: var(--ds-surface);
+  padding: 10px;
 }
 
 .dashboard-line-chart-svg {
   width: 100%;
-  height: 205px;
+  height: clamp(220px, 30vh, 320px);
+  display: block;
 }
 
 .dashboard-line-axis {
@@ -803,27 +804,69 @@
 
 .dashboard-line-path {
   fill: none;
-  stroke: var(--jm-primary);
+  stroke: var(--color-primary-dark);
   stroke-width: 3;
   stroke-linecap: round;
   stroke-linejoin: round;
+  stroke-dasharray: 1;
+  stroke-dashoffset: 1;
+  animation: dashboardLineDraw 1100ms ease forwards;
+  animation-delay: 120ms;
 }
 
 .dashboard-line-point {
-  fill: var(--jm-primary);
+  fill: var(--color-primary-dark);
   stroke: #ffffff;
   stroke-width: 2;
+  opacity: 0;
+  transform: scale(0.6);
+  transform-box: fill-box;
+  transform-origin: center;
+  animation: dashboardPointPop 520ms ease forwards;
 }
 
 .dashboard-line-value {
-  fill: var(--jm-primary-deep);
+  fill: var(--color-text-dark);
   font-size: 11px;
   font-weight: 700;
+  opacity: 0;
+  animation: dashboardValueFade 460ms ease forwards;
 }
 
 .dashboard-line-day {
   fill: var(--jm-muted);
   font-size: 11px;
+}
+
+@keyframes dashboardLineDraw {
+  to {
+    stroke-dashoffset: 0;
+  }
+}
+
+@keyframes dashboardPointPop {
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+@keyframes dashboardValueFade {
+  to {
+    opacity: 1;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .dashboard-line-path,
+  .dashboard-line-point,
+  .dashboard-line-value {
+    animation: none !important;
+    stroke-dasharray: none;
+    stroke-dashoffset: 0;
+    opacity: 1;
+    transform: none;
+  }
 }
 
 .dashboard-gauge-panel {
@@ -1171,11 +1214,26 @@
 .dashboard-page .ai-course-item,
 .dashboard-page .ai-msg.assistant,
 .dashboard-page .ai-msg.user,
-.dashboard-page .ai-chat-input,
 .dashboard-page .ai-chat-send {
   background: var(--ds-surface-soft);
   border-color: var(--ds-border);
   color: var(--ds-text-soft);
+}
+
+.dashboard-page .ai-chat-composer {
+  border-color: var(--color-warning);
+  background: var(--color-warning-light-bg);
+}
+
+.dashboard-page .ai-chat-input {
+  background: var(--ds-surface);
+  border-color: var(--color-primary-dark);
+  color: var(--ds-text);
+  box-shadow: var(--shadow-card);
+}
+
+.dashboard-page .ai-chat-input::placeholder {
+  color: var(--ds-text-muted);
 }
 
 .dashboard-page .ai-chat-tip:hover,
@@ -1185,8 +1243,8 @@
 }
 
 .dashboard-page .ai-chat-input:focus {
-  border-color: var(--jm-border);
-  box-shadow: none;
+  border-color: var(--color-warning);
+  box-shadow: 0 0 0 3px var(--color-warning-light-bg);
 }
 
 .dashboard-slide-up {
