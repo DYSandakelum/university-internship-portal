@@ -9,8 +9,15 @@ const ViewApplications = () => {
     const [detailLoadingId, setDetailLoadingId] = useState('');
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState('');
+    const [successMessage, setSuccessMessage] = useState('');
     const [updatingId, setUpdatingId] = useState('');
     const [statusFilter, setStatusFilter] = useState('All');
+    const [interviewFormData, setInterviewFormData] = useState({});
+    const [interviewSubmittingId, setInterviewSubmittingId] = useState('');
+    const [interviewSuccessMap, setInterviewSuccessMap] = useState({});
+    const [interviewFormHiddenMap, setInterviewFormHiddenMap] = useState({});
+    const [historyLoading, setHistoryLoading] = useState(false);
+    const [historyHoverId, setHistoryHoverId] = useState('');
 
     useEffect(() => {
         const token = localStorage.getItem('token');
@@ -61,6 +68,11 @@ const ViewApplications = () => {
             const data = await response.json();
             if (!response.ok) throw new Error(data.message || 'Failed to update status.');
             setApplications((prev) => prev.map((app) => app._id === applicationId ? { ...app, status } : app));
+
+            if (status === 'Interview') {
+                setInterviewFormHiddenMap((prev) => ({ ...prev, [applicationId]: false }));
+                setInterviewSuccessMap((prev) => ({ ...prev, [applicationId]: '' }));
+            }
             
             // If changing to Reviewing, fetch and expand details
             if (status === 'Reviewing') {
@@ -100,6 +112,132 @@ const ViewApplications = () => {
     const getFilteredApplications = () => {
         if (statusFilter === 'All') return applications;
         return applications.filter(app => app.status === statusFilter);
+    };
+
+    const updateInterviewFormField = (applicationId, field, value) => {
+        setInterviewFormData((prev) => ({
+            ...prev,
+            [applicationId]: { ...(prev[applicationId] || {}), [field]: value }
+        }));
+    };
+
+    const handleScheduleInterview = async (applicationId) => {
+        const token = localStorage.getItem('token');
+        if (!token) { navigate('/login'); return; }
+        
+        const formData = interviewFormData[applicationId] || {};
+        if (!formData.date || !formData.time || !formData.venue) {
+            setError('Please fill in all required fields (Date, Time, Venue)');
+            return;
+        }
+
+        setInterviewSubmittingId(applicationId);
+        setError('');
+        setSuccessMessage('');
+        try {
+            const response = await fetch(`http://localhost:5000/api/applications/${applicationId}/schedule-interview`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` },
+                body: JSON.stringify({
+                    date: formData.date,
+                    time: formData.time,
+                    venue: formData.venue,
+                    message: formData.message || ''
+                })
+            });
+            const data = await response.json();
+            if (!response.ok) throw new Error(data.message || 'Failed to schedule interview.');
+            setApplications((prev) => prev.map((app) => app._id === applicationId ? { ...app, interviewDetails: data.application.interviewDetails } : app));
+            setInterviewFormData((prev) => ({ ...prev, [applicationId]: {} }));
+            setInterviewSuccessMap((prev) => ({ ...prev, [applicationId]: 'Interview invitation sent successfully!' }));
+            setInterviewFormHiddenMap((prev) => ({ ...prev, [applicationId]: true }));
+        } catch (scheduleError) {
+            setError(scheduleError.message || 'Unable to schedule interview.');
+        } finally {
+            setInterviewSubmittingId('');
+        }
+    };
+
+    const handleDownloadInterviewHistory = async () => {
+        const token = localStorage.getItem('token');
+        if (!token) { navigate('/login'); return; }
+
+        setHistoryLoading(true);
+        setError('');
+
+        try {
+            const response = await fetch('http://localhost:5000/api/applications/employer/interview-history', {
+                headers: { Authorization: `Bearer ${token}` }
+            });
+
+            const data = await response.json();
+            if (!response.ok) throw new Error(data.message || 'Failed to fetch interview history.');
+
+            const history = Array.isArray(data) ? data : (data.history || []);
+            if (!history.length) {
+                setError('No interview history found to export.');
+                return;
+            }
+
+            const { jsPDF } = await import('jspdf');
+            const doc = new jsPDF();
+            let y = 18;
+
+            doc.setFontSize(16);
+            doc.text('Interview History', 14, y);
+            y += 10;
+
+            doc.setFontSize(10);
+
+            history.forEach((item, index) => {
+                const details = item.interviewDetails || {};
+                const sentDateRaw = item.updatedAt || item.createdAt;
+                const sentDate = sentDateRaw ? new Date(sentDateRaw).toLocaleString() : 'N/A';
+
+                if (y > 250) {
+                    doc.addPage();
+                    y = 18;
+                }
+
+                doc.setFontSize(11);
+                doc.text(`Interview ${index + 1}`, 14, y);
+                y += 6;
+                doc.setFontSize(10);
+
+                const lines = [
+                    `Student Name: ${item.student?.name || 'N/A'}`,
+                    `Student Email: ${item.student?.email || 'N/A'}`,
+                    `Job Title: ${item.job?.title || 'N/A'}`,
+                    `Interview Date: ${details.date || 'N/A'}`,
+                    `Interview Time: ${details.time || 'N/A'}`,
+                    `Venue: ${details.venue || 'N/A'}`,
+                    `Message: ${details.message || 'N/A'}`,
+                    `Date Sent: ${sentDate}`
+                ];
+
+                lines.forEach((line) => {
+                    if (y > 278) {
+                        doc.addPage();
+                        y = 18;
+                    }
+                    doc.text(line, 14, y);
+                    y += 6;
+                });
+
+                if (y > 278) {
+                    doc.addPage();
+                    y = 18;
+                }
+                doc.line(14, y, 196, y);
+                y += 7;
+            });
+
+            doc.save(`interview-history-${new Date().toISOString().slice(0, 10)}.pdf`);
+        } catch (historyError) {
+            setError(historyError.message || 'Unable to export interview history.');
+        } finally {
+            setHistoryLoading(false);
+        }
     };
 
     if (loading) return (
@@ -159,6 +297,7 @@ const ViewApplications = () => {
 
             <div className="main-content">
                 {error && <div className="alert alert-error">⚠️ {error}</div>}
+                {successMessage && <div className="alert alert-success">✅ {successMessage}</div>}
 
                 {getFilteredApplications().length === 0 ? (
                     <div style={styles.emptyState}>
@@ -229,10 +368,92 @@ const ViewApplications = () => {
                                         )}
                                     </div>
                                 )}
+
+                                    {application.status === 'Interview' && (
+                                        <div style={styles.interviewFormPanel}>
+                                            {!interviewFormHiddenMap[application._id] && (
+                                                <>
+                                                    <h4 style={styles.interviewFormTitle}>Schedule Interview</h4>
+                                                    <div style={styles.interviewFormGrid}>
+                                                        <div>
+                                                            <label style={styles.formLabel}>Date</label>
+                                                            <input
+                                                                type="date"
+                                                                value={interviewFormData[application._id]?.date || ''}
+                                                                onChange={(e) => updateInterviewFormField(application._id, 'date', e.target.value)}
+                                                                style={styles.formInput}
+                                                            />
+                                                        </div>
+                                                        <div>
+                                                            <label style={styles.formLabel}>Time</label>
+                                                            <input
+                                                                type="time"
+                                                                value={interviewFormData[application._id]?.time || ''}
+                                                                onChange={(e) => updateInterviewFormField(application._id, 'time', e.target.value)}
+                                                                style={styles.formInput}
+                                                            />
+                                                        </div>
+                                                        <div style={{ gridColumn: '1 / -1' }}>
+                                                            <label style={styles.formLabel}>Venue</label>
+                                                            <input
+                                                                type="text"
+                                                                placeholder="Enter interview venue or link"
+                                                                value={interviewFormData[application._id]?.venue || ''}
+                                                                onChange={(e) => updateInterviewFormField(application._id, 'venue', e.target.value)}
+                                                                style={styles.formInput}
+                                                            />
+                                                        </div>
+                                                        <div style={{ gridColumn: '1 / -1' }}>
+                                                            <label style={styles.formLabel}>Message (Optional)</label>
+                                                            <textarea
+                                                                placeholder="Add any additional notes or instructions for the student"
+                                                                value={interviewFormData[application._id]?.message || ''}
+                                                                onChange={(e) => updateInterviewFormField(application._id, 'message', e.target.value)}
+                                                                style={{ ...styles.formInput, minHeight: '80px', fontFamily: 'inherit' }}
+                                                            />
+                                                        </div>
+                                                    </div>
+                                                    <button
+                                                        onClick={() => handleScheduleInterview(application._id)}
+                                                        disabled={interviewSubmittingId === application._id}
+                                                        style={{
+                                                            ...styles.interviewSubmitButton,
+                                                            opacity: interviewSubmittingId === application._id ? 0.7 : 1,
+                                                            cursor: interviewSubmittingId === application._id ? 'not-allowed' : 'pointer'
+                                                        }}
+                                                    >
+                                                        {interviewSubmittingId === application._id ? 'Scheduling...' : 'Schedule Interview'}
+                                                    </button>
+                                                    <div style={styles.historyButtonWrap}>
+                                                        <button
+                                                            onClick={handleDownloadInterviewHistory}
+                                                            onMouseEnter={() => setHistoryHoverId(application._id)}
+                                                            onMouseLeave={() => setHistoryHoverId('')}
+                                                            disabled={historyLoading}
+                                                            style={{
+                                                                ...styles.historyButton,
+                                                                color: historyHoverId === application._id ? '#D97706' : '#6B7280',
+                                                                opacity: historyLoading ? 0.7 : 1,
+                                                                cursor: historyLoading ? 'not-allowed' : 'pointer'
+                                                            }}
+                                                        >
+                                                            {historyLoading ? 'Generating...' : 'History'}
+                                                        </button>
+                                                    </div>
+                                                </>
+                                            )}
+                                            {interviewSuccessMap[application._id] && (
+                                                <div className="alert alert-success" style={{ marginTop: '12px' }}>
+                                                    ✅ {interviewSuccessMap[application._id]}
+                                                </div>
+                                            )}
+                                        </div>
+                                    )}
                             </div>
                         ))}
                     </div>
                 )}
+
             </div>
         </div>
     );
@@ -278,7 +499,20 @@ const styles = {
     detailsFullRow: { gridColumn: '1 / -1', borderLeft: '4px solid #FCD34D', paddingLeft: '16px', background: '#FFFBF0', padding: '12px 16px', borderRadius: '8px' },
     emptyState: { background: 'linear-gradient(135deg, #ffffff 0%, #F9FAFB 100%)', border: '2px dashed #CBD5E1', borderRadius: '20px', padding: '80px 40px', textAlign: 'center', display: 'flex', flexDirection: 'column', alignItems: 'center' },
     emptyTitle: { fontSize: '22px', fontWeight: '800', color: '#0F172A', margin: 0, letterSpacing: '-0.5px' },
-    emptySubtitle: { fontSize: '15px', color: '#64748B', marginTop: '12px', maxWidth: '380px', fontWeight: '500' }
+    emptySubtitle: { fontSize: '15px', color: '#64748B', marginTop: '12px', maxWidth: '380px', fontWeight: '500' },
+    interviewFormPanel: { 
+        padding: '24px 28px', 
+        borderTop: '2px solid #A78BFA', 
+        background: 'linear-gradient(135deg, #F5F3FF 0%, #FAF5FF 100%)',
+        boxShadow: 'inset 0 4px 12px rgba(167, 139, 250, 0.1)'
+    },
+    interviewFormTitle: { fontSize: '16px', fontWeight: '800', color: '#0F172A', margin: '0 0 16px 0', letterSpacing: '-0.3px' },
+    interviewFormGrid: { display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: '14px', marginBottom: '16px' },
+    formLabel: { display: 'block', fontSize: '13px', fontWeight: '700', color: '#334155', marginBottom: '6px', letterSpacing: '0.3px' },
+    formInput: { width: '100%', padding: '10px 12px', fontSize: '13px', border: '2px solid #E5E7EB', borderRadius: '8px', background: '#ffffff', color: '#0F172A', fontWeight: '500', transition: 'all 0.3s', boxSizing: 'border-box' },
+    interviewSubmitButton: { background: 'linear-gradient(135deg, #FCD34D 0%, #FBBF24 100%)', color: '#92400E', padding: '10px 24px', borderRadius: '8px', fontSize: '13px', fontWeight: '700', border: 'none', boxShadow: '0 4px 12px rgba(251, 191, 36, 0.3)', transition: 'all 0.3s', letterSpacing: '0.5px' },
+    historyButtonWrap: { marginTop: '12px', display: 'flex', justifyContent: 'flex-start' },
+    historyButton: { background: 'none', color: '#6B7280', border: 'none', fontSize: '12px', fontWeight: '600', padding: 0, textDecoration: 'none', transition: 'color 0.2s' }
 };
 
 export default ViewApplications;

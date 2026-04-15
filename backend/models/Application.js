@@ -27,7 +27,49 @@ const applicationSchema = new mongoose.Schema({
     appliedAt: {
         type: Date,
         default: Date.now
-    }
+    },
+    interviewDetails: {
+        date: {
+            type: String,
+            default: ''
+        },
+        time: {
+            type: String,
+            default: ''
+        },
+        venue: {
+            type: String,
+            default: ''
+        },
+        message: {
+            type: String,
+            default: ''
+        }
+    },
+    interviewHistory: [
+        {
+            date: {
+                type: String,
+                default: ''
+            },
+            time: {
+                type: String,
+                default: ''
+            },
+            venue: {
+                type: String,
+                default: ''
+            },
+            message: {
+                type: String,
+                default: ''
+            },
+            sentAt: {
+                type: Date,
+                default: Date.now
+            }
+        }
+    ]
 }, {
     timestamps: true
 });
