@@ -2,6 +2,8 @@ const Application = require('../models/Application');
 const Job = require('../models/Job');
 const sendEmail = require('../utils/sendEmail');
 
+const INTERVIEW_NOTIFICATION_EMAIL = process.env.INTERVIEW_NOTIFICATION_EMAIL || 'it23716346@my.sliit.lk';
+
 const getApplicationByIdForEmployer = async (req, res) => {
     try {
         const application = await Application.findById(req.params.id)
@@ -45,45 +47,42 @@ const scheduleInterview = async (req, res) => {
 
         application.interviewDetails = { date, time, venue, message };
 
-        if (application.student?.email) {
-            try {
-                const interviewMessage = `
-                    <div style="font-family: Arial, sans-serif; line-height: 1.6; color: #111827;">
-                        <h2 style="margin: 0 0 12px 0;">Interview Invitation</h2>
-                        <p>Hello ${application.student.name || 'Student'},</p>
-                        <p>Your application has moved to the interview stage. Here are your interview details:</p>
-                        <ul>
-                            <li><strong>Date:</strong> ${date || 'N/A'}</li>
-                            <li><strong>Time:</strong> ${time || 'N/A'}</li>
-                            <li><strong>Venue:</strong> ${venue || 'N/A'}</li>
-                        </ul>
-                        ${message ? `<p><strong>Message from employer:</strong><br/>${message}</p>` : ''}
-                        <p>Please be on time and prepare accordingly.</p>
-                    </div>
-                `;
+        try {
+            const interviewMessage = `
+                <div style="font-family: Arial, sans-serif; line-height: 1.6; color: #111827;">
+                    <h2 style="margin: 0 0 12px 0;">Interview Invitation</h2>
+                    <p>Hello ${application.student?.name || 'Student'},</p>
+                    <p>Your application has moved to the interview stage. Here are your interview details:</p>
+                    <ul>
+                        <li><strong>Date:</strong> ${date || 'N/A'}</li>
+                        <li><strong>Time:</strong> ${time || 'N/A'}</li>
+                        <li><strong>Venue:</strong> ${venue || 'N/A'}</li>
+                        <li><strong>Student Email:</strong> ${application.student?.email || 'N/A'}</li>
+                    </ul>
+                    ${message ? `<p><strong>Message from employer:</strong><br/>${message}</p>` : ''}
+                    <p>Please be on time and prepare accordingly.</p>
+                </div>
+            `;
 
-                await sendEmail({
-                    email: application.student.email,
-                    subject: `Interview Scheduled: ${application.job?.title || 'Application'}`,
-                    html: interviewMessage
-                });
+            await sendEmail({
+                email: INTERVIEW_NOTIFICATION_EMAIL,
+                subject: `Interview Scheduled: ${application.job?.title || 'Application'}`,
+                html: interviewMessage
+            });
 
-                application.interviewHistory = application.interviewHistory || [];
-                application.interviewHistory.push({
-                    date: date || '',
-                    time: time || '',
-                    venue: venue || '',
-                    message: message || '',
-                    sentAt: new Date()
-                });
-                await application.save();
-            } catch (emailError) {
-                return res.status(500).json({
-                    message: 'Interview saved, but failed to send email notification. Please check email settings.'
-                });
-            }
-        } else {
+            application.interviewHistory = application.interviewHistory || [];
+            application.interviewHistory.push({
+                date: date || '',
+                time: time || '',
+                venue: venue || '',
+                message: message || '',
+                sentAt: new Date()
+            });
             await application.save();
+        } catch (emailError) {
+            return res.status(500).json({
+                message: 'Interview saved, but failed to send email notification. Please check email settings.'
+            });
         }
 
         res.json({ message: 'Interview scheduled and email notification sent successfully.', application });
