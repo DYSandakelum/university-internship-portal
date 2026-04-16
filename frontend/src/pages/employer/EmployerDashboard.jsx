@@ -1,4 +1,4 @@
-import React, { useEffect, useMemo, useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { jsPDF } from 'jspdf';
 
@@ -9,20 +9,13 @@ const EmployerDashboard = () => {
         totalApplications: 0,
         pendingReviews: 0
     });
-
-    const employerData = useMemo(() => {
-        try {
-            return JSON.parse(localStorage.getItem('user') || '{}');
-        } catch (error) {
-            return {};
-        }
-    }, []);
+    const [companyName, setCompanyName] = useState('');
 
     useEffect(() => {
         const token = localStorage.getItem('token');
         if (!token) { navigate('/login'); return; }
 
-        const fetchStats = async () => {
+        const fetchDashboardData = async () => {
             try {
                 const [jobsRes, applicationsRes] = await Promise.all([
                     fetch('http://localhost:5000/api/jobs/employer', {
@@ -41,11 +34,20 @@ const EmployerDashboard = () => {
                     totalApplications: applications.length,
                     pendingReviews: applications.filter((app) => app.status === 'Pending').length
                 });
+
+                const profileResponse = await fetch('http://localhost:5000/api/employer/profile', {
+                    headers: { Authorization: `Bearer ${token}` }
+                });
+                if (profileResponse.ok) {
+                    const profileData = await profileResponse.json();
+                    setCompanyName(profileData?.employer?.companyName || '');
+                }
             } catch (error) {
                 setStats({ totalJobs: 0, totalApplications: 0, pendingReviews: 0 });
+                setCompanyName('');
             }
         };
-        fetchStats();
+        fetchDashboardData();
     }, [navigate]);
 
     const handleLogout = () => {
@@ -55,22 +57,21 @@ const EmployerDashboard = () => {
 
     const handleDownloadReport = async () => {
         const doc = new jsPDF();
-        const userData = JSON.parse(localStorage.getItem('user') || '{}');
         const generatedAt = new Date().toLocaleString();
         const token = localStorage.getItem('token');
-        let reportCompanyName = userData.companyName || userData.name || 'Employer';
+        let reportCompanyName = companyName || '';
 
-        if (token) {
+        if (token && !reportCompanyName) {
             try {
-                const profileResponse = await fetch('http://localhost:5000/api/employers/profile', {
+                const profileResponse = await fetch('http://localhost:5000/api/employer/profile', {
                     headers: { Authorization: `Bearer ${token}` }
                 });
                 if (profileResponse.ok) {
                     const profileData = await profileResponse.json();
-                    reportCompanyName = profileData?.employer?.companyName || reportCompanyName;
+                    reportCompanyName = profileData?.employer?.companyName || '';
                 }
             } catch (error) {
-                // Keep fallback company name if profile fetch fails.
+                reportCompanyName = reportCompanyName || '';
             }
         }
 
@@ -82,7 +83,7 @@ const EmployerDashboard = () => {
         doc.setFontSize(11);
         doc.text(`Generated: ${generatedAt}`, 14, y);
         y += 8;
-        doc.text(`Company Name: ${reportCompanyName}`, 14, y);
+        doc.text(`Company Name: ${reportCompanyName || 'Not set in profile'}`, 14, y);
         y += 14;
 
         doc.setFontSize(13);
@@ -163,8 +164,6 @@ const EmployerDashboard = () => {
         doc.save(`employer-dashboard-summary-${new Date().toISOString().slice(0, 10)}.pdf`);
     };
 
-    const companyName = employerData.companyName || employerData.name || 'Employer';
-
     const statCards = [
         { title: 'Total Jobs Posted', value: stats.totalJobs, icon: '💼' },
         { title: 'Total Applications', value: stats.totalApplications, icon: '📄' },
@@ -199,7 +198,7 @@ const EmployerDashboard = () => {
                 <div style={styles.pageHeaderInner}>
                     <div>
                         <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
-                            <h1 style={styles.pageTitle}>Welcome back, {companyName}! 👋</h1>
+                            <h1 style={styles.pageTitle}>Welcome back, {companyName || 'Employer'}! 👋</h1>
                             <button
                                 onClick={handleDownloadReport}
                                 title="Download Summary Report"
