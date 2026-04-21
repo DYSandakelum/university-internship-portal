@@ -18,6 +18,7 @@ import JobDetailsPage from './pages/student/JobDetailsPage';
 import ApplicationFormPage from './pages/student/ApplicationFormPage';
 import MyApplicationsPage from './pages/student/MyApplicationsPage';
 import StudentProfilePage from './pages/student/StudentProfilePage';
+import CVGeneratorPage from './pages/student/CVGeneratorPage';
 
 // Employer
 import EmployerDashboard from './pages/employer/EmployerDashboard';
@@ -136,6 +137,11 @@ function App() {
                     <Route path="/student/profile" element={
                         <ProtectedRoute allowedRoles={['student']}>
                             <StudentProfilePage />
+                        </ProtectedRoute>
+                    } />
+                    <Route path="/student/cv-generator" element={
+                        <ProtectedRoute allowedRoles={['student']}>
+                            <CVGeneratorPage />
                         </ProtectedRoute>
                     } />
 
