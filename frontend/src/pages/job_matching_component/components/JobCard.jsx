@@ -2,6 +2,40 @@ import React, { useState } from 'react';
 import { FiDollarSign, FiClock, FiMapPin, FiBriefcase, FiEdit3, FiBookmark, FiCheck, FiStar, FiSend, FiTrash2 } from 'react-icons/fi';
 import './JobCard.css';
 
+const formatSalary = (salary) => {
+  if (salary == null || salary === '') return 'Not disclosed';
+
+  const numeric = typeof salary === 'number' ? salary : Number(String(salary).replace(/[^0-9.]/g, ''));
+  if (!Number.isFinite(numeric)) return String(salary);
+
+  try {
+    return new Intl.NumberFormat('en-US', {
+      style: 'currency',
+      currency: 'USD',
+      maximumFractionDigits: 0
+    }).format(numeric);
+  } catch {
+    return `$${numeric}`;
+  }
+};
+
+const formatDeadline = (deadline) => {
+  if (!deadline) return 'No deadline';
+  const date = new Date(deadline);
+  if (Number.isNaN(date.getTime())) return String(deadline);
+
+  try {
+    const formatted = new Intl.DateTimeFormat('en-US', {
+      year: 'numeric',
+      month: 'short',
+      day: '2-digit'
+    }).format(date);
+    return `Deadline ${formatted}`;
+  } catch {
+    return String(deadline);
+  }
+};
+
 const getScoreColor = (score) => {
   if (score >= 90) return 'var(--success-500)';
   if (score >= 70) return 'var(--success-500)';
@@ -114,8 +148,8 @@ export default function JobCard({
       <section className="job-details">
         <JobDetailsItem icon={<FiMapPin />} text={job.location || 'Remote'} />
         <JobDetailsItem icon={<FiBriefcase />} text={job.jobType || 'Full-time'} />
-        <JobDetailsItem icon={<FiDollarSign />} text={job.salary ? `$${job.salary}` : 'Not disclosed'} />
-        <JobDetailsItem icon={<FiClock />} text={job.deadline || 'No deadline'} />
+        <JobDetailsItem icon={<FiDollarSign />} text={formatSalary(job.salary ?? job.salaryRange)} />
+        <JobDetailsItem icon={<FiClock />} text={formatDeadline(job.deadline)} />
       </section>
 
       <SkillTags skills={job.requiredSkills || []} />
