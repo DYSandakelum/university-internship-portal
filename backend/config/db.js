@@ -4,6 +4,9 @@ let inMemoryServer;
 let usingInMemory = false;
 
 const shouldFallbackToInMemory = (error, mongoUri) => {
+    const strict = String(process.env.DISABLE_IN_MEMORY_DB_FALLBACK || '').toLowerCase() === 'true';
+    if (strict) return false;
+
     const enabled = String(process.env.USE_IN_MEMORY_DB || '').toLowerCase() === 'true';
 
     // Allow explicit opt-in regardless of environment.

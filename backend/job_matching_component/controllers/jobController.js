@@ -32,7 +32,7 @@ const searchJobs = async (req, res) => {
             maxSalary
         } = req.query;
 
-        const filter = {};
+        const filter = { status: 'Active' };
 
         if (q && String(q).trim()) {
             const term = String(q).trim();
@@ -81,7 +81,7 @@ const getRecommendedJobs = async (req, res) => {
         const preferredLocation = String(studentProfile?.preferredLocation || '').trim();
         const preferredJobType = String(studentProfile?.preferredJobType || '').trim();
 
-        const filter = {};
+        const filter = { status: 'Active' };
         if (preferredLocation) {
             filter.location = { $regex: preferredLocation, $options: 'i' };
         }

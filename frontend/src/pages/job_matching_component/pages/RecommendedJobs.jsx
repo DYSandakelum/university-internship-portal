@@ -369,13 +369,10 @@ export default function RecommendedJobs() {
         <div className="page reco-page">
             <div className="container">
                 <BackToDashboardButton />
-                <div className="page-header" style={{ marginBottom: '16px' }}>
+                <div className="page-header" style={{ marginBottom: '8px' }}>
                     <h1 className="page-title" style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
-                        <FiStar /> AI Recommendations
+                        <FiStar /> Recommendations
                     </h1>
-                    <p className="page-subtitle">
-                        {filteredJobs.length} personalized job matches found
-                    </p>
                 </div>
 
                 {authError && (

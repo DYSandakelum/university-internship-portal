@@ -69,7 +69,17 @@ function SkillTags({ skills }) {
   );
 }
 
-export default function JobCard({ job = {}, matchPercentage = null, onApply, onSave, onRemove, isSaved, showRemove, hideActions = false }) {
+export default function JobCard({
+  job = {},
+  matchPercentage = null,
+  onApply,
+  onSave,
+  onRemove,
+  isSaved,
+  showRemove,
+  hideActions = false,
+  showActionLabels = false
+}) {
   const [isApplying, setIsApplying] = useState(false);
   const [isSaving, setIsSaving] = useState(false);
 
@@ -123,11 +133,19 @@ export default function JobCard({ job = {}, matchPercentage = null, onApply, onS
             </button>
           ) : (
             <button
-              className={`save-button ${isSaved ? 'saved' : ''}`}
+              className={`save-button ${showActionLabels ? 'has-label' : ''} ${isSaved ? 'saved' : ''}`}
               onClick={handleSave}
               disabled={isSaving || isSaved}
+              aria-label={isSaved ? 'Saved' : 'Save'}
             >
-              {isSaving ? <span className="spinner" /> : isSaved ? <FiCheck className="icon" /> : <FiBookmark className="icon" />}
+              {isSaving ? (
+                <span className="spinner" />
+              ) : isSaved ? (
+                <FiCheck className="icon" />
+              ) : (
+                <FiBookmark className="icon" />
+              )}
+              {showActionLabels ? <span className="save-button-label">{isSaved ? 'Saved' : 'Save'}</span> : null}
             </button>
           )}
         </footer>

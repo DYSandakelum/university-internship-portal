@@ -306,11 +306,6 @@ export default function SavedJobs() {
         <div className="page saved-page">
             <div className="container">
                 <BackToDashboardButton />
-                <div className="page-header">
-                    <h1 className="page-title" style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
-                        <FiBookmark /> Saved Jobs
-                    </h1>
-                </div>
 
                 {authError && (
                     <div className="glass-panel" style={{ 

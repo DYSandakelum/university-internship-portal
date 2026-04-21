@@ -242,18 +242,30 @@ const demoLogin = async (req, res) => {
             await user.save();
         }
 
-        await Student.findOneAndUpdate(
-            { user: user._id },
-            {
-                $set: {
-                    user: user._id,
-                    skills: ['React', 'JavaScript', 'Node.js', 'MongoDB'],
-                    preferredLocation: 'Remote',
-                    preferredJobType: 'Internship'
-                }
-            },
-            { upsert: true, returnDocument: 'after' }
-        );
+        // Keep demo mode consistent across the whole app: seed core jobs and
+        // job-matching data (saved jobs, notifications, interview papers) for this user.
+        // This avoids a common mismatch where recommendations exist but saved jobs look empty.
+        try {
+            const { seedAllDemoData } = require('../seed/seed-all');
+            await seedAllDemoData({ studentUserId: user._id });
+        } catch (seedError) {
+            // Don't block demo login if seeding fails; user can still use the app.
+            console.warn('Demo seeding failed:', seedError?.message || seedError);
+
+            // Minimal fallback: ensure at least the student profile exists.
+            await Student.findOneAndUpdate(
+                { user: user._id },
+                {
+                    $set: {
+                        user: user._id,
+                        skills: ['React', 'JavaScript', 'Node.js', 'MongoDB'],
+                        preferredLocation: 'Remote',
+                        preferredJobType: 'Internship'
+                    }
+                },
+                { upsert: true, returnDocument: 'after' }
+            );
+        }
 
         return res.status(200).json({
             message: 'Demo login successful',

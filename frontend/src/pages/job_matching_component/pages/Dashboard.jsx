@@ -1,4 +1,4 @@
-import React, { useCallback, useEffect, useState } from 'react';
+import React, { useCallback, useEffect, useMemo, useState } from 'react';
 import {
     FiBriefcase,
     FiBell,
@@ -19,7 +19,7 @@ import {
     FiX
 } from 'react-icons/fi';
 import { useNavigate } from 'react-router-dom';
-import { getRecommendedJobs, getSavedJobs } from '../../../services/jobService';
+import { getRecommendedJobs, getSavedJobs, saveJob } from '../../../services/jobService';
 import { getNotifications } from '../../../services/notificationService';
 import useEnsureDemoAuth from '../hooks/useEnsureDemoAuth';
 import AiCareerChat from '../components/AiCareerChat';
@@ -400,6 +400,15 @@ export default function Dashboard() {
     const [isPracticeModalOpen, setIsPracticeModalOpen] = useState(false);
     const [selectedRecoJob, setSelectedRecoJob] = useState(null);
 
+    const savedJobIds = useMemo(() => {
+        const ids = new Set();
+        (Array.isArray(savedJobs) ? savedJobs : []).forEach((saved) => {
+            const jobId = saved?.jobId?._id || saved?.jobId;
+            if (jobId) ids.add(String(jobId));
+        });
+        return ids;
+    }, [savedJobs]);
+
     const profileCompletion = Math.min(100, Math.max(45, (Array.isArray(user?.skills) ? user.skills.length * 9 : 0) + 42));
 
     const formatRelativeTime = (dateInput) => {
@@ -537,6 +546,22 @@ export default function Dashboard() {
 
     const handleCloseRecoJob = () => {
         setSelectedRecoJob(null);
+    };
+
+    const handleApplyJob = (job) => {
+        if (job && job._id) {
+            navigate(`/student/jobs/${job._id}`);
+        }
+    };
+
+    const handleSaveJob = async (job) => {
+        if (!job || !job._id) return;
+        try {
+            await saveJob(job._id);
+            await loadDashboardData({ silent: true });
+        } catch {
+            // auth interceptor may redirect
+        }
     };
 
     const handleActionClick = (path) => {
@@ -742,7 +767,10 @@ export default function Dashboard() {
                                         <JobCard
                                             job={selectedRecoJob}
                                             matchPercentage={typeof selectedRecoJob.matchPercentage === 'number' ? selectedRecoJob.matchPercentage : null}
-                                            hideActions={true}
+                                            onApply={handleApplyJob}
+                                            onSave={handleSaveJob}
+                                            isSaved={savedJobIds.has(String(selectedRecoJob._id))}
+                                            showActionLabels={true}
                                         />
                                     </div>
                                 </div>
