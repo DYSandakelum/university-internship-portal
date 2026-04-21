@@ -80,6 +80,23 @@ export const getRecommendedActions = async (opportunityId) => {
     return response.data;
 };
 
+export const getOpportunityPlan = async (opportunityId) => {
+    const response = await api.get(`/opportunity/${opportunityId}/plan`);
+    return response.data;
+};
+
+export const createOpportunityPlan = async (opportunityId) => {
+    const response = await api.post(`/opportunity/${opportunityId}/plan`);
+    return response.data;
+};
+
+export const updateOpportunityPlanItem = async (opportunityId, itemId, isDone) => {
+    const response = await api.patch(`/opportunity/${opportunityId}/plan/items/${itemId}`, {
+        isDone
+    });
+    return response.data;
+};
+
 export const jobService = {
     searchJobs,
     getRecommendedJobs,
@@ -93,5 +110,8 @@ export const jobService = {
     getOpportunityMomentum,
     getOpportunityDetails,
     updateOpportunityStatus,
-    getRecommendedActions
+    getRecommendedActions,
+    getOpportunityPlan,
+    createOpportunityPlan,
+    updateOpportunityPlanItem
 };

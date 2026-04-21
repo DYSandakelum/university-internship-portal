@@ -411,15 +411,68 @@
   color: var(--opx-text);
 }
 
+.opx-cal-day.has-tooltip {
+  position: relative;
+  cursor: default;
+}
+
+.opx-cal-day.has-tooltip:focus-visible {
+  outline: 2px solid var(--opx-primary);
+  outline-offset: 2px;
+}
+
 .opx-cal-day.is-empty {
   border-color: transparent;
   background: transparent;
 }
 
+.opx-cal-day.is-important {
+  border-color: var(--opx-primary);
+  background: var(--secondary-50);
+}
+
 .opx-cal-day.is-deadline {
-  border-color: var(--color-warning);
-  background: var(--color-warning-light-bg);
-  color: var(--color-text-dark);
+  border-color: var(--error-500, var(--color-error));
+  background: var(--error-50, rgba(239, 68, 68, 0.10));
+  color: var(--error-700, var(--color-error));
+}
+
+.opx-cal-day.has-tooltip:hover::after,
+.opx-cal-day.has-tooltip:focus-visible::after {
+  content: attr(data-tooltip);
+  position: absolute;
+  left: 50%;
+  bottom: calc(100% + 10px);
+  transform: translateX(-50%);
+  z-index: 10;
+  min-width: 220px;
+  max-width: 280px;
+  padding: 10px 12px;
+  border-radius: 10px;
+  border: 1px solid var(--opx-border);
+  background: var(--opx-surface);
+  color: var(--opx-text);
+  font-size: 12px;
+  font-weight: 700;
+  line-height: 1.35;
+  white-space: pre-line;
+  box-shadow: var(--shadow-hover);
+}
+
+.opx-cal-day.has-tooltip:hover::before,
+.opx-cal-day.has-tooltip:focus-visible::before {
+  content: '';
+  position: absolute;
+  left: 50%;
+  bottom: calc(100% + 3px);
+  transform: translateX(-50%);
+  width: 10px;
+  height: 10px;
+  background: var(--opx-surface);
+  border-left: 1px solid var(--opx-border);
+  border-top: 1px solid var(--opx-border);
+  transform: translateX(-50%) rotate(225deg);
+  z-index: 11;
 }
 
 .opx-cal-actions {

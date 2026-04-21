@@ -10,7 +10,10 @@ const {
     getOpportunityMomentum,
     getOpportunityDetails,
     updateOpportunityStatus,
-    getRecommendedActions
+    getRecommendedActions,
+    getOpportunityPlan,
+    createOpportunityPlan,
+    updateOpportunityPlanItem
 } = require('../controllers/opportunityController');
 
 // @route   GET /api/opportunity/dashboard
@@ -47,6 +50,21 @@ router.get('/:opportunityId', protect, getOpportunityDetails);
 // @desc    Update opportunity status
 // @access  Private
 router.patch('/:opportunityId/status', protect, updateOpportunityStatus);
+
+// @route   GET /api/opportunity/:opportunityId/plan
+// @desc    Get application plan for an opportunity
+// @access  Private
+router.get('/:opportunityId/plan', protect, getOpportunityPlan);
+
+// @route   POST /api/opportunity/:opportunityId/plan
+// @desc    Create (or return existing) application plan for an opportunity
+// @access  Private
+router.post('/:opportunityId/plan', protect, createOpportunityPlan);
+
+// @route   PATCH /api/opportunity/:opportunityId/plan/items/:itemId
+// @desc    Update a plan item status
+// @access  Private
+router.patch('/:opportunityId/plan/items/:itemId', protect, updateOpportunityPlanItem);
 
 // @route   GET /api/opportunity/:opportunityId/actions
 // @desc    Get recommended actions for an opportunity

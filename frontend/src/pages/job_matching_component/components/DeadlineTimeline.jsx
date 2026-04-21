@@ -1,15 +1,36 @@
-import React, { useMemo } from 'react';
+import React, { useMemo, useState } from 'react';
 import { FiClock, FiAlertTriangle, FiCheckCircle, FiInfo } from 'react-icons/fi';
 import { useNavigate } from 'react-router-dom';
 import './DeadlineTimeline.css';
 
-function DeadlineTimeline({ opportunity }) {
+function DeadlineTimeline({
+    opportunity,
+    plan,
+    planOpen = false,
+    planLoading = false,
+    onPlanApplication,
+    onTogglePlanItem,
+    onTogglePlanOpen
+}) {
     const navigate = useNavigate();
+    const [localPlanOpen, setLocalPlanOpen] = useState(false);
+
+    const isPlanOpen = typeof onTogglePlanOpen === 'function' ? planOpen : localPlanOpen;
+    const togglePlanOpen = () => {
+        if (typeof onTogglePlanOpen === 'function') return onTogglePlanOpen();
+        setLocalPlanOpen((v) => !v);
+    };
 
     const jobId = useMemo(() => {
         const raw = opportunity?.jobId?._id ?? opportunity?.jobId ?? opportunity?.job?._id ?? opportunity?.job;
         return raw ? String(raw) : '';
     }, [opportunity]);
+
+    const planItems = useMemo(() => {
+        const raw = plan?.items;
+        if (!Array.isArray(raw)) return [];
+        return [...raw].sort((a, b) => new Date(a.dueDate) - new Date(b.dueDate));
+    }, [plan]);
 
     if (!opportunity) return null;
 
@@ -133,7 +154,61 @@ function DeadlineTimeline({ opportunity }) {
                         <p className="rec-text">
                             {daysRemaining} days remaining. Take time to tailor your application.
                         </p>
-                        <button className="rec-button safe">Plan Application</button>
+                        <button
+                            type="button"
+                            className="rec-button safe"
+                            onClick={async () => {
+                                if (isPlanOpen) return togglePlanOpen();
+                                togglePlanOpen();
+                                await onPlanApplication?.();
+                            }}
+                        >
+                            Plan Application
+                        </button>
+
+                        {isPlanOpen ? (
+                            <div className="app-plan" aria-label="Application plan">
+                                <div className="app-plan-head">
+                                    <div>
+                                        <p className="app-plan-title">Application plan</p>
+                                        <p className="app-plan-sub">Milestones are saved to your account.</p>
+                                    </div>
+                                </div>
+
+                                {planLoading ? <div className="app-plan-loading">Loading plan…</div> : null}
+
+                                {!planLoading && planItems.length === 0 ? (
+                                    <div className="app-plan-empty">Click “Plan Application” to generate milestones.</div>
+                                ) : null}
+
+                                {!planLoading && planItems.length > 0 ? (
+                                    <div className="app-plan-list">
+                                        {planItems.map((item) => {
+                                            const due = item?.dueDate ? new Date(item.dueDate) : null;
+                                            const dueLabel = due && !Number.isNaN(due.getTime()) ? getDateString(due) : '';
+                                            const done = item?.status === 'done';
+
+                                            return (
+                                                <button
+                                                    key={item._id}
+                                                    type="button"
+                                                    className={`app-plan-item ${done ? 'is-done' : ''}`}
+                                                    onClick={() => onTogglePlanItem?.(item._id, !done)}
+                                                    aria-pressed={done}
+                                                    title={done ? 'Mark as to-do' : 'Mark as done'}
+                                                >
+                                                    <span className="app-plan-check" aria-hidden="true">
+                                                        {done ? '✓' : ''}
+                                                    </span>
+                                                    <span className="app-plan-text">{item.title}</span>
+                                                    <span className="app-plan-due">{dueLabel}</span>
+                                                </button>
+                                            );
+                                        })}
+                                    </div>
+                                ) : null}
+                            </div>
+                        ) : null}
                     </>
                 )}
             </div>

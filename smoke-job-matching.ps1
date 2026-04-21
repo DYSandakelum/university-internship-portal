@@ -135,6 +135,21 @@ try {
     Assert-True ($patch.success -eq $true) "Opportunity status patch did not return success=true"
     Assert-True ($patch.data.applicationStatus -eq 'applied') "Opportunity status not updated to applied"
 
+    Write-Step "Opportunity: plan application (get/create/update)"
+    $planGet = Invoke-Json -Method Get -Url "$BaseUrl/opportunity/$oppId/plan" -Headers $authHeaders
+    Assert-True ($planGet.success -eq $true) "Plan GET did not return success=true"
+
+    $planCreate = Invoke-Json -Method Post -Url "$BaseUrl/opportunity/$oppId/plan" -Headers $authHeaders -BodyObject @{}
+    Assert-True ($planCreate.success -eq $true) "Plan CREATE did not return success=true"
+    Assert-NotNull $planCreate.data "Plan CREATE missing data"
+    Assert-True ($planCreate.data.items.Count -ge 1) "Plan CREATE returned no items"
+
+    $firstItem = $planCreate.data.items[0]
+    Assert-NotNull $firstItem._id "Plan item missing _id"
+
+    $planUpdate = Invoke-Json -Method Patch -Url "$BaseUrl/opportunity/$oppId/plan/items/$($firstItem._id)" -Headers $authHeaders -BodyObject @{ isDone = $true }
+    Assert-True ($planUpdate.success -eq $true) "Plan item update did not return success=true"
+
     Write-Host "\nALL JOB-MATCHING SMOKE TESTS PASSED" -ForegroundColor Green
     exit 0
 }

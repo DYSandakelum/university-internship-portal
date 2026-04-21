@@ -1,5 +1,6 @@
 const OpportunityScore = require('../models/OpportunityScore');
 const Student = require('../../models/Student');
+const ApplicationPlan = require('../models/ApplicationPlan');
 const {
     calculateOpportunityScore,
     getTopOpportunities,
@@ -344,6 +345,221 @@ const getRecommendedActions = async (req, res) => {
     }
 };
 
+function startOfDay(date) {
+    return new Date(date.getFullYear(), date.getMonth(), date.getDate());
+}
+
+function sameDay(a, b) {
+    return (
+        a.getFullYear() === b.getFullYear() &&
+        a.getMonth() === b.getMonth() &&
+        a.getDate() === b.getDate()
+    );
+}
+
+function clampDateOrder(items) {
+    const sorted = [...items].sort((x, y) => new Date(x.dueDate) - new Date(y.dueDate));
+    const result = [];
+    for (let i = 0; i < sorted.length; i++) {
+        const prev = result[i - 1];
+        const curr = { ...sorted[i], dueDate: startOfDay(new Date(sorted[i].dueDate)) };
+        if (prev && sameDay(prev.dueDate, curr.dueDate)) {
+            const bumped = new Date(curr.dueDate);
+            bumped.setDate(bumped.getDate() + 1);
+            curr.dueDate = bumped;
+        }
+        result.push(curr);
+    }
+    return result;
+}
+
+function buildDefaultPlan({ deadlineDate, createdAt }) {
+    const today = startOfDay(new Date());
+    const deadlineValid = deadlineDate instanceof Date && !Number.isNaN(deadlineDate.getTime());
+    const deadlineDay = deadlineValid ? startOfDay(deadlineDate) : null;
+    const baseCreated = createdAt instanceof Date && !Number.isNaN(createdAt.getTime()) ? startOfDay(createdAt) : today;
+
+    const offsets = [14, 7, 3, 1];
+    const titles = [
+        { title: 'Tailor your resume to the role', importance: 'high' },
+        { title: 'Draft a targeted cover letter', importance: 'high' },
+        { title: 'Gather documents & portfolio links', importance: 'medium' },
+        { title: 'Final review and submit application', importance: 'high' }
+    ];
+
+    const items = titles.map((t, idx) => {
+        let due;
+        if (deadlineValid) {
+            due = new Date(deadlineDay);
+            due.setDate(due.getDate() - offsets[idx]);
+            if (due < today) {
+                due = new Date(today);
+                due.setDate(due.getDate() + idx);
+            }
+            if (due > deadlineDay) due = new Date(deadlineDay);
+        } else {
+            due = new Date(today);
+            due.setDate(due.getDate() + idx);
+        }
+
+        if (due < baseCreated) {
+            due = new Date(baseCreated);
+            due.setDate(due.getDate() + idx);
+        }
+
+        return {
+            title: t.title,
+            dueDate: due,
+            status: 'todo',
+            importance: t.importance
+        };
+    });
+
+    return clampDateOrder(items);
+}
+
+/**
+ * @desc    Get application plan for an opportunity
+ * @route   GET /api/opportunity/:opportunityId/plan
+ * @access  Private
+ */
+const getOpportunityPlan = async (req, res) => {
+    try {
+        const { opportunityId } = req.params;
+        const studentId = req.user._id;
+
+        const plan = await ApplicationPlan.findOne({ studentId, opportunityId }).lean();
+
+        res.status(200).json({
+            success: true,
+            data: plan || null
+        });
+    } catch (error) {
+        console.error('Error fetching opportunity plan:', error);
+        res.status(500).json({
+            success: false,
+            message: 'Failed to fetch application plan',
+            error: error.message
+        });
+    }
+};
+
+/**
+ * @desc    Create (or return existing) application plan for an opportunity
+ * @route   POST /api/opportunity/:opportunityId/plan
+ * @access  Private
+ */
+const createOpportunityPlan = async (req, res) => {
+    try {
+        const { opportunityId } = req.params;
+        const studentId = req.user._id;
+
+        const existing = await ApplicationPlan.findOne({ studentId, opportunityId }).lean();
+        if (existing) {
+            return res.status(200).json({
+                success: true,
+                data: existing,
+                message: 'Plan loaded'
+            });
+        }
+
+        const opportunity = await OpportunityScore.findOne({ _id: opportunityId, studentId }).lean();
+        if (!opportunity) {
+            return res.status(404).json({
+                success: false,
+                message: 'Opportunity not found'
+            });
+        }
+
+        const deadlineDate = opportunity.deadlineDate ? new Date(opportunity.deadlineDate) : null;
+        const items = buildDefaultPlan({ deadlineDate, createdAt: opportunity.createdAt ? new Date(opportunity.createdAt) : null });
+
+        const plan = await ApplicationPlan.create({
+            studentId,
+            opportunityId,
+            jobId: opportunity.jobId,
+            generatedFrom: 'default-v1',
+            items
+        });
+
+        res.status(201).json({
+            success: true,
+            data: plan,
+            message: 'Plan created'
+        });
+    } catch (error) {
+        // Handle unique constraint race (double-click) by re-reading.
+        if (error && error.code === 11000) {
+            try {
+                const { opportunityId } = req.params;
+                const studentId = req.user._id;
+                const plan = await ApplicationPlan.findOne({ studentId, opportunityId }).lean();
+                return res.status(200).json({ success: true, data: plan, message: 'Plan loaded' });
+            } catch (e) {
+                console.error('Error resolving duplicate plan:', e);
+            }
+        }
+
+        console.error('Error creating opportunity plan:', error);
+        res.status(500).json({
+            success: false,
+            message: 'Failed to create application plan',
+            error: error.message
+        });
+    }
+};
+
+/**
+ * @desc    Update a single plan item status
+ * @route   PATCH /api/opportunity/:opportunityId/plan/items/:itemId
+ * @access  Private
+ */
+const updateOpportunityPlanItem = async (req, res) => {
+    try {
+        const { opportunityId, itemId } = req.params;
+        const studentId = req.user._id;
+        const { status, isDone } = req.body || {};
+
+        const nextStatus = status ? String(status) : isDone === true ? 'done' : isDone === false ? 'todo' : null;
+        if (!nextStatus || !['todo', 'done'].includes(nextStatus)) {
+            return res.status(400).json({
+                success: false,
+                message: 'Invalid plan item status'
+            });
+        }
+
+        const plan = await ApplicationPlan.findOneAndUpdate(
+            { studentId, opportunityId, 'items._id': itemId },
+            {
+                $set: {
+                    'items.$.status': nextStatus
+                }
+            },
+            { new: true }
+        ).lean();
+
+        if (!plan) {
+            return res.status(404).json({
+                success: false,
+                message: 'Plan or plan item not found'
+            });
+        }
+
+        res.status(200).json({
+            success: true,
+            data: plan,
+            message: 'Plan updated'
+        });
+    } catch (error) {
+        console.error('Error updating plan item:', error);
+        res.status(500).json({
+            success: false,
+            message: 'Failed to update application plan',
+            error: error.message
+        });
+    }
+};
+
 module.exports = {
     getOpportunityDashboard,
     calculateJobOpportunity,
@@ -352,5 +568,8 @@ module.exports = {
     getOpportunityMomentum,
     getOpportunityDetails,
     updateOpportunityStatus,
-    getRecommendedActions
+    getRecommendedActions,
+    getOpportunityPlan,
+    createOpportunityPlan,
+    updateOpportunityPlanItem
 };
