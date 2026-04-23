@@ -9,7 +9,7 @@ import { getInterviewPapers, getInterviewRoles, startInterviewAttempt } from '..
 
 export default function PracticeInterview() {
     const navigate = useNavigate();
-    const { ready, error: authError } = useEnsureDemoAuth();
+    const { ready, isAuthenticated, error: authError } = useEnsureDemoAuth();
 
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState('');
@@ -21,7 +21,7 @@ export default function PracticeInterview() {
     const roleOptions = useMemo(() => roles.map((r) => ({ value: r, label: r })), [roles]);
 
     useEffect(() => {
-        if (!ready) return;
+        if (!ready || !isAuthenticated) return;
         if (authError) {
             setError(authError);
             return;
@@ -48,10 +48,10 @@ export default function PracticeInterview() {
         return () => {
             cancelled = true;
         };
-    }, [ready, authError]);
+    }, [ready, isAuthenticated, authError]);
 
     useEffect(() => {
-        if (!ready) return;
+        if (!ready || !isAuthenticated) return;
         if (!role) {
             setPapers([]);
             return;
@@ -79,7 +79,7 @@ export default function PracticeInterview() {
         return () => {
             cancelled = true;
         };
-    }, [ready, role]);
+    }, [ready, isAuthenticated, role]);
 
     const onStartPaper = async (paperNumber) => {
         setLoading(true);

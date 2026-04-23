@@ -205,7 +205,7 @@ function LoadingState() {
 
 export default function SavedJobs() {
     const navigate = useNavigate();
-    const { ready, error: authError } = useEnsureDemoAuth();
+    const { ready, isAuthenticated, error: authError } = useEnsureDemoAuth();
     const [savedJobs, setSavedJobs] = useState([]);
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState('');
@@ -262,12 +262,12 @@ export default function SavedJobs() {
     }, []);
 
     useEffect(() => {
-        if (!ready) return;
+        if (!ready || !isAuthenticated) return;
         load();
-    }, [ready, load]);
+    }, [ready, isAuthenticated, load]);
 
     useJobMatchingRealtime((packet) => {
-        if (!ready) return;
+        if (!ready || !isAuthenticated) return;
         const entity = packet?.entity;
         if (entity === 'saved_jobs' || entity === 'notifications') {
             load({ silent: true });

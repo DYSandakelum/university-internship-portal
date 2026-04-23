@@ -246,7 +246,7 @@ function LoadingState() {
 
 export default function RecommendedJobs() {
     const navigate = useNavigate();
-    const { ready, error: authError } = useEnsureDemoAuth();
+    const { ready, isAuthenticated, error: authError } = useEnsureDemoAuth();
     const [jobs, setJobs] = useState([]);
     const [savedJobIds, setSavedJobIds] = useState(() => new Set());
     const [loading, setLoading] = useState(false);
@@ -308,12 +308,12 @@ export default function RecommendedJobs() {
     }, []);
 
     useEffect(() => {
-        if (!ready) return;
+        if (!ready || !isAuthenticated) return;
         loadRecommendations();
-    }, [ready, loadRecommendations]);
+    }, [ready, isAuthenticated, loadRecommendations]);
 
     useJobMatchingRealtime((packet) => {
-        if (!ready) return;
+        if (!ready || !isAuthenticated) return;
         const entity = packet?.entity;
         if (['saved_jobs', 'opportunity', 'notifications'].includes(entity)) {
             loadRecommendations({ silent: true });

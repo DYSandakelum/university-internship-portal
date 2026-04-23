@@ -132,7 +132,7 @@ function NotificationTabs({ activeTab, setActiveTab, counts }) {
 
 export default function Notifications() {
     const navigate = useNavigate();
-    const { ready, error: authError } = useEnsureDemoAuth();
+    const { ready, isAuthenticated, error: authError } = useEnsureDemoAuth();
     const [notifications, setNotifications] = useState([]);
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState('');
@@ -174,12 +174,12 @@ export default function Notifications() {
     }, [notifications, activeTab]);
 
     useEffect(() => {
-        if (!ready) return;
+        if (!ready || !isAuthenticated) return;
         loadNotifications();
-    }, [ready, loadNotifications]);
+    }, [ready, isAuthenticated, loadNotifications]);
 
     useJobMatchingRealtime((packet) => {
-        if (!ready) return;
+        if (!ready || !isAuthenticated) return;
         const entity = packet?.entity;
         if (entity === 'notifications' || entity === 'notification_settings' || entity === 'saved_jobs') {
             loadNotifications({ silent: true });

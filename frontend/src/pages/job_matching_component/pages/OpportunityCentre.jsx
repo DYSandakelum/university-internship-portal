@@ -8,6 +8,7 @@ import MomentumChart from '../components/MomentumChart';
 import ScoreGauge from '../components/ScoreGauge';
 import SkillGapPanel from '../components/SkillGapPanel';
 import useJobMatchingRealtime from '../hooks/useJobMatchingRealtime';
+import useEnsureDemoAuth from '../hooks/useEnsureDemoAuth';
 import './OpportunityCentre.css';
 
 const SCROLL_STEP_PX = 360;
@@ -250,6 +251,7 @@ function DeadlineCalendarModule({ opportunity }) {
 }
 
 export default function OpportunityCentre() {
+    const { ready, isAuthenticated, error: authError } = useEnsureDemoAuth();
     const [dashboard, setDashboard] = useState(null);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState('');
@@ -265,6 +267,11 @@ export default function OpportunityCentre() {
     const scrollerRef = useRef(null);
 
     useEffect(() => {
+        if (!ready || !isAuthenticated) {
+            setLoading(false);
+            return;
+        }
+
         let mounted = true;
 
         const loadOpportunityForJob = async (jobId) => {
@@ -314,7 +321,7 @@ export default function OpportunityCentre() {
         return () => {
             mounted = false;
         };
-    }, []);
+    }, [ready, isAuthenticated]);
 
     useEffect(() => {
         let mounted = true;
@@ -381,6 +388,7 @@ export default function OpportunityCentre() {
     }, [savedJobs]);
 
     useJobMatchingRealtime((packet) => {
+        if (!ready || !isAuthenticated) return;
         const entity = packet?.entity;
         if (!['saved_jobs', 'opportunity', 'application_plan', 'notifications'].includes(entity)) return;
 
@@ -430,6 +438,18 @@ export default function OpportunityCentre() {
                 <div className="opx-state">
                     <div className="opx-spinner" />
                     <p>Loading opportunities…</p>
+                </div>
+            </div>
+        );
+    }
+
+    if (authError) {
+        return (
+            <div className="opx-page">
+                <BackToDashboardButton />
+                <div className="opx-state opx-state-error">
+                    <FiAlertCircle className="opx-state-icon" />
+                    <p>{authError}</p>
                 </div>
             </div>
         );

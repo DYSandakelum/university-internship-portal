@@ -18,7 +18,7 @@ function formatTimeMs(ms) {
 export default function PracticeInterviewAttempt() {
     const navigate = useNavigate();
     const { attemptId } = useParams();
-    const { ready, error: authError } = useEnsureDemoAuth();
+    const { ready, isAuthenticated, error: authError } = useEnsureDemoAuth();
 
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState('');
@@ -72,7 +72,7 @@ export default function PracticeInterviewAttempt() {
     };
 
     useEffect(() => {
-        if (!ready) return;
+        if (!ready || !isAuthenticated) return;
         if (authError) {
             setError(authError);
             return;
@@ -84,7 +84,7 @@ export default function PracticeInterviewAttempt() {
 
         loadAttempt();
         // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, [ready, authError, attemptId]);
+    }, [ready, isAuthenticated, authError, attemptId]);
 
     useEffect(() => {
         if (!attempt?.expiresAt) return;

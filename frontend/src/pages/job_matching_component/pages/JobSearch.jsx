@@ -182,6 +182,11 @@ export default function JobSearch() {
     }, []);
 
     const loadSaved = useCallback(async () => {
+        if (!localStorage.getItem('token')) {
+            setSavedJobIds(new Set());
+            return;
+        }
+
         try {
             const saved = await getSavedJobs();
             const ids = new Set((saved || []).map((s) => String(s.jobId?._id || s.jobId)));

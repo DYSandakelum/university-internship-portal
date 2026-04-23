@@ -380,7 +380,7 @@ function HeroSection({ stats, onViewRecommendations, recommendationsOpen, onPrac
 export default function Dashboard() {
     const navigate = useNavigate();
     const { user } = useAuth();
-    const { ready, error: authError } = useEnsureDemoAuth();
+    const { ready, isAuthenticated, error: authError } = useEnsureDemoAuth();
     const [dashboardSearch, setDashboardSearch] = useState('');
     const [isSearchFocused, setIsSearchFocused] = useState(false);
     const [isAdvancedSearchOpen, setIsAdvancedSearchOpen] = useState(false);
@@ -516,7 +516,7 @@ export default function Dashboard() {
     }, [ready]);
 
     useEffect(() => {
-        if (!ready) return;
+        if (!ready || !isAuthenticated) return;
         loadDashboardData();
         const intervalId = setInterval(() => loadDashboardData({ silent: true }), 20000);
         const refreshOnFocus = () => {
@@ -529,10 +529,10 @@ export default function Dashboard() {
             window.removeEventListener('focus', refreshOnFocus);
             document.removeEventListener('visibilitychange', refreshOnFocus);
         };
-    }, [ready, loadDashboardData]);
+    }, [ready, isAuthenticated, loadDashboardData]);
 
     useJobMatchingRealtime((packet) => {
-        if (!ready) return;
+        if (!ready || !isAuthenticated) return;
         const entity = packet?.entity;
         if (['saved_jobs', 'notifications', 'opportunity', 'application_plan'].includes(entity)) {
             loadDashboardData({ silent: true });
