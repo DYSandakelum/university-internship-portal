@@ -1,10 +1,11 @@
-import React, { useEffect, useState, useMemo } from 'react';
+import React, { useEffect, useState, useMemo, useCallback } from 'react';
 import { FiBell, FiCheck, FiSettings, FiSearch } from 'react-icons/fi';
 import { useNavigate } from 'react-router-dom';
 import NotificationItem from '../components/NotificationItem';
 import { getNotifications } from '../../../services/notificationService';
 import useEnsureDemoAuth from '../hooks/useEnsureDemoAuth';
 import BackToDashboardButton from '../components/BackToDashboardButton';
+import useJobMatchingRealtime from '../hooks/useJobMatchingRealtime';
 
 // Professional Notification Header
 function NotificationHeader({ unreadCount, onMarkAllRead, onSettings }) {
@@ -137,6 +138,19 @@ export default function Notifications() {
     const [error, setError] = useState('');
     const [activeTab, setActiveTab] = useState('all');
 
+    const loadNotifications = useCallback(async ({ silent = false } = {}) => {
+        if (!silent) setLoading(true);
+        setError('');
+        try {
+            const data = await getNotifications();
+            setNotifications(Array.isArray(data) ? data : []);
+        } catch (e) {
+            setError(e?.response?.data?.message || 'Unable to load notifications');
+        } finally {
+            if (!silent) setLoading(false);
+        }
+    }, []);
+
     const counts = useMemo(() => {
         return {
             total: notifications.length,
@@ -161,21 +175,16 @@ export default function Notifications() {
 
     useEffect(() => {
         if (!ready) return;
-        const load = async () => {
-            setLoading(true);
-            setError('');
-            try {
-                const data = await getNotifications();
-                setNotifications(Array.isArray(data) ? data : []);
-            } catch (e) {
-                setError(e?.response?.data?.message || 'Unable to load notifications');
-            } finally {
-                setLoading(false);
-            }
-        };
+        loadNotifications();
+    }, [ready, loadNotifications]);
 
-        load();
-    }, [ready]);
+    useJobMatchingRealtime((packet) => {
+        if (!ready) return;
+        const entity = packet?.entity;
+        if (entity === 'notifications' || entity === 'notification_settings' || entity === 'saved_jobs') {
+            loadNotifications({ silent: true });
+        }
+    });
 
     const handleMarkAllRead = async () => {
         // Mock implementation

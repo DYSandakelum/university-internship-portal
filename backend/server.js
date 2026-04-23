@@ -1,4 +1,5 @@
 const express = require('express');
+const http = require('http');
 const dotenv = require('dotenv');
 const cors = require('cors');
 const path = require('path');
@@ -7,6 +8,7 @@ const { initializeDeadlineScheduler } = require('./job_matching_component/servic
 const { seedAllDemoData } = require('./seed/seed-all');
 const bcrypt = require('bcryptjs');
 const User = require('./models/User');
+const { initRealtime } = require('./realtime/socket');
 
 // Load environment variables
 dotenv.config({ path: path.resolve(__dirname, '../.env') });
@@ -19,6 +21,7 @@ if (!process.env.NODE_ENV && process.env.npm_lifecycle_event === 'dev') {
 
 // Initialize Express app
 const app = express();
+const httpServer = http.createServer(app);
 
 const configuredOrigins = (process.env.CLIENT_URL || '')
     .split(',')
@@ -128,8 +131,9 @@ const startServer = async () => {
         console.log('Demo data seeded');
     }
 
-    server = app.listen(PORT, () => {
+    server = httpServer.listen(PORT, () => {
         console.log(`Server running on port ${PORT}`);
+        initRealtime({ server: httpServer, corsOrigins: configuredOrigins });
         initializeDeadlineScheduler();
     });
 

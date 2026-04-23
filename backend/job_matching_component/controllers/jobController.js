@@ -1,6 +1,8 @@
 const Job = require('../../models/Job');
 const SavedJob = require('../models/SavedJob');
 const Student = require('../../models/Student');
+const Notification = require('../models/Notification');
+const { emitJobMatchingDataChanged } = require('../../realtime/socket');
 
 const normalizeSkill = (skill) => String(skill || '').trim().toLowerCase();
 
@@ -134,6 +136,24 @@ const saveJob = async (req, res) => {
         }
 
         const savedJob = await SavedJob.create({ userId: req.user._id, jobId });
+
+        try {
+            await Notification.create({
+                userId: req.user._id,
+                type: 'application_update',
+                message: `Saved job: ${job.title} at ${job.company}`
+            });
+        } catch (notifyError) {
+            console.error('Failed to create save-job notification:', notifyError.message);
+        }
+
+        emitJobMatchingDataChanged({
+            userId: req.user._id,
+            entity: 'saved_jobs',
+            action: 'created',
+            payload: { savedJobId: String(savedJob._id), jobId: String(jobId) }
+        });
+
         res.status(201).json({ message: 'Job saved', savedJob });
     } catch (error) {
         if (error.code === 11000) {
@@ -158,6 +178,14 @@ const removeSavedJob = async (req, res) => {
         }
 
         await SavedJob.findByIdAndDelete(savedJob._id);
+
+        emitJobMatchingDataChanged({
+            userId: req.user._id,
+            entity: 'saved_jobs',
+            action: 'deleted',
+            payload: { savedJobId: String(savedJob._id), jobId: String(savedJob.jobId) }
+        });
+
         res.status(200).json({ message: 'Saved job removed' });
     } catch (error) {
         res.status(500).json({ message: 'Server error', error: error.message });
@@ -191,6 +219,13 @@ const checkDeadlineReminders = async (req, res) => {
         console.log(`Manual deadline check triggered by user: ${req.user.email}`);
         
         await manualDeadlineCheck();
+
+        emitJobMatchingDataChanged({
+            userId: req.user._id,
+            entity: 'notifications',
+            action: 'deadline_check',
+            payload: { triggeredBy: String(req.user._id) }
+        });
         
         res.status(200).json({ 
             success: true,

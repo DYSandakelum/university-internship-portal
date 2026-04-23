@@ -1,9 +1,10 @@
-import React, { useEffect, useState, useMemo } from 'react';
+import React, { useEffect, useState, useMemo, useCallback } from 'react';
 import { FiTarget, FiZap, FiStar, FiTrendingUp, FiInfo, FiSearch, FiBarChart, FiMonitor, FiChevronLeft, FiChevronRight, FiThumbsUp, FiAlertTriangle, FiRotateCw } from 'react-icons/fi';
 import { useNavigate } from 'react-router-dom';
 import JobCard from '../components/JobCard';
 import { getRecommendedJobs, getSavedJobs, saveJob } from '../../../services/jobService';
 import useEnsureDemoAuth from '../hooks/useEnsureDemoAuth';
+import useJobMatchingRealtime from '../hooks/useJobMatchingRealtime';
 import BackToDashboardButton from '../components/BackToDashboardButton';
 import '../styles/JobMatchingLayout.css';
 import '../styles/JobMatchingControls.css';
@@ -276,42 +277,48 @@ export default function RecommendedJobs() {
 
     const totalPages = Math.ceil(filteredJobs.length / JOBS_PER_PAGE);
 
+    const loadRecommendations = useCallback(async ({ silent = false } = {}) => {
+        if (!silent) setLoading(true);
+        setError('');
+        try {
+            const [recommended, saved] = await Promise.all([
+                getRecommendedJobs(),
+                getSavedJobs().catch(() => [])
+            ]);
+
+            let nextJobs = Array.isArray(recommended) ? recommended : [];
+
+            if (nextJobs.length === 0) {
+                try {
+                    const { searchJobs } = await import('../../../services/jobService');
+                    nextJobs = await searchJobs({});
+                } catch {
+                    // ignore fallback errors
+                }
+            }
+
+            setJobs(Array.isArray(nextJobs) ? nextJobs : []);
+            const ids = new Set((saved || []).map((s) => String(s.jobId?._id || s.jobId)));
+            setSavedJobIds(ids);
+        } catch (e) {
+            setError(e?.response?.data?.message || 'Unable to load recommendations');
+        } finally {
+            if (!silent) setLoading(false);
+        }
+    }, []);
+
     useEffect(() => {
         if (!ready) return;
-        const load = async () => {
-            setLoading(true);
-            setError('');
-            try {
-                const [recommended, saved] = await Promise.all([
-                    getRecommendedJobs(),
-                    getSavedJobs().catch(() => [])
-                ]);
+        loadRecommendations();
+    }, [ready, loadRecommendations]);
 
-                let nextJobs = Array.isArray(recommended) ? recommended : [];
-
-                // Fallback: If recommendations are empty, still show jobs from DB.
-                // This keeps the page useful immediately after seeding.
-                if (nextJobs.length === 0) {
-                    try {
-                        const { searchJobs } = await import('../../../services/jobService');
-                        nextJobs = await searchJobs({});
-                    } catch {
-                        // ignore fallback errors
-                    }
-                }
-
-                setJobs(Array.isArray(nextJobs) ? nextJobs : []);
-                const ids = new Set((saved || []).map((s) => String(s.jobId?._id || s.jobId)));
-                setSavedJobIds(ids);
-            } catch (e) {
-                setError(e?.response?.data?.message || 'Unable to load recommendations');
-            } finally {
-                setLoading(false);
-            }
-        };
-
-        load();
-    }, [ready]);
+    useJobMatchingRealtime((packet) => {
+        if (!ready) return;
+        const entity = packet?.entity;
+        if (['saved_jobs', 'opportunity', 'notifications'].includes(entity)) {
+            loadRecommendations({ silent: true });
+        }
+    });
 
     // Reset to page 1 when category changes
     useEffect(() => {
@@ -337,32 +344,7 @@ export default function RecommendedJobs() {
     };
 
     const handleRetry = async () => {
-        setLoading(true);
-        setError('');
-        try {
-            const [recommended, saved] = await Promise.all([
-                getRecommendedJobs(),
-                getSavedJobs().catch(() => [])
-            ]);
-
-            let nextJobs = Array.isArray(recommended) ? recommended : [];
-            if (nextJobs.length === 0) {
-                try {
-                    const { searchJobs } = await import('../../../services/jobService');
-                    nextJobs = await searchJobs({});
-                } catch {
-                    // ignore fallback errors
-                }
-            }
-
-            setJobs(Array.isArray(nextJobs) ? nextJobs : []);
-            const ids = new Set((saved || []).map((s) => String(s.jobId?._id || s.jobId)));
-            setSavedJobIds(ids);
-        } catch (e) {
-            setError(e?.response?.data?.message || 'Unable to load recommendations');
-        } finally {
-            setLoading(false);
-        }
+        await loadRecommendations();
     };
 
     return (

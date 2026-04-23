@@ -7,6 +7,7 @@ import FilterPanel from '../components/FilterPanel';
 import JobCard from '../components/JobCard';
 import BackToDashboardButton from '../components/BackToDashboardButton';
 import { getSavedJobs, saveJob, searchJobs } from '../../../services/jobService';
+import useJobMatchingRealtime from '../hooks/useJobMatchingRealtime';
 import '../styles/JobMatchingLayout.css';
 import '../styles/JobMatchingControls.css';
 
@@ -180,6 +181,16 @@ export default function JobSearch() {
         }
     }, []);
 
+    const loadSaved = useCallback(async () => {
+        try {
+            const saved = await getSavedJobs();
+            const ids = new Set((saved || []).map((s) => String(s.jobId?._id || s.jobId)));
+            setSavedJobIds(ids);
+        } catch {
+            // ignore (likely not logged in)
+        }
+    }, []);
+
     // Load from URL only (submit/apply updates URL; URL change triggers fetch)
     useEffect(() => {
         const next = parseUrlState(location.search);
@@ -198,17 +209,24 @@ export default function JobSearch() {
     }, [location.search, parseUrlState, runSearch]);
 
     useEffect(() => {
-        const loadSaved = async () => {
-            try {
-                const saved = await getSavedJobs();
-                const ids = new Set((saved || []).map((s) => String(s.jobId?._id || s.jobId)));
-                setSavedJobIds(ids);
-            } catch {
-                // ignore (likely not logged in)
-            }
-        };
         loadSaved();
-    }, []);
+    }, [loadSaved]);
+
+    useJobMatchingRealtime((packet) => {
+        const entity = packet?.entity;
+        if (!['saved_jobs', 'opportunity', 'notifications'].includes(entity)) return;
+
+        const next = parseUrlState(location.search);
+        runSearch({
+            q: next.q,
+            jobType: next.filters.jobType || undefined,
+            location: next.filters.location || undefined,
+            minSalary: next.filters.minSalary || undefined,
+            maxSalary: next.filters.maxSalary || undefined,
+            sortBy: next.sortBy
+        });
+        loadSaved();
+    });
 
     const handleSave = async (job) => {
         try {

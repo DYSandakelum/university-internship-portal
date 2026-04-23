@@ -2,7 +2,9 @@ const Cron = require('node-cron');
 const SavedJob = require('../models/SavedJob');
 const Job = require('../../models/Job');
 const User = require('../../models/User');
+const Notification = require('../models/Notification');
 const sendEmail = require('../../utils/sendEmail');
+const { emitJobMatchingDataChanged } = require('../../realtime/socket');
 
 /**
  * Check for saved jobs with deadlines within 24 hours and send reminder emails
@@ -121,6 +123,23 @@ async function checkJobDeadlines() {
                     reminderSent: true,
                     reminderSentAt: now
                 });
+
+                await Notification.create({
+                    userId: user._id,
+                    type: 'deadline_reminder',
+                    message: `Deadline in ${hoursRemaining}h: ${job.title} at ${job.company}`
+                });
+
+                emitJobMatchingDataChanged({
+                    userId: user._id,
+                    entity: 'notifications',
+                    action: 'created',
+                    payload: {
+                        type: 'deadline_reminder',
+                        jobId: String(job._id),
+                        savedJobId: String(savedJob._id)
+                    }
+                });
                 
                 console.log(`Deadline reminder sent to ${user.email} for job: ${job.title}`);
                 
@@ -169,6 +188,15 @@ async function cleanupExpiredJobs() {
             );
             
             console.log(`Cleaned up ${validExpiredJobs.length} expired job reminders`);
+
+            validExpiredJobs.forEach((savedJob) => {
+                emitJobMatchingDataChanged({
+                    userId: savedJob.userId,
+                    entity: 'saved_jobs',
+                    action: 'deadline_reset',
+                    payload: { savedJobId: String(savedJob._id) }
+                });
+            });
         }
         
     } catch (error) {

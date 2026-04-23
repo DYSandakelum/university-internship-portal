@@ -7,6 +7,7 @@ const {
     getAtRiskOpportunities,
     getMomentumData
 } = require('../services/opportunityService');
+const { emitJobMatchingDataChanged } = require('../../realtime/socket');
 
 /**
  * @desc    Get opportunity command center dashboard
@@ -124,6 +125,13 @@ const calculateJobOpportunity = async (req, res) => {
 
         // Calculate new score
         opportunityScore = await calculateOpportunityScore(studentId, jobId, userProfile);
+
+        emitJobMatchingDataChanged({
+            userId: req.user._id,
+            entity: 'opportunity',
+            action: 'calculated',
+            payload: { opportunityId: String(opportunityScore._id), jobId: String(jobId) }
+        });
 
         res.status(201).json({
             success: true,
@@ -294,6 +302,16 @@ const updateOpportunityStatus = async (req, res) => {
             success: true,
             data: opportunity,
             message: 'Opportunity status updated'
+        });
+
+        emitJobMatchingDataChanged({
+            userId: req.user._id,
+            entity: 'opportunity',
+            action: 'status_updated',
+            payload: {
+                opportunityId: String(opportunity._id),
+                applicationStatus: opportunity.applicationStatus
+            }
         });
     } catch (error) {
         console.error('Error updating opportunity status:', error);
@@ -482,6 +500,13 @@ const createOpportunityPlan = async (req, res) => {
             items
         });
 
+        emitJobMatchingDataChanged({
+            userId: req.user._id,
+            entity: 'application_plan',
+            action: 'created',
+            payload: { opportunityId: String(opportunityId), planId: String(plan._id) }
+        });
+
         res.status(201).json({
             success: true,
             data: plan,
@@ -549,6 +574,13 @@ const updateOpportunityPlanItem = async (req, res) => {
             success: true,
             data: plan,
             message: 'Plan updated'
+        });
+
+        emitJobMatchingDataChanged({
+            userId: req.user._id,
+            entity: 'application_plan',
+            action: 'item_updated',
+            payload: { opportunityId: String(opportunityId), itemId: String(itemId), status: nextStatus }
         });
     } catch (error) {
         console.error('Error updating plan item:', error);

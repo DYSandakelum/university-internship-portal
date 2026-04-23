@@ -7,6 +7,7 @@ import DeadlineTimeline from '../components/DeadlineTimeline';
 import MomentumChart from '../components/MomentumChart';
 import ScoreGauge from '../components/ScoreGauge';
 import SkillGapPanel from '../components/SkillGapPanel';
+import useJobMatchingRealtime from '../hooks/useJobMatchingRealtime';
 import './OpportunityCentre.css';
 
 const SCROLL_STEP_PX = 360;
@@ -378,6 +379,44 @@ export default function OpportunityCentre() {
     const savedJobItems = useMemo(() => {
         return (savedJobs || []).map((s) => s?.jobId).filter(Boolean);
     }, [savedJobs]);
+
+    useJobMatchingRealtime((packet) => {
+        const entity = packet?.entity;
+        if (!['saved_jobs', 'opportunity', 'application_plan', 'notifications'].includes(entity)) return;
+
+        (async () => {
+            try {
+                const [response, saved] = await Promise.all([
+                    jobService.getOpportunityDashboard(),
+                    jobService.getSavedJobs().catch(() => [])
+                ]);
+
+                setDashboard(response?.data || null);
+
+                const savedJobsList = Array.isArray(saved) ? saved : [];
+                setSavedJobs(savedJobsList);
+
+                const hasSelectedStillSaved = savedJobsList.some(
+                    (item) => String(item?.jobId?._id || '') === String(selectedSavedJobId || '')
+                );
+
+                const nextJobId = hasSelectedStillSaved
+                    ? selectedSavedJobId
+                    : String(savedJobsList?.[0]?.jobId?._id || '');
+
+                if (nextJobId) {
+                    setSelectedSavedJobId(nextJobId);
+                    const result = await jobService.calculateJobOpportunity(nextJobId);
+                    setSelectedOpportunity(result?.data || null);
+                } else {
+                    setSelectedSavedJobId(null);
+                    setSelectedOpportunity(null);
+                }
+            } catch {
+                // Keep current view on transient realtime refresh errors.
+            }
+        })();
+    });
 
     const scrollBy = (dx) => {
         if (!scrollerRef.current) return;

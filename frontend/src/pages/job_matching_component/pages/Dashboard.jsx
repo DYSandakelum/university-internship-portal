@@ -28,6 +28,7 @@ import AdvancedFiltersModal from '../components/AdvancedFiltersModal';
 import PracticeInterviewModal from '../components/PracticeInterviewModal';
 import FilterPanel from '../components/FilterPanel';
 import { useAuth } from '../../../context/AuthContext';
+import useJobMatchingRealtime from '../hooks/useJobMatchingRealtime';
 import './dashboard.css';
 
 function MetricCard({ icon, label, value, helper, colorClass, delay = 0, onClick, popTitle, popLines = [] }) {
@@ -529,6 +530,14 @@ export default function Dashboard() {
             document.removeEventListener('visibilitychange', refreshOnFocus);
         };
     }, [ready, loadDashboardData]);
+
+    useJobMatchingRealtime((packet) => {
+        if (!ready) return;
+        const entity = packet?.entity;
+        if (['saved_jobs', 'notifications', 'opportunity', 'application_plan'].includes(entity)) {
+            loadDashboardData({ silent: true });
+        }
+    });
 
     useEffect(() => {
         if (!selectedRecoJob) return;

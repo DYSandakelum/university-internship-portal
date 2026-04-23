@@ -1,9 +1,10 @@
-import React, { useEffect, useState, useMemo } from 'react';
+import React, { useEffect, useState, useMemo, useCallback } from 'react';
 import { FiBookmark, FiSearch, FiTrash2, FiZap, FiStar, FiAlertTriangle, FiRotateCw } from 'react-icons/fi';
 import { useNavigate } from 'react-router-dom';
 import JobCard from '../components/JobCard';
 import { getSavedJobs, removeSavedJob } from '../../../services/jobService';
 import useEnsureDemoAuth from '../hooks/useEnsureDemoAuth';
+import useJobMatchingRealtime from '../hooks/useJobMatchingRealtime';
 import BackToDashboardButton from '../components/BackToDashboardButton';
 import '../styles/JobMatchingLayout.css';
 import '../styles/JobMatchingControls.css';
@@ -247,8 +248,8 @@ export default function SavedJobs() {
         }
     }, [savedJobs, searchQuery, sortBy]);
 
-    const load = async () => {
-        setLoading(true);
+    const load = useCallback(async ({ silent = false } = {}) => {
+        if (!silent) setLoading(true);
         setError('');
         try {
             const data = await getSavedJobs();
@@ -256,14 +257,22 @@ export default function SavedJobs() {
         } catch (e) {
             setError(e?.response?.data?.message || 'Unable to load saved jobs');
         } finally {
-            setLoading(false);
+            if (!silent) setLoading(false);
         }
-    };
+    }, []);
 
     useEffect(() => {
         if (!ready) return;
         load();
-    }, [ready]);
+    }, [ready, load]);
+
+    useJobMatchingRealtime((packet) => {
+        if (!ready) return;
+        const entity = packet?.entity;
+        if (entity === 'saved_jobs' || entity === 'notifications') {
+            load({ silent: true });
+        }
+    });
 
     const handleRemove = async (savedJob) => {
         try {

@@ -1,5 +1,6 @@
 const Notification = require('../models/Notification');
 const User = require('../../models/User');
+const { emitJobMatchingDataChanged } = require('../../realtime/socket');
 
 // @desc    Get notifications for current user
 // @route   GET /api/notifications
@@ -44,6 +45,13 @@ const updateNotificationSettings = async (req, res) => {
         res.status(200).json({
             message: 'Notification settings updated',
             notificationSettings: user.notificationSettings
+        });
+
+        emitJobMatchingDataChanged({
+            userId: req.user._id,
+            entity: 'notification_settings',
+            action: 'updated',
+            payload: { notificationSettings: user.notificationSettings }
         });
     } catch (error) {
         res.status(500).json({ message: 'Server error', error: error.message });
