@@ -98,21 +98,7 @@ const calculateJobOpportunity = async (req, res) => {
         const { jobId } = req.params;
         const studentId = req.user._id;
 
-        // Check if score already exists for this job
-        let opportunityScore = await OpportunityScore.findOne({
-            studentId,
-            jobId
-        }).populate('jobId');
-
-        if (opportunityScore) {
-            return res.status(200).json({
-                success: true,
-                data: opportunityScore,
-                message: 'Score calculated (cached)'
-            });
-        }
-
-        // Get user profile data (mock - in real app, fetch from User model)
+        // Recalculate every time so deadline/task-driven meters stay live.
         const studentProfile = await Student.findOne({ user: req.user._id }).lean();
         const userProfile = {
             skills: studentProfile?.skills || [],
@@ -123,8 +109,7 @@ const calculateJobOpportunity = async (req, res) => {
             weeklyApplicationCount: 5
         };
 
-        // Calculate new score
-        opportunityScore = await calculateOpportunityScore(studentId, jobId, userProfile);
+        const opportunityScore = await calculateOpportunityScore(studentId, jobId, userProfile);
 
         emitJobMatchingDataChanged({
             userId: req.user._id,
@@ -133,7 +118,7 @@ const calculateJobOpportunity = async (req, res) => {
             payload: { opportunityId: String(opportunityScore._id), jobId: String(jobId) }
         });
 
-        res.status(201).json({
+        res.status(200).json({
             success: true,
             data: opportunityScore,
             message: 'Opportunity score calculated successfully'
@@ -500,6 +485,16 @@ const createOpportunityPlan = async (req, res) => {
             items
         });
 
+        const studentProfile = await Student.findOne({ user: req.user._id }).lean();
+        const refreshedOpportunity = await calculateOpportunityScore(studentId, opportunity.jobId, {
+            skills: studentProfile?.skills || [],
+            email: req.user.email || '',
+            phoneNumber: studentProfile?.phone || '',
+            experience: [],
+            education: studentProfile?.department || '',
+            weeklyApplicationCount: 5
+        });
+
         emitJobMatchingDataChanged({
             userId: req.user._id,
             entity: 'application_plan',
@@ -510,6 +505,7 @@ const createOpportunityPlan = async (req, res) => {
         res.status(201).json({
             success: true,
             data: plan,
+            opportunity: refreshedOpportunity,
             message: 'Plan created'
         });
     } catch (error) {
@@ -570,9 +566,24 @@ const updateOpportunityPlanItem = async (req, res) => {
             });
         }
 
+        const opportunity = await OpportunityScore.findOne({ _id: opportunityId, studentId }).lean();
+        let refreshedOpportunity = null;
+        if (opportunity?.jobId) {
+            const studentProfile = await Student.findOne({ user: req.user._id }).lean();
+            refreshedOpportunity = await calculateOpportunityScore(studentId, opportunity.jobId, {
+                skills: studentProfile?.skills || [],
+                email: req.user.email || '',
+                phoneNumber: studentProfile?.phone || '',
+                experience: [],
+                education: studentProfile?.department || '',
+                weeklyApplicationCount: 5
+            });
+        }
+
         res.status(200).json({
             success: true,
             data: plan,
+            opportunity: refreshedOpportunity,
             message: 'Plan updated'
         });
 
@@ -582,6 +593,18 @@ const updateOpportunityPlanItem = async (req, res) => {
             action: 'item_updated',
             payload: { opportunityId: String(opportunityId), itemId: String(itemId), status: nextStatus }
         });
+
+        if (refreshedOpportunity?._id) {
+            emitJobMatchingDataChanged({
+                userId: req.user._id,
+                entity: 'opportunity',
+                action: 'score_recalculated',
+                payload: {
+                    opportunityId: String(refreshedOpportunity._id),
+                    jobId: String(refreshedOpportunity.jobId?._id || refreshedOpportunity.jobId)
+                }
+            });
+        }
     } catch (error) {
         console.error('Error updating plan item:', error);
         res.status(500).json({

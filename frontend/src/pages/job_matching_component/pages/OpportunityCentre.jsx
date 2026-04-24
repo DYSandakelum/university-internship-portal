@@ -263,8 +263,13 @@ export default function OpportunityCentre() {
 
     const [savedJobs, setSavedJobs] = useState([]);
     const [selectedSavedJobId, setSelectedSavedJobId] = useState(null);
+    const selectedSavedJobIdRef = useRef(null);
 
     const scrollerRef = useRef(null);
+
+    useEffect(() => {
+        selectedSavedJobIdRef.current = selectedSavedJobId ? String(selectedSavedJobId) : null;
+    }, [selectedSavedJobId]);
 
     useEffect(() => {
         if (!ready || !isAuthenticated) {
@@ -364,6 +369,11 @@ export default function OpportunityCentre() {
             setPlanLoading(true);
             const res = await jobService.createOpportunityPlan(oppId);
             setApplicationPlan(res?.data || null);
+            if (res?.opportunity) {
+                setSelectedOpportunity(res.opportunity);
+            }
+            const latestDashboard = await jobService.getOpportunityDashboard();
+            setDashboard(latestDashboard?.data || null);
         } catch {
             // ignore; UI stays usable
         } finally {
@@ -378,6 +388,11 @@ export default function OpportunityCentre() {
         try {
             const res = await jobService.updateOpportunityPlanItem(oppId, itemId, nextDone);
             setApplicationPlan(res?.data || null);
+            if (res?.opportunity) {
+                setSelectedOpportunity(res.opportunity);
+            }
+            const latestDashboard = await jobService.getOpportunityDashboard();
+            setDashboard(latestDashboard?.data || null);
         } catch {
             // ignore
         }
@@ -404,12 +419,13 @@ export default function OpportunityCentre() {
                 const savedJobsList = Array.isArray(saved) ? saved : [];
                 setSavedJobs(savedJobsList);
 
+                const currentSelected = String(selectedSavedJobIdRef.current || '');
                 const hasSelectedStillSaved = savedJobsList.some(
-                    (item) => String(item?.jobId?._id || '') === String(selectedSavedJobId || '')
+                    (item) => String(item?.jobId?._id || '') === currentSelected
                 );
 
                 const nextJobId = hasSelectedStillSaved
-                    ? selectedSavedJobId
+                    ? currentSelected
                     : String(savedJobsList?.[0]?.jobId?._id || '');
 
                 if (nextJobId) {
