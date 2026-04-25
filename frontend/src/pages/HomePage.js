@@ -22,7 +22,7 @@ const HomePage = () => {
                         </h1>
                         <p style={styles.heroSubtitle}>
                             Connect with top employers, discover internships that match
-                            your skills, and launch your professional journey — all in one place.
+                            your skills, and launch your professional journey - all in one place.
                         </p>
                         <div style={styles.heroButtons}>
                             <Link to="/register" className="btn btn-amber btn-lg">
@@ -160,7 +160,7 @@ const HomePage = () => {
                     <div style={styles.footerBrandCol}>
                         <div style={styles.footerBrand}>
                             <div style={styles.footerBrandIcon}>🎓</div>
-                            <span>InternHub</span>
+                            <span>CareerSync</span>
                         </div>
                         <p style={styles.footerDesc}>
                             Bridging the gap between SLIIT students and employers since 2024.
@@ -191,7 +191,7 @@ const HomePage = () => {
                     </div>
                 </div>
                 <div style={styles.footerBottom}>
-                    <p style={styles.footerCopy}>© 2026 InternHub. All rights reserved.</p>
+                    <p style={styles.footerCopy}>© 2026 CareerSync. All rights reserved.</p>
                 </div>
             </footer>
         </div>
