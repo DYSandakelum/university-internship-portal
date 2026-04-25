@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { useParams, Link } from 'react-router-dom';
 
 function EmployerDetails() {
@@ -15,11 +15,7 @@ function EmployerDetails() {
   });
   const [submitting, setSubmitting] = useState(false);
 
-  useEffect(() => {
-    loadData();
-  }, [id]);
-
-  const loadData = () => {
+  const loadData = useCallback(() => {
     // Load companies from localStorage
     const savedCompanies = JSON.parse(localStorage.getItem('companies') || '[]');
     
@@ -88,7 +84,11 @@ function EmployerDetails() {
     const companyReviews = allReviews.filter(r => r.companyId === id);
     setReviews(companyReviews);
     setLoading(false);
-  };
+  }, [id]);
+
+  useEffect(() => {
+    loadData();
+  }, [loadData]);
 
   const handleReviewChange = (e) => {
     const value = e.target.type === 'checkbox' ? e.target.checked : e.target.value;

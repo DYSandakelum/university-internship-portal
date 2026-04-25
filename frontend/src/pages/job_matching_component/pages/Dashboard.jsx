@@ -1,4 +1,4 @@
-import React, { useCallback, useEffect, useState } from 'react';
+import React, { useCallback, useEffect, useMemo, useState } from 'react';
 import {
     FiBriefcase,
     FiBell,
@@ -15,17 +15,20 @@ import {
     FiClock,
     FiCheckCircle,
     FiArrowRight,
-    FiAward
+    FiAward,
+    FiX
 } from 'react-icons/fi';
 import { useNavigate } from 'react-router-dom';
-import { getRecommendedJobs, getSavedJobs } from '../../../services/jobService';
+import { getRecommendedJobs, getSavedJobs, saveJob } from '../../../services/jobService';
 import { getNotifications } from '../../../services/notificationService';
 import useEnsureDemoAuth from '../hooks/useEnsureDemoAuth';
 import AiCareerChat from '../components/AiCareerChat';
+import JobCard from '../components/JobCard';
 import AdvancedFiltersModal from '../components/AdvancedFiltersModal';
 import PracticeInterviewModal from '../components/PracticeInterviewModal';
 import FilterPanel from '../components/FilterPanel';
 import { useAuth } from '../../../context/AuthContext';
+import useJobMatchingRealtime from '../hooks/useJobMatchingRealtime';
 import './dashboard.css';
 
 function MetricCard({ icon, label, value, helper, colorClass, delay = 0, onClick, popTitle, popLines = [] }) {
@@ -127,7 +130,31 @@ function WeeklyActivityChart({ weeklyData, maxValue }) {
         return { ...item, x, y };
     });
 
-    const linePoints = points.map((p) => `${p.x},${p.y}`).join(' ');
+    const buildSmoothPath = (pts) => {
+        if (!Array.isArray(pts) || pts.length < 2) return '';
+
+        // Catmull–Rom to Bezier conversion for a smooth curve
+        const tension = 1;
+        const d = [`M ${pts[0].x} ${pts[0].y}`];
+
+        for (let i = 0; i < pts.length - 1; i++) {
+            const p0 = i > 0 ? pts[i - 1] : pts[i];
+            const p1 = pts[i];
+            const p2 = pts[i + 1];
+            const p3 = i + 2 < pts.length ? pts[i + 2] : p2;
+
+            const c1x = p1.x + ((p2.x - p0.x) / 6) * tension;
+            const c1y = p1.y + ((p2.y - p0.y) / 6) * tension;
+            const c2x = p2.x - ((p3.x - p1.x) / 6) * tension;
+            const c2y = p2.y - ((p3.y - p1.y) / 6) * tension;
+
+            d.push(`C ${c1x} ${c1y}, ${c2x} ${c2y}, ${p2.x} ${p2.y}`);
+        }
+
+        return d.join(' ');
+    };
+
+    const linePath = buildSmoothPath(points);
 
     return (
         <section className="dashboard-panel dashboard-chart-panel-full dashboard-slide-up" style={{ animationDelay: '140ms' }}>
@@ -138,11 +165,25 @@ function WeeklyActivityChart({ weeklyData, maxValue }) {
             <div className="dashboard-line-chart-wrap">
                 <svg className="dashboard-line-chart-svg" viewBox={`0 0 ${chartWidth} ${chartHeight}`} role="img" aria-label="Weekly activity line chart">
                     <line className="dashboard-line-axis" x1={leftPad} y1={topPad + usableHeight} x2={chartWidth - rightPad} y2={topPad + usableHeight} />
-                    <polyline className="dashboard-line-path" points={linePoints} />
-                    {points.map((point) => (
+                    {linePath ? <path className="dashboard-line-path" d={linePath} pathLength="1" /> : null}
+                    {points.map((point, idx) => (
                         <g key={point.day}>
-                            <circle className="dashboard-line-point" cx={point.x} cy={point.y} r="4" />
-                            <text className="dashboard-line-value" x={point.x} y={point.y - 10} textAnchor="middle">{point.value}</text>
+                            <circle
+                                className="dashboard-line-point"
+                                cx={point.x}
+                                cy={point.y}
+                                r="4"
+                                style={{ animationDelay: `${220 + 70 * idx}ms` }}
+                            />
+                            <text
+                                className="dashboard-line-value"
+                                x={point.x}
+                                y={point.y - 10}
+                                textAnchor="middle"
+                                style={{ animationDelay: `${260 + 70 * idx}ms` }}
+                            >
+                                {point.value}
+                            </text>
                             <text className="dashboard-line-day" x={point.x} y={topPad + usableHeight + 24} textAnchor="middle">{point.day}</text>
                         </g>
                     ))}
@@ -339,7 +380,7 @@ function HeroSection({ stats, onViewRecommendations, recommendationsOpen, onPrac
 export default function Dashboard() {
     const navigate = useNavigate();
     const { user } = useAuth();
-    const { ready, error: authError } = useEnsureDemoAuth();
+    const { ready, isAuthenticated, error: authError } = useEnsureDemoAuth();
     const [dashboardSearch, setDashboardSearch] = useState('');
     const [isSearchFocused, setIsSearchFocused] = useState(false);
     const [isAdvancedSearchOpen, setIsAdvancedSearchOpen] = useState(false);
@@ -358,6 +399,16 @@ export default function Dashboard() {
     const [notifications, setNotifications] = useState([]);
     const [showRecommendationsRow, setShowRecommendationsRow] = useState(false);
     const [isPracticeModalOpen, setIsPracticeModalOpen] = useState(false);
+    const [selectedRecoJob, setSelectedRecoJob] = useState(null);
+
+    const savedJobIds = useMemo(() => {
+        const ids = new Set();
+        (Array.isArray(savedJobs) ? savedJobs : []).forEach((saved) => {
+            const jobId = saved?.jobId?._id || saved?.jobId;
+            if (jobId) ids.add(String(jobId));
+        });
+        return ids;
+    }, [savedJobs]);
 
     const profileCompletion = Math.min(100, Math.max(45, (Array.isArray(user?.skills) ? user.skills.length * 9 : 0) + 42));
 
@@ -465,7 +516,7 @@ export default function Dashboard() {
     }, [ready]);
 
     useEffect(() => {
-        if (!ready) return;
+        if (!ready || !isAuthenticated) return;
         loadDashboardData();
         const intervalId = setInterval(() => loadDashboardData({ silent: true }), 20000);
         const refreshOnFocus = () => {
@@ -478,7 +529,49 @@ export default function Dashboard() {
             window.removeEventListener('focus', refreshOnFocus);
             document.removeEventListener('visibilitychange', refreshOnFocus);
         };
-    }, [ready, loadDashboardData]);
+    }, [ready, isAuthenticated, loadDashboardData]);
+
+    useJobMatchingRealtime((packet) => {
+        if (!ready || !isAuthenticated) return;
+        const entity = packet?.entity;
+        if (['saved_jobs', 'notifications', 'opportunity', 'application_plan'].includes(entity)) {
+            loadDashboardData({ silent: true });
+        }
+    });
+
+    useEffect(() => {
+        if (!selectedRecoJob) return;
+        const onKeyDown = (event) => {
+            if (event.key === 'Escape') setSelectedRecoJob(null);
+        };
+        document.addEventListener('keydown', onKeyDown);
+        return () => document.removeEventListener('keydown', onKeyDown);
+    }, [selectedRecoJob]);
+
+    const handleOpenRecoJob = (job) => {
+        if (!job) return;
+        setSelectedRecoJob(job);
+    };
+
+    const handleCloseRecoJob = () => {
+        setSelectedRecoJob(null);
+    };
+
+    const handleApplyJob = (job) => {
+        if (job && job._id) {
+            navigate(`/student/jobs/${job._id}`);
+        }
+    };
+
+    const handleSaveJob = async (job) => {
+        if (!job || !job._id) return;
+        try {
+            await saveJob(job._id);
+            await loadDashboardData({ silent: true });
+        } catch {
+            // auth interceptor may redirect
+        }
+    };
 
     const handleActionClick = (path) => {
         if (path) navigate(path);
@@ -631,14 +724,21 @@ export default function Dashboard() {
                                 {Array.isArray(recommendedJobs) && recommendedJobs.length > 0 ? (
                                     <div className="dashboard-reco-row" role="list">
                                         {recommendedJobs.slice(0, 5).map((job) => (
-                                            <article key={job._id} className="dashboard-reco-card" role="listitem">
+                                            <button
+                                                key={job._id}
+                                                type="button"
+                                                className={`dashboard-reco-card ${selectedRecoJob && String(selectedRecoJob._id) === String(job._id) ? 'is-selected' : ''}`}
+                                                role="listitem"
+                                                onClick={() => handleOpenRecoJob(job)}
+                                                aria-label={`Open job card: ${job?.title || 'Job'}`}
+                                            >
                                                 <div className="dashboard-reco-card-top">
                                                     <div className="dashboard-reco-card-title" title={job.title}>{job.title}</div>
                                                     <div className="dashboard-reco-badge">{typeof job.matchPercentage === 'number' ? `${job.matchPercentage}%` : '--'}</div>
                                                 </div>
                                                 <div className="dashboard-reco-card-sub">{job.company || 'Company'} • {job.location || 'Location'}</div>
                                                 <div className="dashboard-reco-card-meta">{job.jobType || 'Role'} • {job.salary ? `$${job.salary}` : 'Salary n/a'}</div>
-                                            </article>
+                                            </button>
                                         ))}
                                     </div>
                                 ) : (
@@ -648,6 +748,43 @@ export default function Dashboard() {
                                 )}
                             </section>
                         )}
+
+                        {selectedRecoJob ? (
+                            <div
+                                className="dashboard-spotlight-backdrop"
+                                role="dialog"
+                                aria-modal="true"
+                                aria-label="Job card"
+                                onMouseDown={(event) => {
+                                    if (event.target === event.currentTarget) handleCloseRecoJob();
+                                }}
+                            >
+                                <div className="dashboard-spotlight-modal" onMouseDown={(event) => event.stopPropagation()}>
+                                    <div className="dashboard-spotlight-modal-head">
+                                        <div className="dashboard-spotlight-modal-title"><FiStar /> Job card</div>
+                                        <button
+                                            type="button"
+                                            className="dashboard-spotlight-close"
+                                            onClick={handleCloseRecoJob}
+                                            aria-label="Close job card"
+                                        >
+                                            <FiX />
+                                        </button>
+                                    </div>
+
+                                    <div className="dashboard-spotlight-modal-body">
+                                        <JobCard
+                                            job={selectedRecoJob}
+                                            matchPercentage={typeof selectedRecoJob.matchPercentage === 'number' ? selectedRecoJob.matchPercentage : null}
+                                            onApply={handleApplyJob}
+                                            onSave={handleSaveJob}
+                                            isSaved={savedJobIds.has(String(selectedRecoJob._id))}
+                                            showActionLabels={true}
+                                        />
+                                    </div>
+                                </div>
+                            </div>
+                        ) : null}
 
                         <section className="dashboard-metrics-grid">
                             <MetricCard
@@ -729,22 +866,8 @@ export default function Dashboard() {
                                 <div className="dashboard-opportunity-cta-copy">
                                     <h3 className="dashboard-panel-title"><FiTarget /> Opportunity Centre</h3>
                                     <p className="dashboard-opportunity-cta-subtitle">
-                                        Turn your shortlist into a clear plan: see job-fit scoring, skill gaps, deadlines, and next actions in one place.
+                                        Turn your shortlist into a clear plan. See job-fit scoring, skill gaps, deadlines, and next actions in one place.
                                     </p>
-                                    <div className="dashboard-opportunity-cta-metrics">
-                                        <div>
-                                            <span>Saved roles</span>
-                                            <strong>{stats.savedJobsCount}</strong>
-                                        </div>
-                                        <div>
-                                            <span>Recommendations</span>
-                                            <strong>{stats.recommendedJobsCount}</strong>
-                                        </div>
-                                        <div>
-                                            <span>Unread alerts</span>
-                                            <strong>{stats.notificationsCount}</strong>
-                                        </div>
-                                    </div>
                                 </div>
 
                                 <button

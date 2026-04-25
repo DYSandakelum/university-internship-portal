@@ -51,6 +51,24 @@ const userSchema = new mongoose.Schema({
     },
     resetPasswordExpire: {
         type: Date
+    },
+    notificationSettings: {
+        emailNotifications: {
+            type: Boolean,
+            default: true
+        },
+        newJobAlerts: {
+            type: Boolean,
+            default: true
+        },
+        deadlineReminders: {
+            type: Boolean,
+            default: true
+        },
+        applicationUpdates: {
+            type: Boolean,
+            default: true
+        }
     }
 }, {
     timestamps: true
@@ -59,6 +77,12 @@ const userSchema = new mongoose.Schema({
 // Encrypt password before saving
 userSchema.pre('save', async function () {
     if (!this.isModified('password')) return;
+
+    // Avoid double-hashing when upstream code already provided a bcrypt hash.
+    // Bcrypt hashes typically start with $2a$, $2b$, or $2y$.
+    if (typeof this.password === 'string' && /^\$2[aby]\$/.test(this.password)) {
+        return;
+    }
 
     const salt = await bcrypt.genSalt(10);
     this.password = await bcrypt.hash(this.password, salt);

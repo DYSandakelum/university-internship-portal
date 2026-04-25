@@ -1,16 +1,43 @@
-import React, { useState } from 'react';
+import React, { useEffect, useMemo, useState } from 'react';
 import { FiBook, FiChevronDown, FiExternalLink, FiCheckCircle, FiCircle, FiVideo, FiFileText, FiBookOpen, FiClock } from 'react-icons/fi';
 import './SkillGapPanel.css';
 
 function SkillGapPanel({ skills = [], skillMatchScore = 0 }) {
     const [expandedSkill, setExpandedSkill] = useState(null);
 
+    const normalizedSkills = useMemo(() => {
+        return (Array.isArray(skills) ? skills : []).map((skillObj) => {
+            const name = typeof skillObj === 'string' ? skillObj : skillObj?.skill;
+            const importance = typeof skillObj === 'string' ? undefined : skillObj?.importance;
+            return { name: String(name || '').trim(), importance };
+        }).filter((s) => Boolean(s.name));
+    }, [skills]);
+
+    useEffect(() => {
+        // When the selected job changes, missing skills change; collapse any previously expanded row.
+        setExpandedSkill(null);
+    }, [normalizedSkills]);
+
+    const buildLinksForSkill = (skill) => {
+        const q = encodeURIComponent(skill);
+        const qDocs = encodeURIComponent(`${skill} documentation`);
+        const qVideo = encodeURIComponent(`${skill} tutorial`);
+
+        return {
+            coursera: `https://www.coursera.org/search?query=${q}`,
+            udemy: `https://www.udemy.com/courses/search/?q=${q}`,
+            linkedin: `https://www.linkedin.com/learning/search?keywords=${q}`,
+            docs: `https://www.google.com/search?q=${qDocs}`,
+            video: `https://www.youtube.com/results?search_query=${qVideo}`
+        };
+    };
+
     const getLearningResources = (skill) => {
-        // Mock learning resources - in real app, would pull from database
+        const links = buildLinksForSkill(skill);
         return [
-            { title: `${skill} Fundamentals`, platform: 'Coursera', link: '#' },
-            { title: `Learn ${skill}`, platform: 'Udemy', link: '#' },
-            { title: `${skill} Mastery`, platform: 'LinkedIn Learning', link: '#' },
+            { title: `${skill} Fundamentals`, platform: 'Coursera', link: links.coursera },
+            { title: `Learn ${skill}`, platform: 'Udemy', link: links.udemy },
+            { title: `${skill} Mastery`, platform: 'LinkedIn Learning', link: links.linkedin }
         ];
     };
 
@@ -24,7 +51,7 @@ function SkillGapPanel({ skills = [], skillMatchScore = 0 }) {
         return 'low';
     };
 
-    if (!skills || skills.length === 0) {
+    if (!normalizedSkills || normalizedSkills.length === 0) {
         return (
             <div className="skill-gap-container">
                 <h3 className="skill-title">
@@ -41,7 +68,7 @@ function SkillGapPanel({ skills = [], skillMatchScore = 0 }) {
     return (
         <div className="skill-gap-container">
             <h3 className="skill-title">
-                <FiBook /> Missing Skills ({skills.length})
+                <FiBook /> Missing Skills ({normalizedSkills.length})
             </h3>
 
             <div className="skill-match-summary">
@@ -55,9 +82,10 @@ function SkillGapPanel({ skills = [], skillMatchScore = 0 }) {
             </div>
 
             <div className="missing-skills-list">
-                {skills.map((skillObj, index) => {
-                    const skill = typeof skillObj === 'string' ? skillObj : skillObj.skill;
+                {normalizedSkills.map((skillObj, index) => {
+                    const skill = skillObj.name;
                     const importance = skillObj.importance || getSkillPriority(skill);
+                    const links = buildLinksForSkill(skill);
                     
                     return (
                         <div
@@ -93,6 +121,8 @@ function SkillGapPanel({ skills = [], skillMatchScore = 0 }) {
                                                 key={ridx}
                                                 href={resource.link}
                                                 className="resource-item"
+                                                target="_blank"
+                                                rel="noreferrer"
                                             >
                                                 <div className="resource-info">
                                                     <p className="resource-title">{resource.title}</p>
@@ -104,12 +134,12 @@ function SkillGapPanel({ skills = [], skillMatchScore = 0 }) {
                                     </div>
 
                                     <div className="quick-links">
-                                        <button className="quick-link">
+                                        <a className="quick-link" href={links.video} target="_blank" rel="noreferrer">
                                             <FiVideo style={{ marginRight: '6px' }} /> Video Tutorial
-                                        </button>
-                                        <button className="quick-link">
+                                        </a>
+                                        <a className="quick-link" href={links.docs} target="_blank" rel="noreferrer">
                                             <FiFileText style={{ marginRight: '6px' }} /> Documentation
-                                        </button>
+                                        </a>
                                     </div>
                                 </div>
                             )}

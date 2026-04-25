@@ -18,7 +18,7 @@ function formatTimeMs(ms) {
 export default function PracticeInterviewAttempt() {
     const navigate = useNavigate();
     const { attemptId } = useParams();
-    const { ready, error: authError } = useEnsureDemoAuth();
+    const { ready, isAuthenticated, error: authError } = useEnsureDemoAuth();
 
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState('');
@@ -72,7 +72,7 @@ export default function PracticeInterviewAttempt() {
     };
 
     useEffect(() => {
-        if (!ready) return;
+        if (!ready || !isAuthenticated) return;
         if (authError) {
             setError(authError);
             return;
@@ -84,7 +84,7 @@ export default function PracticeInterviewAttempt() {
 
         loadAttempt();
         // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, [ready, authError, attemptId]);
+    }, [ready, isAuthenticated, authError, attemptId]);
 
     useEffect(() => {
         if (!attempt?.expiresAt) return;
@@ -157,7 +157,9 @@ export default function PracticeInterviewAttempt() {
 
     if (submitted) {
         const score = submitted.attempt?.score;
-        const incorrect = (submitted.review || []).filter((q) => !q.isCorrect);
+        const review = Array.isArray(submitted.review) ? submitted.review : [];
+        const incorrect = review.filter((q) => !q.isCorrect);
+        const correct = review.filter((q) => q.isCorrect);
 
         return (
             <div className="page">
@@ -184,44 +186,51 @@ export default function PracticeInterviewAttempt() {
                                 <div className="practice-score-meta">{score?.percent}%</div>
                             </div>
                             <div className="practice-score-card">
-                                <div className="practice-score-label">Incorrect</div>
-                                <div className="practice-score-value">{incorrect.length}</div>
+                                <div className="practice-score-label">Correct</div>
+                                <div className="practice-score-value">{correct.length}</div>
                                 <div className="practice-score-meta">Review below</div>
                             </div>
                         </div>
 
-                        {incorrect.length === 0 ? (
+                        {incorrect.length === 0 && (
                             <div className="practice-success">
                                 <FiCheckCircle /> Perfect score — great job!
                             </div>
-                        ) : (
-                            <div className="practice-review">
-                                {incorrect.map((q) => (
-                                    <div key={q.id} className="practice-review-item">
-                                        <div className="practice-qhead">
-                                            <div className="practice-qnum">Q{q.questionNumber}</div>
-                                            <div className="practice-qtext">{q.question}</div>
+                        )}
+
+                        <div className="practice-review" aria-label="Answer review">
+                            {review.map((q) => (
+                                <div
+                                    key={q.id}
+                                    className={`practice-review-item ${q.isCorrect ? 'correct' : 'wrong'}`}
+                                >
+                                    <div className="practice-qhead">
+                                        <div className="practice-qnum">Q{q.questionNumber}</div>
+                                        <div className="practice-qtext">{q.question}</div>
+                                    </div>
+                                    <div className="practice-qmeta">
+                                        <div>
+                                            <span className={`practice-badge ${q.isCorrect ? 'correct' : 'wrong'}`}>Your answer:</span>
+                                            <span className="practice-answer">
+                                                {q.selectedOptionIndex === null
+                                                    ? 'No answer'
+                                                    : q.options?.[q.selectedOptionIndex]}
+                                            </span>
                                         </div>
-                                        <div className="practice-qmeta">
-                                            <div>
-                                                <span className="practice-badge wrong">Your answer:</span>
-                                                <span className="practice-answer">
-                                                    {q.selectedOptionIndex === null ? 'No answer' : q.options[q.selectedOptionIndex]}
-                                                </span>
-                                            </div>
-                                            <div>
-                                                <span className="practice-badge correct">Correct:</span>
-                                                <span className="practice-answer">{q.options[q.correctOptionIndex]}</span>
-                                            </div>
-                                        </div>
-                                        <div className="practice-expl">
-                                            <div className="practice-expl-title">Why it’s wrong</div>
-                                            <div className="practice-expl-text">{q.explanation || '—'}</div>
+                                        <div>
+                                            <span className="practice-badge correct">Correct:</span>
+                                            <span className="practice-answer">{q.options?.[q.correctOptionIndex]}</span>
                                         </div>
                                     </div>
-                                ))}
-                            </div>
-                        )}
+                                    <div className="practice-expl">
+                                        <div className="practice-expl-title">
+                                            {q.isCorrect ? 'Why it’s correct' : 'Why it’s wrong'}
+                                        </div>
+                                        <div className="practice-expl-text">{q.explanation || '—'}</div>
+                                    </div>
+                                </div>
+                            ))}
+                        </div>
                     </section>
                 </div>
             </div>

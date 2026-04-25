@@ -43,6 +43,20 @@ const opportunityScoreSchema = new mongoose.Schema(
             max: 100,
             default: 0
         },
+        planCompletionScore: {
+            type: Number,
+            min: 0,
+            max: 100,
+            default: 0
+        },
+        completedPlanItems: {
+            type: Number,
+            default: 0
+        },
+        totalPlanItems: {
+            type: Number,
+            default: 0
+        },
         // Weighted composite score
         overallSuccessScore: {
             type: Number,

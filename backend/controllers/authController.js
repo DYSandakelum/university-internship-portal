@@ -19,24 +19,26 @@ const registerUser = async (req, res) => {
     try {
         const { name, email, password, role } = req.body;
 
+        const normalizedEmail = String(email || '').trim().toLowerCase();
+
         const universityEmailRegex = /^it\d{8}@my\.sliit\.lk$/;
 
         // Students must use university email
         if (role === 'student') {
-            if (!universityEmailRegex.test(email)) {
+            if (!universityEmailRegex.test(normalizedEmail)) {
                 return res.status(400).json({ message: 'Please use your university email (format: it12345678@my.sliit.lk)' });
             }
         }
 
         // Employers cannot use university email
         if (role === 'employer') {
-            if (universityEmailRegex.test(email)) {
+            if (universityEmailRegex.test(normalizedEmail)) {
                 return res.status(400).json({ message: 'Employers cannot register with a university email. Please use your company email.' });
             }
         }
 
         // Check if user already exists
-        const userExists = await User.findOne({ email });
+        const userExists = await User.findOne({ email: normalizedEmail });
         if (userExists) {
             return res.status(400).json({ message: 'User already exists with this email' });
         }
@@ -52,7 +54,7 @@ const registerUser = async (req, res) => {
         // Create user with hashed password
         const user = await User.create({
             name,
-            email,
+            email: normalizedEmail,
             password: hashedPassword,
             role,
             verificationToken,
@@ -153,8 +155,10 @@ const loginUser = async (req, res) => {
     try {
         const { email, password } = req.body;
 
+        const normalizedEmail = String(email || '').trim().toLowerCase();
+
         // Check if user exists
-        const user = await User.findOne({ email });
+        const user = await User.findOne({ email: normalizedEmail });
         if (!user) {
             return res.status(401).json({ message: 'Invalid email or password' });
         }
@@ -238,18 +242,30 @@ const demoLogin = async (req, res) => {
             await user.save();
         }
 
-        await Student.findOneAndUpdate(
-            { user: user._id },
-            {
-                $set: {
-                    user: user._id,
-                    skills: ['React', 'JavaScript', 'Node.js', 'MongoDB'],
-                    preferredLocation: 'Remote',
-                    preferredJobType: 'Internship'
-                }
-            },
-            { upsert: true, returnDocument: 'after' }
-        );
+        // Keep demo mode consistent across the whole app: seed core jobs and
+        // job-matching data (saved jobs, notifications, interview papers) for this user.
+        // This avoids a common mismatch where recommendations exist but saved jobs look empty.
+        try {
+            const { seedAllDemoData } = require('../seed/seed-all');
+            await seedAllDemoData({ studentUserId: user._id });
+        } catch (seedError) {
+            // Don't block demo login if seeding fails; user can still use the app.
+            console.warn('Demo seeding failed:', seedError?.message || seedError);
+
+            // Minimal fallback: ensure at least the student profile exists.
+            await Student.findOneAndUpdate(
+                { user: user._id },
+                {
+                    $set: {
+                        user: user._id,
+                        skills: ['React', 'JavaScript', 'Node.js', 'MongoDB'],
+                        preferredLocation: 'Remote',
+                        preferredJobType: 'Internship'
+                    }
+                },
+                { upsert: true, returnDocument: 'after' }
+            );
+        }
 
         return res.status(200).json({
             message: 'Demo login successful',

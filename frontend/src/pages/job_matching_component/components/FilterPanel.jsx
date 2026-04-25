@@ -306,8 +306,10 @@ export default function FilterPanel({ filters, onChange, onApply, embedded = fal
                         style={{ cursor: 'pointer' }}
                     >
                         <option value="">All Job Types</option>
+                        <option value="Full-time">Full-time</option>
                         <option value="Internship">Internship</option>
                         <option value="Part-time">Part-time</option>
+                        <option value="Remote">Remote</option>
                     </select>
                 </div>
 

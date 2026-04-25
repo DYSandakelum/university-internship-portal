@@ -22,6 +22,12 @@
   background: var(--pi-surface);
 }
 
+.practice-top.glass-panel {
+  border-left: 4px solid var(--accent-500);
+  background: var(--primary-50);
+  border-color: var(--primary-200);
+}
+
 .practice-top-title {
   min-width: 0;
 }
@@ -153,6 +159,12 @@
   align-items: start;
 }
 
+.practice-left {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
 .practice-setup,
 .practice-sessions {
   padding: 14px 16px;
@@ -160,6 +172,29 @@
   border: 1px solid var(--pi-border);
   background: var(--pi-surface);
   box-shadow: none;
+}
+
+.practice-help-card {
+  padding: 14px 16px;
+  border-radius: 12px;
+  border: 1px solid var(--pi-border);
+  background: var(--pi-surface);
+}
+
+.practice-help-card.glass-panel {
+  background: white;
+}
+
+.practice-setup-row {
+  display: grid;
+  grid-template-columns: 1fr auto;
+  gap: 10px;
+  align-items: end;
+  margin-top: 10px;
+}
+
+.practice-setup-field {
+  min-width: 0;
 }
 
 .practice-setup-actions {
@@ -205,6 +240,44 @@
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
+}
+
+.practice-empty {
+  border: 1px dashed var(--secondary-200);
+  background: var(--secondary-50);
+  border-radius: 12px;
+  padding: 14px;
+  display: grid;
+  grid-template-columns: auto 1fr;
+  gap: 12px;
+  align-items: start;
+  margin-bottom: 12px;
+}
+
+.practice-empty-icon {
+  width: 36px;
+  height: 36px;
+  border-radius: 10px;
+  border: 1px solid var(--primary-200);
+  background: var(--primary-50);
+  display: grid;
+  place-items: center;
+  color: var(--primary-700);
+}
+
+.practice-empty-title {
+  font-size: 13px;
+  font-weight: 900;
+  color: var(--secondary-900);
+}
+
+.practice-empty-text {
+  grid-column: 2;
+  margin-top: 4px;
+  font-size: 12px;
+  font-weight: 700;
+  color: var(--secondary-700);
+  line-height: 1.45;
 }
 
 /* Attempt panel (existing) */
@@ -509,9 +582,10 @@
 }
 
 .practice-review {
-  display: flex;
-  flex-direction: column;
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
   gap: 12px;
+  align-items: start;
 }
 
 .practice-review-item {
@@ -519,7 +593,15 @@
   background: white;
   border-radius: 14px;
   padding: 14px;
-  border-left: 4px solid var(--error-500);
+  border-left: 4px solid var(--secondary-200);
+}
+
+.practice-review-item.correct {
+  border-left-color: var(--success-500);
+}
+
+.practice-review-item.wrong {
+  border-left-color: var(--error-500);
 }
 
 .practice-qmeta {
@@ -585,6 +667,15 @@
   }
 
   .practice-layout {
+    grid-template-columns: 1fr;
+  }
+
+  .practice-setup-row {
+    grid-template-columns: 1fr;
+    align-items: stretch;
+  }
+
+  .practice-review {
     grid-template-columns: 1fr;
   }
 

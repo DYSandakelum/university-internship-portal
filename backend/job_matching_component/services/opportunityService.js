@@ -1,6 +1,7 @@
 const OpportunityScore = require('../models/OpportunityScore');
 const Job = require('../../models/Job');
 const SavedJob = require('../models/SavedJob');
+const ApplicationPlan = require('../models/ApplicationPlan');
 
 const normalizeSkill = (skill) => String(skill || '').trim().toLowerCase();
 
@@ -109,6 +110,44 @@ const calculateApplicationBehaviorScore = (applicationStats) => {
     return Math.min(100, Math.round((avgBehaviorScore / 10) * 100 + 50));
 };
 
+const getImportanceWeight = (importance) => {
+    if (importance === 'high') return 3;
+    if (importance === 'medium') return 2;
+    return 1;
+};
+
+const calculatePlanProgress = (planItems = []) => {
+    const items = Array.isArray(planItems) ? planItems : [];
+    if (items.length === 0) {
+        return {
+            totalCount: 0,
+            doneCount: 0,
+            pendingCount: 0,
+            completionPercent: 0,
+            completionBoost: 0,
+            remainingBoost: 20
+        };
+    }
+
+    const totalWeight = items.reduce((sum, item) => sum + getImportanceWeight(item?.importance), 0);
+    const doneWeight = items
+        .filter((item) => item?.status === 'done')
+        .reduce((sum, item) => sum + getImportanceWeight(item?.importance), 0);
+
+    const doneCount = items.filter((item) => item?.status === 'done').length;
+    const completionRatio = totalWeight > 0 ? doneWeight / totalWeight : 0;
+    const completionBoost = Math.round(completionRatio * 20);
+
+    return {
+        totalCount: items.length,
+        doneCount,
+        pendingCount: Math.max(0, items.length - doneCount),
+        completionPercent: Math.round(completionRatio * 100),
+        completionBoost,
+        remainingBoost: Math.max(0, 20 - completionBoost)
+    };
+};
+
 /**
  * Calculate predicted chances
  */
@@ -141,7 +180,8 @@ const generateRecommendedActions = (scoreContext) => {
         profileCompleteness,
         daysUntilDeadline,
         missingSkills,
-        applicationStatus
+        applicationStatus,
+        planProgress
     } = scoreContext;
 
     // Skill gap actions
@@ -207,6 +247,16 @@ const generateRecommendedActions = (scoreContext) => {
         });
     }
 
+    if (planProgress?.totalCount > 0 && planProgress.pendingCount > 0) {
+        actions.push({
+            action: 'Complete Planned Milestones',
+            description: `${planProgress.pendingCount} of ${planProgress.totalCount} plan tasks still pending`,
+            expectedImpact: Math.max(5, planProgress.remainingBoost),
+            priority: planProgress.pendingCount >= 2 ? 'high' : 'medium',
+            actionType: 'timing'
+        });
+    }
+
     return actions.sort((a, b) => b.priority === 'high' ? -1 : 1).slice(0, 3);
 };
 
@@ -250,46 +300,53 @@ const calculateOpportunityScore = async (studentId, jobId, userProfile = {}) => 
         const job = await Job.findById(jobId);
         if (!job) throw new Error('Job not found');
 
+        const existingOpportunity = await OpportunityScore.findOne({ studentId, jobId });
+        const applicationStatus = existingOpportunity?.applicationStatus || 'not_applied';
+        const relatedPlan = existingOpportunity
+            ? await ApplicationPlan.findOne({ studentId, opportunityId: existingOpportunity._id }).lean()
+            : null;
+        const planProgress = calculatePlanProgress(relatedPlan?.items || []);
+
         // Get user skills (would come from user profile in real scenario)
         const userSkills = userProfile.skills || [];
         
         // Calculate individual components
         const skillData = calculateSkillMatch(userSkills, job.requiredSkills || []);
         const profileComplete = calculateProfileCompleteness(userProfile);
+        const profileAdjusted = Math.min(100, profileComplete + Math.round(planProgress.completionBoost * 0.35));
         const deadlineProx = calculateDeadlineProximityScore(job.deadline);
         const employerResp = calculateEmployerResponseScore(job.company);
-        const appBehavior = calculateApplicationBehaviorScore({
+        const appBehaviorBase = calculateApplicationBehaviorScore({
             weeklyAppliedCount: userProfile.weeklyApplicationCount || 5
         });
+        const appBehavior = Math.min(100, appBehaviorBase + planProgress.completionBoost);
 
         // Calculate overall score
         const overallScore = calculateOverallScore({
             skillMatch: skillData.matchScore,
-            profileCompleteness: profileComplete,
+            profileCompleteness: profileAdjusted,
             deadlineProximity: deadlineProx,
             employerResponse: employerResp,
             applicationBehavior: appBehavior
         });
 
         // Get predicted chances
-        const predictions = calculateSuccessPrediction(overallScore, 'not_applied');
+        const predictions = calculateSuccessPrediction(overallScore, applicationStatus);
 
         // Generate actions
         const daysUntil = Math.ceil((new Date(job.deadline) - new Date()) / (1000 * 60 * 60 * 24));
         const recommendedActions = generateRecommendedActions({
             skillMatchPercentage: skillData.percentage,
-            profileCompleteness: profileComplete,
+            profileCompleteness: profileAdjusted,
             daysUntilDeadline: daysUntil,
             missingSkills: skillData.missingSkills,
-            applicationStatus: 'not_applied'
+            applicationStatus,
+            planProgress
         });
 
-        // Create opportunity score record
-        const opportunityScore = new OpportunityScore({
-            studentId,
-            jobId,
+        const payload = {
             skillMatchScore: skillData.matchScore,
-            profileCompletenessScore: profileComplete,
+            profileCompletenessScore: profileAdjusted,
             deadlineProximityScore: deadlineProx,
             employerResponseScore: employerResp,
             applicationBehaviorScore: appBehavior,
@@ -303,11 +360,28 @@ const calculateOpportunityScore = async (studentId, jobId, userProfile = {}) => 
             deadlineDate: job.deadline,
             daysUntilDeadline: daysUntil,
             deadlineStatus: getDeadlineStatus(job.deadline),
-            successPrediction: predictions
+            successPrediction: predictions,
+            planCompletionScore: planProgress.completionPercent,
+            completedPlanItems: planProgress.doneCount,
+            totalPlanItems: planProgress.totalCount,
+            lastInteraction: new Date()
+        };
+
+        if (existingOpportunity) {
+            Object.assign(existingOpportunity, payload);
+            await existingOpportunity.save();
+            return await existingOpportunity.populate('jobId');
+        }
+
+        const opportunityScore = new OpportunityScore({
+            studentId,
+            jobId,
+            ...payload,
+            applicationStatus
         });
 
         await opportunityScore.save();
-        return opportunityScore;
+        return await opportunityScore.populate('jobId');
     } catch (error) {
         console.error('Error calculating opportunity score:', error);
         throw error;

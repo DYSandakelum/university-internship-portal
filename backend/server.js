@@ -1,4 +1,5 @@
 const express = require('express');
+const http = require('http');
 const dotenv = require('dotenv');
 const cors = require('cors');
 const path = require('path');
@@ -7,6 +8,7 @@ const { initializeDeadlineScheduler } = require('./job_matching_component/servic
 const { seedAllDemoData } = require('./seed/seed-all');
 const bcrypt = require('bcryptjs');
 const User = require('./models/User');
+const { initRealtime } = require('./realtime/socket');
 
 // Load environment variables
 dotenv.config({ path: path.resolve(__dirname, '../.env') });
@@ -19,6 +21,7 @@ if (!process.env.NODE_ENV && process.env.npm_lifecycle_event === 'dev') {
 
 // Initialize Express app
 const app = express();
+const httpServer = http.createServer(app);
 
 const configuredOrigins = (process.env.CLIENT_URL || '')
     .split(',')
@@ -76,21 +79,22 @@ const PORT = process.env.PORT || 5000;
 let server;
 
 const bootstrapDevUser = async () => {
-    if (!connectDB.usingInMemory) return;
+    const devBootstrapDisabled = String(process.env.DEV_BOOTSTRAP_DISABLED || '').toLowerCase() === 'true';
+    if (process.env.NODE_ENV === 'production' || devBootstrapDisabled) return;
 
-    const email = process.env.DEV_BOOTSTRAP_EMAIL || 'it23716346@my.sliit.lk';
-    const password = process.env.DEV_BOOTSTRAP_PASSWORD || '000000';
+    const email = String(process.env.DEV_BOOTSTRAP_EMAIL || 'it23716346@my.sliit.lk')
+        .trim()
+        .toLowerCase();
+    const password = String(process.env.DEV_BOOTSTRAP_PASSWORD || '000000');
     const name = process.env.DEV_BOOTSTRAP_NAME || 'Dev Student';
-
-    const salt = await bcrypt.genSalt(10);
-    const hashedPassword = await bcrypt.hash(password, salt);
 
     const existing = await User.findOne({ email });
     if (!existing) {
         const created = await User.create({
             name,
             email,
-            password: hashedPassword,
+            // Set plain password; model pre-save will hash once.
+            password,
             role: 'student',
             isVerified: true
         });
@@ -100,7 +104,8 @@ const bootstrapDevUser = async () => {
         existing.name = existing.name || name;
         existing.role = existing.role || 'student';
         existing.isVerified = true;
-        existing.password = hashedPassword;
+        // Force-reset to the known dev password so the documented login always works.
+        existing.password = password;
         await existing.save();
 
         return existing;
@@ -126,8 +131,9 @@ const startServer = async () => {
         console.log('Demo data seeded');
     }
 
-    server = app.listen(PORT, () => {
+    server = httpServer.listen(PORT, () => {
         console.log(`Server running on port ${PORT}`);
+        initRealtime({ server: httpServer, corsOrigins: configuredOrigins });
         initializeDeadlineScheduler();
     });
 

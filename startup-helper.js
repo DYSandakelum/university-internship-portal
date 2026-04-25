@@ -11,15 +11,30 @@ const BACKEND_STARTUP_TIMEOUT_MS =
     Number.parseInt(process.env.BACKEND_STARTUP_TIMEOUT_MS, 10) || 180000;
 const MAX_RETRIES = Math.max(1, Math.ceil(BACKEND_STARTUP_TIMEOUT_MS / RETRY_INTERVAL));
 let retryCount = 0;
+let backendProcess = null;
+let backendManagedByHelper = false;
 
 console.log('🚀 Starting CareerSync Backend...');
 
-// Start backend process
-const backendProcess = spawn('npm', ['--prefix', 'backend', 'run', 'dev'], {
-    stdio: 'inherit',
-    shell: true,
-    cwd: __dirname
-});
+function startBackendProcess() {
+    backendProcess = spawn('npm', ['--prefix', 'backend', 'run', 'dev'], {
+        stdio: 'inherit',
+        shell: true,
+        cwd: __dirname,
+        env: {
+            ...process.env,
+            // Ensure dev defaults for the backend when using the workspace dev script.
+            // This enables the in-memory DB fallback in `backend/config/db.js` when local Mongo isn't running.
+            NODE_ENV: process.env.NODE_ENV || 'development'
+        }
+    });
+    backendManagedByHelper = true;
+
+    backendProcess.on('error', (error) => {
+        console.error('Backend process error:', error);
+        process.exit(1);
+    });
+}
 
 // Function to check if backend is ready
 function checkBackendReady() {
@@ -34,11 +49,9 @@ function checkBackendReady() {
         };
 
         const req = http.request(options, (res) => {
-            if (res.statusCode === 200) {
-                resolve(true);
-            } else {
-                resolve(false);
-            }
+            // Backend is considered "ready" as soon as it can accept HTTP connections.
+            // Don't require a 200 here because many APIs return 404 at '/'.
+            resolve(true);
         });
 
         req.on('error', () => {
@@ -79,7 +92,15 @@ async function waitForBackend() {
 
 // Start frontend process
 async function startFrontend() {
-    const isReady = await waitForBackend();
+    const alreadyRunning = await checkBackendReady();
+
+    if (alreadyRunning) {
+        console.log(`✅ Backend already running on port ${BACKEND_PORT}. Reusing it.`);
+    } else {
+        startBackendProcess();
+    }
+
+    const isReady = alreadyRunning || await waitForBackend();
     if (isReady) {
         const preferredPort = Number.parseInt(process.env.FRONTEND_PORT, 10);
         const basePort = Number.isFinite(preferredPort) ? preferredPort : FRONTEND_DEFAULT_PORT;
@@ -92,7 +113,9 @@ async function startFrontend() {
             cwd: __dirname,
             env: {
                 ...process.env,
-                PORT: String(frontendPort)
+                PORT: String(frontendPort),
+                // CRA respects this env var; default to Chrome per request.
+                BROWSER: process.env.BROWSER || 'chrome'
             }
         });
 
@@ -103,7 +126,9 @@ async function startFrontend() {
 
         frontendProcess.on('exit', (code) => {
             console.log('Frontend stopped');
-            backendProcess.kill();
+            if (backendManagedByHelper && backendProcess) {
+                backendProcess.kill();
+            }
             process.exit(code);
         });
     }
@@ -138,18 +163,17 @@ async function findAvailablePort(startPort, endPort) {
 // Handle process termination
 process.on('SIGINT', () => {
     console.log('\n🛑 Shutting down...');
-    backendProcess.kill();
+    if (backendManagedByHelper && backendProcess) {
+        backendProcess.kill();
+    }
     process.exit(0);
-});
-
-backendProcess.on('error', (error) => {
-    console.error('Backend process error:', error);
-    process.exit(1);
 });
 
 // Start the startup sequence
 startFrontend().catch(error => {
     console.error('Startup error:', error);
-    backendProcess.kill();
+    if (backendManagedByHelper && backendProcess) {
+        backendProcess.kill();
+    }
     process.exit(1);
 });

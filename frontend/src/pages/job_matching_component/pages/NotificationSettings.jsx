@@ -166,7 +166,7 @@ function StatusMessage({ saving, message, error }) {
 
 export default function NotificationSettings() {
     const navigate = useNavigate();
-    const { ready, error: authError } = useEnsureDemoAuth();
+    const { ready, isAuthenticated, error: authError } = useEnsureDemoAuth();
     const [settings, setSettings] = useState({
         emailNotifications: true,
         newJobAlerts: true,
@@ -202,8 +202,8 @@ export default function NotificationSettings() {
             }
         };
 
-        if (ready) load();
-    }, [ready]);
+        if (ready && isAuthenticated) load();
+    }, [ready, isAuthenticated]);
 
     const toggle = (key) => {
         setSettings((prev) => ({ ...prev, [key]: !prev[key] }));

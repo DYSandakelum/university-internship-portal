@@ -6,13 +6,16 @@ function ScoreGauge({ opportunity }) {
     if (!opportunity) return null;
 
     const score = opportunity.overallSuccessScore || 0;
+    const planCompletion = opportunity.planCompletionScore || 0;
+    const completedPlanItems = opportunity.completedPlanItems || 0;
+    const totalPlanItems = opportunity.totalPlanItems || 0;
     const strokeOffset = 440 - (score / 100) * 440; // Circumference is 440px
 
     // Determine color based on score
     const getScoreColor = (s) => {
-        if (s >= 75) return '#10b981'; // success green
-        if (s >= 50) return '#f59e0b'; // warning orange
-        return '#ef4444'; // error red
+        if (s >= 75) return 'var(--color-success)';
+        if (s >= 50) return 'var(--color-warning)';
+        return 'var(--color-error)';
     };
 
     const getScoreLabel = (s) => {
@@ -149,6 +152,22 @@ function ScoreGauge({ opportunity }) {
                                 style={{ 
                                     width: `${opportunity.applicationBehaviorScore}%`,
                                     background: 'var(--warning-500)'
+                                }}
+                            ></div>
+                        </div>
+                    </div>
+
+                    <div className="component-bar">
+                        <div className="component-label">
+                            <span>Plan Completion ({completedPlanItems}/{totalPlanItems})</span>
+                            <span className="component-percent">{planCompletion}%</span>
+                        </div>
+                        <div className="component-progress">
+                            <div
+                                className="component-fill"
+                                style={{
+                                    width: `${planCompletion}%`,
+                                    background: 'var(--success-500)'
                                 }}
                             ></div>
                         </div>

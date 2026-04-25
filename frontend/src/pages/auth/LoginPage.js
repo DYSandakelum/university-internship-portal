@@ -6,8 +6,9 @@ const LoginPage = () => {
     const [formData, setFormData] = useState({ email: '', password: '' });
     const [error, setError] = useState('');
     const [loading, setLoading] = useState(false);
+    const [demoLoading, setDemoLoading] = useState(false);
 
-    const { login } = useAuth();
+    const { login, demoLogin } = useAuth();
     const navigate = useNavigate();
 
     const handleChange = (e) => {
@@ -31,6 +32,21 @@ const LoginPage = () => {
             setError(error.response?.data?.message || 'Login failed. Please try again.');
         } finally {
             setLoading(false);
+        }
+    };
+
+    const handleDemoLogin = async () => {
+        setError('');
+        setDemoLoading(true);
+        try {
+            const data = await demoLogin();
+            if (data.user.role === 'student') navigate('/student/dashboard');
+            else if (data.user.role === 'employer') navigate('/employer/dashboard');
+            else if (data.user.role === 'admin') navigate('/admin/dashboard');
+        } catch (error) {
+            setError(error.response?.data?.message || 'Demo login failed. Please try again.');
+        } finally {
+            setDemoLoading(false);
         }
     };
 
@@ -72,6 +88,15 @@ const LoginPage = () => {
                                 style={{marginTop: '4px'}}
                                 disabled={loading}>
                                 {loading ? 'Signing in...' : 'Sign In'}
+                            </button>
+
+                            <button
+                                type="button"
+                                className="btn btn-full btn-lg btn-secondary"
+                                onClick={handleDemoLogin}
+                                disabled={demoLoading || loading}
+                            >
+                                {demoLoading ? 'Starting demo...' : 'Demo Login'}
                             </button>
                         </form>
 

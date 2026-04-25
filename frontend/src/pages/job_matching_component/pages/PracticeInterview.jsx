@@ -9,7 +9,7 @@ import { getInterviewPapers, getInterviewRoles, startInterviewAttempt } from '..
 
 export default function PracticeInterview() {
     const navigate = useNavigate();
-    const { ready, error: authError } = useEnsureDemoAuth();
+    const { ready, isAuthenticated, error: authError } = useEnsureDemoAuth();
 
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState('');
@@ -21,7 +21,7 @@ export default function PracticeInterview() {
     const roleOptions = useMemo(() => roles.map((r) => ({ value: r, label: r })), [roles]);
 
     useEffect(() => {
-        if (!ready) return;
+        if (!ready || !isAuthenticated) return;
         if (authError) {
             setError(authError);
             return;
@@ -48,10 +48,10 @@ export default function PracticeInterview() {
         return () => {
             cancelled = true;
         };
-    }, [ready, authError]);
+    }, [ready, isAuthenticated, authError]);
 
     useEffect(() => {
-        if (!ready) return;
+        if (!ready || !isAuthenticated) return;
         if (!role) {
             setPapers([]);
             return;
@@ -79,7 +79,7 @@ export default function PracticeInterview() {
         return () => {
             cancelled = true;
         };
-    }, [ready, role]);
+    }, [ready, isAuthenticated, role]);
 
     const onStartPaper = async (paperNumber) => {
         setLoading(true);
@@ -101,7 +101,7 @@ export default function PracticeInterview() {
         <div className="page practice-page">
             <div className="container">
                 <BackToDashboardButton />
-                <header className="practice-top">
+                <header className="practice-top glass-panel">
                     <div className="practice-top-title">
                         <h2 className="practice-h2"><FiEdit3 /> Practice Interview Sessions</h2>
                         <p className="practice-subtitle">Select a role and start a timed MCQ paper.</p>
@@ -121,39 +121,43 @@ export default function PracticeInterview() {
                 )}
 
                 <section className="practice-layout">
-                    <aside className="practice-setup glass-panel">
-                        <div className="practice-section-title">Setup</div>
+                    <aside className="practice-left" aria-label="Setup and help">
+                        <div className="practice-setup glass-panel">
+                            <div className="practice-section-title">Setup</div>
 
-                        <label className="practice-label" htmlFor="practice-role">Choose role</label>
-                        <select
-                            id="practice-role"
-                            className="practice-select"
-                            value={role}
-                            onChange={(e) => setRole(e.target.value)}
-                            disabled={loading || !ready}
-                        >
-                            <option value="">Select a role...</option>
-                            {roleOptions.map((opt) => (
-                                <option key={opt.value} value={opt.value}>{opt.label}</option>
-                            ))}
-                        </select>
+                            <div className="practice-setup-row">
+                                <div className="practice-setup-field">
+                                    <label className="practice-label" htmlFor="practice-role">Choose role</label>
+                                    <select
+                                        id="practice-role"
+                                        className="practice-select"
+                                        value={role}
+                                        onChange={(e) => setRole(e.target.value)}
+                                        disabled={loading || !ready}
+                                    >
+                                        <option value="">Select a role...</option>
+                                        {roleOptions.map((opt) => (
+                                            <option key={opt.value} value={opt.value}>{opt.label}</option>
+                                        ))}
+                                    </select>
+                                </div>
 
-                        <div className="practice-setup-actions">
-                            <button
-                                className="practice-refresh"
-                                onClick={() => {
-                                    setRole('');
-                                    setPapers([]);
-                                    setError('');
-                                }}
-                                disabled={loading}
-                                title="Reset selection"
-                            >
-                                <FiRotateCw /> Reset
-                            </button>
+                                <button
+                                    className="practice-refresh"
+                                    onClick={() => {
+                                        setRole('');
+                                        setPapers([]);
+                                        setError('');
+                                    }}
+                                    disabled={loading}
+                                    title="Reset selection"
+                                >
+                                    <FiRotateCw /> Reset
+                                </button>
+                            </div>
                         </div>
 
-                        <div className="practice-help">
+                        <div className="practice-help-card glass-panel">
                             <div className="practice-help-title">How it works</div>
                             <ul className="practice-help-list">
                                 <li>Pick a role to load available papers.</li>
@@ -167,11 +171,17 @@ export default function PracticeInterview() {
                         <div className="practice-sessions-head">
                             <div className="practice-section-title">Sessions</div>
                             <div className="practice-sessions-meta">
-                                {role ? `Role: ${role}` : 'Select a role to view papers'}
+                                {role ? `Role: ${role} • Papers: ${papers.length}` : 'Select a role to view papers'}
                             </div>
                         </div>
 
-                        {!role && <p className="practice-muted">Choose a role to see available papers.</p>}
+                        {!role && (
+                            <div className="practice-empty" role="status">
+                                <div className="practice-empty-icon"><FiEdit3 /></div>
+                                <div className="practice-empty-title">Choose a role to see available papers</div>
+                                <div className="practice-empty-text">Start a timed paper and get an instant review after submission.</div>
+                            </div>
+                        )}
                         {role && papers.length === 0 && !loading && (
                             <p className="practice-muted">No papers found for this role yet.</p>
                         )}

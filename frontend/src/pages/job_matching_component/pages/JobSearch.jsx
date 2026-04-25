@@ -7,6 +7,7 @@ import FilterPanel from '../components/FilterPanel';
 import JobCard from '../components/JobCard';
 import BackToDashboardButton from '../components/BackToDashboardButton';
 import { getSavedJobs, saveJob, searchJobs } from '../../../services/jobService';
+import useJobMatchingRealtime from '../hooks/useJobMatchingRealtime';
 import '../styles/JobMatchingLayout.css';
 import '../styles/JobMatchingControls.css';
 
@@ -161,7 +162,7 @@ export default function JobSearch() {
             case 'salary-low':
                 return sorted.sort((a, b) => (a.salary || 0) - (b.salary || 0));
             case 'deadline':
-                return sorted.sort((a, b) => new Date(a.applicationDeadline || '9999-12-31') - new Date(b.applicationDeadline || '9999-12-31'));
+                return sorted.sort((a, b) => new Date(a.deadline || a.applicationDeadline || '9999-12-31') - new Date(b.deadline || b.applicationDeadline || '9999-12-31'));
             default:
                 return sorted;
         }
@@ -177,6 +178,21 @@ export default function JobSearch() {
             setError(e?.response?.data?.message || 'Unable to load jobs');
         } finally {
             setLoading(false);
+        }
+    }, []);
+
+    const loadSaved = useCallback(async () => {
+        if (!localStorage.getItem('token')) {
+            setSavedJobIds(new Set());
+            return;
+        }
+
+        try {
+            const saved = await getSavedJobs();
+            const ids = new Set((saved || []).map((s) => String(s.jobId?._id || s.jobId)));
+            setSavedJobIds(ids);
+        } catch {
+            // ignore (likely not logged in)
         }
     }, []);
 
@@ -198,17 +214,24 @@ export default function JobSearch() {
     }, [location.search, parseUrlState, runSearch]);
 
     useEffect(() => {
-        const loadSaved = async () => {
-            try {
-                const saved = await getSavedJobs();
-                const ids = new Set((saved || []).map((s) => String(s.jobId?._id || s.jobId)));
-                setSavedJobIds(ids);
-            } catch {
-                // ignore (likely not logged in)
-            }
-        };
         loadSaved();
-    }, []);
+    }, [loadSaved]);
+
+    useJobMatchingRealtime((packet) => {
+        const entity = packet?.entity;
+        if (!['saved_jobs', 'opportunity', 'notifications'].includes(entity)) return;
+
+        const next = parseUrlState(location.search);
+        runSearch({
+            q: next.q,
+            jobType: next.filters.jobType || undefined,
+            location: next.filters.location || undefined,
+            minSalary: next.filters.minSalary || undefined,
+            maxSalary: next.filters.maxSalary || undefined,
+            sortBy: next.sortBy
+        });
+        loadSaved();
+    });
 
     const handleSave = async (job) => {
         try {
