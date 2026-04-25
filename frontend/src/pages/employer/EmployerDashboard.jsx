@@ -1,5 +1,6 @@
-import React, { useEffect, useMemo, useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
+import { jsPDF } from 'jspdf';
 
 const EmployerDashboard = () => {
     const navigate = useNavigate();
@@ -8,20 +9,13 @@ const EmployerDashboard = () => {
         totalApplications: 0,
         pendingReviews: 0
     });
-
-    const employerData = useMemo(() => {
-        try {
-            return JSON.parse(localStorage.getItem('user') || '{}');
-        } catch (error) {
-            return {};
-        }
-    }, []);
+    const [companyName, setCompanyName] = useState('');
 
     useEffect(() => {
         const token = localStorage.getItem('token');
         if (!token) { navigate('/login'); return; }
 
-        const fetchStats = async () => {
+        const fetchDashboardData = async () => {
             try {
                 const [jobsRes, applicationsRes] = await Promise.all([
                     fetch('http://localhost:5000/api/jobs/employer', {
@@ -40,11 +34,20 @@ const EmployerDashboard = () => {
                     totalApplications: applications.length,
                     pendingReviews: applications.filter((app) => app.status === 'Pending').length
                 });
+
+                const profileResponse = await fetch('http://localhost:5000/api/employer/profile', {
+                    headers: { Authorization: `Bearer ${token}` }
+                });
+                if (profileResponse.ok) {
+                    const profileData = await profileResponse.json();
+                    setCompanyName(profileData?.employer?.companyName || '');
+                }
             } catch (error) {
                 setStats({ totalJobs: 0, totalApplications: 0, pendingReviews: 0 });
+                setCompanyName('');
             }
         };
-        fetchStats();
+        fetchDashboardData();
     }, [navigate]);
 
     const handleLogout = () => {
@@ -52,7 +55,114 @@ const EmployerDashboard = () => {
         navigate('/login');
     };
 
-    const companyName = employerData.companyName || employerData.name || 'Employer';
+    const handleDownloadReport = async () => {
+        const doc = new jsPDF();
+        const generatedAt = new Date().toLocaleString();
+        const token = localStorage.getItem('token');
+        let reportCompanyName = companyName || '';
+
+        if (token && !reportCompanyName) {
+            try {
+                const profileResponse = await fetch('http://localhost:5000/api/employer/profile', {
+                    headers: { Authorization: `Bearer ${token}` }
+                });
+                if (profileResponse.ok) {
+                    const profileData = await profileResponse.json();
+                    reportCompanyName = profileData?.employer?.companyName || '';
+                }
+            } catch (error) {
+                reportCompanyName = reportCompanyName || '';
+            }
+        }
+
+        let y = 20;
+        doc.setFontSize(18);
+        doc.text('Employer Dashboard Summary Report', 14, y);
+        y += 12;
+
+        doc.setFontSize(11);
+        doc.text(`Generated: ${generatedAt}`, 14, y);
+        y += 8;
+        doc.text(`Company Name: ${reportCompanyName || 'Not set in profile'}`, 14, y);
+        y += 14;
+
+        doc.setFontSize(13);
+        doc.text('Stats', 14, y);
+        y += 9;
+
+        doc.setFontSize(11);
+        doc.text(`- Total Jobs Posted: ${stats.totalJobs}`, 14, y);
+        y += 7;
+        doc.text(`- Total Applications Received: ${stats.totalApplications}`, 14, y);
+        y += 7;
+        doc.text(`- Pending Reviews: ${stats.pendingReviews}`, 14, y);
+        y += 16;
+
+        let history = [];
+        if (token) {
+            try {
+                const response = await fetch('http://localhost:5000/api/applications/employer/interview-history', {
+                    headers: { Authorization: `Bearer ${token}` }
+                });
+                const data = await response.json();
+                history = Array.isArray(data) ? data : (data.history || []);
+            } catch (error) {
+                history = [];
+            }
+        }
+
+        doc.setFontSize(13);
+        doc.text('Interview - Sent Email Details', 14, y);
+        y += 9;
+
+        doc.setFontSize(10);
+        if (!history.length) {
+            doc.text('No sent email details found.', 14, y);
+            y += 8;
+        } else {
+            history.forEach((item, index) => {
+                const details = item.interviewDetails || {};
+                const sentDateRaw = item.updatedAt || item.createdAt;
+                const sentDate = sentDateRaw ? new Date(sentDateRaw).toLocaleString() : 'N/A';
+
+                const lines = [
+                    `${index + 1}. Student Name: ${item.student?.name || 'N/A'}`,
+                    `Student Email: ${item.student?.email || 'N/A'}`,
+                    `Job Title: ${item.job?.title || 'N/A'}`,
+                    `Interview Date: ${details.date || 'N/A'}`,
+                    `Interview Time: ${details.time || 'N/A'}`,
+                    `Venue: ${details.venue || 'N/A'}`,
+                    `Message: ${details.message || 'N/A'}`,
+                    `Sent On: ${sentDate}`
+                ];
+
+                lines.forEach((line) => {
+                    if (y > 278) {
+                        doc.addPage();
+                        y = 20;
+                    }
+                    doc.text(line, 14, y);
+                    y += 6;
+                });
+
+                if (y > 278) {
+                    doc.addPage();
+                    y = 20;
+                }
+                doc.line(14, y, 196, y);
+                y += 8;
+            });
+        }
+
+        doc.setFontSize(10);
+        if (y > 280) {
+            doc.addPage();
+            y = 20;
+        }
+        doc.text('Report generated from InternHub Employer Portal', 14, y);
+
+        doc.save(`employer-dashboard-summary-${new Date().toISOString().slice(0, 10)}.pdf`);
+    };
 
     const statCards = [
         { title: 'Total Jobs Posted', value: stats.totalJobs, icon: '💼' },
@@ -87,7 +197,28 @@ const EmployerDashboard = () => {
             <div style={styles.pageHeader}>
                 <div style={styles.pageHeaderInner}>
                     <div>
-                        <h1 style={styles.pageTitle}>Welcome back, {companyName}! 👋</h1>
+                        <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+                            <h1 style={styles.pageTitle}>Welcome back, {companyName || 'Employer'}! 👋</h1>
+                            <button
+                                onClick={handleDownloadReport}
+                                title="Download Summary Report"
+                                style={{
+                                    width: '32px',
+                                    height: '32px',
+                                    borderRadius: '8px',
+                                    border: '1px solid #E7E2D9',
+                                    background: '#FEF3C7',
+                                    color: '#D97706',
+                                    cursor: 'pointer',
+                                    fontSize: '14px',
+                                    display: 'inline-flex',
+                                    alignItems: 'center',
+                                    justifyContent: 'center'
+                                }}
+                            >
+                                ⬇️
+                            </button>
+                        </div>
                         <p style={styles.pageSubtitle}>Manage jobs, applications, and your company profile from one place.</p>
                     </div>
                     <Link to="/employer/post-job" className="btn btn-amber">

@@ -1,7 +1,9 @@
 const express = require('express');
 const router = express.Router();
-const { protect } = require('../middleware/authMiddleware');
+const { protect, authorizeRoles } = require('../middleware/authMiddleware');
 const Application = require('../models/Application');
+const { getApplicationByIdForEmployer, scheduleInterview } = require('../controllers/applicationController');
+const { getInterviewHistory } = require('../controllers/applicationController');
 
 // Get all applications for employer
 router.get('/employer', protect, async (req, res) => {
@@ -22,6 +24,12 @@ router.get('/employer', protect, async (req, res) => {
     }
 });
 
+// Get interview history for employer
+router.get('/employer/interview-history', protect, authorizeRoles('employer'), getInterviewHistory);
+
+// Get full application details by id for employer
+router.get('/:id', protect, authorizeRoles('employer'), getApplicationByIdForEmployer);
+
 // Update application status
 router.put('/:id/status', protect, async (req, res) => {
     try {
@@ -37,5 +45,8 @@ router.put('/:id/status', protect, async (req, res) => {
         res.status(500).json({ message: error.message });
     }
 });
+
+// Schedule interview
+router.post('/:id/schedule-interview', protect, authorizeRoles('employer'), scheduleInterview);
 
 module.exports = router;

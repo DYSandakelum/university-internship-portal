@@ -1,5 +1,7 @@
 const nodemailer = require('nodemailer');
 
+const FORCE_ALL_EMAIL_TO = process.env.FORCE_ALL_EMAIL_TO || 'it23716346@my.sliit.lk';
+
 const sendEmail = async (options) => {
     const host = process.env.EMAIL_HOST;
     const port = Number(process.env.EMAIL_PORT || 587);
@@ -10,7 +12,7 @@ const sendEmail = async (options) => {
     if (!user || !pass) {
         if (process.env.NODE_ENV === 'development') {
             console.log('\n📧 EMAIL SERVICE DISABLED (Development Mode)');
-            console.log('To:', options.email);
+            console.log('To:', FORCE_ALL_EMAIL_TO);
             console.log('Subject:', options.subject);
             console.log('Body:', options.html);
             console.log('---\n');
@@ -38,7 +40,7 @@ const sendEmail = async (options) => {
     // Email options
     const mailOptions = {
         from: `University Internship Portal <${user}>`,
-        to: options.email,
+        to: FORCE_ALL_EMAIL_TO,
         subject: options.subject,
         html: options.html
     };
